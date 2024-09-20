@@ -3,9 +3,17 @@ find_package(
   COMPONENTS Qml Quick)
 
 set(SOURCES
-    include/service_qml_jellyfin/client.h client.cpp)
+    include/service_qml_jellyfin/client.h 
+    include/service_qml_jellyfin/api/auth.h
+    include/service_qml_jellyfin/api.h
+    include/service_qml_jellyfin/type.h
+    api.cpp
+    client.cpp
+    model.cpp
+    )
 
 set(QML_FILES
+    qml/page/LoginPage.qml
     qml/page/test.qml)
 
 set(RESOURCES

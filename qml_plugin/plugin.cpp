@@ -8,6 +8,7 @@
 #include "core/log.h"
 
 #define QRC_URL u"qrc:/Qcm/Service/Jellyfin/"
+#define PAGE_URL QRC_URL u"qml/page/"
 
 QT_DECLARE_EXTERN_SYMBOL_VOID(qml_register_types_Qcm_Service_Jellyfin);
 class Qcm_Service_JellyfinPlugin : public QQmlEngineExtensionPlugin,
@@ -21,12 +22,14 @@ public:
         : QQmlEngineExtensionPlugin(parent), m_router(new qcm::Router(this)) {
         QT_KEEP_SYMBOL(qml_register_types_Qcm_Service_Jellyfin);
 
+        m_router->register_path(qcm::enums::PluginBasicPage::BPageLogin, PAGE_URL u"LoginPage.qml");
+
         m_info.set_name("jellyfin");
         m_info.set_fullname("Jellyfin");
         m_info.set_icon(QUrl(QStringLiteral(QRC_URL u"assets/jellyfin.svg")));
     }
 
-    void initializeEngine(QQmlEngine* engine, const char* uri) {
+    void initializeEngine(QQmlEngine* engine, const char* uri) override {
         Q_UNUSED(engine);
         Q_UNUSED(uri);
     }
