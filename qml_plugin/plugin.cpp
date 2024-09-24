@@ -3,11 +3,12 @@
 #include <QtQml/qqmlengine.h>
 
 #include <iostream>
+#include "core/log.h"
 #include "qcm_interface/plugin.h"
 #include "qcm_interface/enum.h"
-#include "core/log.h"
+#include "qcm_interface/model/page.h"
 
-#define QRC_URL u"qrc:/Qcm/Service/Jellyfin/"
+#define QRC_URL  u"qrc:/Qcm/Service/Jellyfin/"
 #define PAGE_URL QRC_URL u"qml/page/"
 
 QT_DECLARE_EXTERN_SYMBOL_VOID(qml_register_types_Qcm_Service_Jellyfin);
@@ -36,6 +37,10 @@ public:
 
     auto router() -> qcm::Router* override { return m_router; }
     auto info() -> const qcm::model::PluginInfo& override { return m_info; }
+    auto main_pages() -> std::vector<qcm::model::Page> override {
+        return { qcm::model::Page {
+            "library_music", "library", QStringLiteral(PAGE_URL "MinePage.qml"), true } };
+    }
 
 private:
     qcm::Router*           m_router;

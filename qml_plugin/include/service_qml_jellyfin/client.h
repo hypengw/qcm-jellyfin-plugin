@@ -56,7 +56,7 @@ public:
                 DEBUG_LOG("{}", convert_from<std::string>(res));
                 return parse<TApi>(res);
             })
-            .map_error([&api](auto err) {
+            .transform_error([&api](auto err) {
                 return Error::push(err, api::format_api(api.path(), api.query(), api.body()));
             });
     }

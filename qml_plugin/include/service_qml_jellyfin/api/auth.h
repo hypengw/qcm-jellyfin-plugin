@@ -3,6 +3,8 @@
 #include <QQmlEngine>
 #include "service_qml_jellyfin/api.h"
 #include "jellyfin/api/OAIUserApi.h"
+#include "qcm_interface/global.h"
+#include "qcm_interface/model/user_model.h"
 
 #include "core/log.h"
 #include "core/qstr_helper.h"
@@ -17,35 +19,34 @@ class Auth : public QObject {
     Q_OBJECT
 public:
     Auth(QObject* parent = nullptr): QObject(parent) {}
-    // using out_type = ncm::api_model::Auth;
-
-    READ_PROPERTY(qint32, code, m_code, infoChanged)
-
-signals:
-    void infoChanged();
 };
 
 } // namespace model
 
-class AuthQuerier;
-} // namespace jellyfin_qml
-
-namespace qcm
-{
-template<>
-inline void api_traits<jellyfin_qml::AuthQuerier>::handle_output() {}
-} // namespace qcm
-
-namespace jellyfin_qml
-{
-
 using AuthQuerier_base = ApiQuerier<jellyfin::api::authenticateUserByName, model::Auth>;
+
+template<>
+inline void AuthQuerier_base::helper_type::handle_output(const api_type&, model_type&,
+                                                         const out_type& in) {
+    detail::get_client().set_token(in.AccessToken);
+    auto               user = new qcm::model::UserAccount;
+    qcm::model::ItemId id;
+    id.set_id(convert_from<QString>(fmt::format("{}", in.User->Id)));
+    id.set_provider(provider_name);
+    user->set_userId(id);
+    user->set_token(convert_from<QString>(in.AccessToken.value_or("")));
+    qcm::Global::instance()->user_model()->check_user(user);
+}
+
 class AuthQuerier : public AuthQuerier_base {
     Q_OBJECT
     QML_ELEMENT
     Q_PROPERTY(QUrl server READ server WRITE set_server NOTIFY serverChanged FINAL)
 public:
-    AuthQuerier(QObject* parent = nullptr): AuthQuerier_base(parent) { set_autoReload(false); }
+    using base_type = AuthQuerier_base;
+
+    AuthQuerier(QObject* parent = nullptr): base_type(parent) { set_autoReload(false); }
+
     FORWARD_PROPERTY(QString, username, body.Username)
     FORWARD_PROPERTY(QString, password, body.Pw)
 
@@ -57,9 +58,9 @@ public:
     }
 
     void reload() override {
-        auto c   = client();
+        auto c = client();
         c.set_base(convert_from<std::string>(m_server.toString()));
-        AuthQuerier_base::reload();
+        base_type::reload();
     }
 
 Q_SIGNALS:
@@ -68,4 +69,5 @@ Q_SIGNALS:
 private:
     QUrl m_server;
 };
+
 } // namespace jellyfin_qml

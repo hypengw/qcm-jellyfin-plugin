@@ -26,4 +26,12 @@ concept ApiCP_Header = requires(T t) {
 
 constexpr auto provider_name { "jellyfin"sv };
 
+template<typename TApi, typename TModel>
+struct querier_helper {
+    using api_type   = TApi;
+    using model_type = TModel;
+    using out_type   = typename TApi::out_type;
+    static void handle_output(const api_type& api, model_type& model, const out_type& in);
+};
+
 } // namespace jellyfin_qml

@@ -14,10 +14,11 @@ auto get_client() -> jellyfin::Client;
 template<typename TApi, typename TModel>
 class ApiQuerier : public qcm::ApiQuerierBase {
 public:
-    using api_type   = TApi;
-    using out_type   = typename TApi::out_type;
-    using in_type    = typename TApi::in_type;
-    using model_type = TModel;
+    using api_type    = TApi;
+    using out_type    = typename TApi::out_type;
+    using in_type     = typename TApi::in_type;
+    using model_type  = TModel;
+    using helper_type = querier_helper<TApi, TModel>;
 
     ApiQuerier(QObject* parent)
         : ApiQuerierBase(parent), m_model(new model_type(this)), m_client(detail::get_client()) {
@@ -31,8 +32,7 @@ public:
     }
 
     model_type* data() const override { return m_model; }
-
-    void reload() override {
+    void        reload() override {
         // co_spawn need strand for cancel
         auto ex = asio::make_strand(m_client.get_executor());
         this->set_status(Status::Querying);
@@ -50,12 +50,7 @@ public:
             co_await asio::post(asio::bind_executor(cnt.main_ex, asio::use_awaitable));
             if (self) {
                 if (out) {
-                    /*
-                    if constexpr (modelable<TModel, TApi>) {
-                        self->model()->handle_output(std::move(out).value(),
-   cnt.api.input); } else { handle_output(*self->model(), out.value());
-                    }
-                    */
+                    helper_type::handle_output(self->api(), *(self->model()), out.value());
                     self->set_status(Status::Finished);
                 } else {
                     self->set_error(convert_from<QString>(out.error().what()));
