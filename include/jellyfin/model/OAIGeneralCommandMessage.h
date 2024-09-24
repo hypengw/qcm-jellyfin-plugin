@@ -1,0 +1,50 @@
+#pragma once
+
+/*
+ * OAIGeneralCommandMessage.h
+ * name: GeneralCommandMessage
+ * schemaName: GeneralCommandMessage
+ * classFilename: GeneralCommandMessage
+ * classVarName: GeneralCommandMessage
+ * dataType: rc&lt;json_t&gt;
+ * isNullable: false
+ * isDeprecated: false
+ * isEnum: false, isModel: true
+ * parent: 
+ * xmlPrefix: , xmlNamespace: , xmlName: 
+ * General command websocket message.
+ */
+
+
+#include "jellyfin/type.h"
+
+
+#include "jellyfin/model/OAIGeneralCommand.h"
+#include "jellyfin/model/OAISessionMessageType.h"
+#include <string>
+
+
+
+namespace jellyfin::model {
+class OAIGeneralCommand;
+
+
+    class OAIGeneralCommandMessage {
+    public:
+    
+        // Gets or sets the data.
+        std::optional<OAIGeneralCommand> Data;
+
+        // Gets or sets the message id.
+        std::string MessageId;
+
+        // The different kinds of messages that are used in the WebSocket api.
+        OAISessionMessageType MessageType;
+
+        OAIGeneralCommandMessage();
+        ~OAIGeneralCommandMessage();
+    };
+    extern void to_json(json_t&, const OAIGeneralCommandMessage&);
+    extern void from_json(const json_t&, OAIGeneralCommandMessage&);
+} // namespace jellyfin::model
+DECLARE_CONVERT(std::string, jellyfin::model::OAIGeneralCommandMessage);
