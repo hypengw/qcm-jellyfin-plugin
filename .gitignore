@@ -1,2 +1,4 @@
 .openapi-generator-ignore
 .openapi-generator
+.qmlls.ini
+build
