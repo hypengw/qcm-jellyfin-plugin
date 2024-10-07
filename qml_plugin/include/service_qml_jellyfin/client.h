@@ -26,6 +26,8 @@ public:
 
     Client(rc<request::Session> session, executor_type ex, std::string device_id);
     ~Client();
+    Client(const Client&) = default;
+    Client& operator=(const Client&) = default;
 
     template<typename TApi>
     auto format_url(const TApi& api) const -> std::string {

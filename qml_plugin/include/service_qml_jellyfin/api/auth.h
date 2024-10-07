@@ -29,13 +29,13 @@ template<>
 inline void AuthQuerier_base::helper_type::handle_output(const api_type&, model_type&,
                                                          const out_type& in) {
     detail::get_client().set_token(in.AccessToken);
-    auto               user = new qcm::model::UserAccount;
-    qcm::model::ItemId id;
-    id.set_id(convert_from<QString>(fmt::format("{}", in.User->Id)));
-    id.set_provider(provider_name);
-    user->set_userId(id);
-    user->set_token(convert_from<QString>(in.AccessToken.value_or("")));
-    qcm::Global::instance()->user_model()->check_user(user);
+    //auto               user = new qcm::model::UserAccount;
+    //qcm::model::ItemId id;
+    //id.set_id(convert_from<QString>(fmt::format("{}", in.User->Id)));
+    //id.set_provider(provider_name);
+    //user->set_userId(id);
+    //user->set_token(convert_from<QString>(in.AccessToken.value_or("")));
+    //qcm::Global::instance()->user_model()->check_user(user);
 }
 
 class AuthQuerier : public AuthQuerier_base {

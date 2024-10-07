@@ -6,18 +6,22 @@ using namespace qcm;
 
 namespace jellyfin_qml
 {
+namespace impl
+{
+struct Client : public ClientBase {
+    Client(jellyfin::Client j): jellyfin(j) {}
+    jellyfin::Client jellyfin;
+};
+auto get_client(ClientBase& base) -> jellyfin::Client* {
+    return &static_cast<Client&>(base).jellyfin;
+}
+} // namespace impl
 
 auto detail::get_client() -> jellyfin::Client {
-    auto a = Global::instance()->client(provider_name, []() -> Global::Client {
-        auto api = make_rc<Global::Client::Api>();
-
-        return { .api = api,
-                 .instance =
-                     jellyfin::Client(Global::instance()->session(),
-                                      Global::instance()->pool_executor(),
-                                      Global::instance()->uuid().toString(QUuid::WithoutBraces).toStdString()) };
-    });
-    return std::any_cast<jellyfin::Client>(a.instance);
+    return jellyfin::Client(
+        Global::instance()->session(),
+        Global::instance()->pool_executor(),
+        Global::instance()->uuid().toString(QUuid::WithoutBraces).toStdString());
 }
 
 } // namespace jellyfin_qml

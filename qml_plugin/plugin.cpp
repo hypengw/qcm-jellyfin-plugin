@@ -37,9 +37,16 @@ public:
 
     auto router() -> qcm::Router* override { return m_router; }
     auto info() -> const qcm::model::PluginInfo& override { return m_info; }
-    auto main_pages() -> std::vector<qcm::model::Page> override {
+    auto main_pages() -> std::vector<qcm::model::Page>  {
         return { qcm::model::Page {
             "library_music", "library", QStringLiteral(PAGE_URL "MinePage.qml"), true } };
+    }
+    virtual auto create_session() -> up<qcm::model::Session> override {
+        auto out = make_up<qcm::model::Session>();
+        out->set_valid(true);
+        out->set_pages(main_pages());
+        // out->set_client(ncm::qml::create_client());
+        return out;
     }
 
 private:

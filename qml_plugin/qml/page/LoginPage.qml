@@ -91,7 +91,9 @@ MD.Page {
                             q.server = tf_server.text;
                             q.username = tf_username.text;
                             q.password = tf_password.text;
-                            q.query();
+                            // q.query();
+
+                            QA.Action.toast('work in progress');
                         }
                     }
                 }
