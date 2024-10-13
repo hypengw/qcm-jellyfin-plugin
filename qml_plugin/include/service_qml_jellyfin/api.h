@@ -6,10 +6,7 @@
 namespace jellyfin_qml
 {
 
-namespace detail
-{
-auto get_client() -> jellyfin::Client;
-}
+auto get_jellfin_client(const qcm::Client& c) -> std::optional<jellyfin::Client>;
 
 template<typename TApi, typename TModel>
 class ApiQuerier : public qcm::ApiQuerierBase {
@@ -20,8 +17,7 @@ public:
     using model_type  = TModel;
     using helper_type = querier_helper<TApi, TModel>;
 
-    ApiQuerier(QObject* parent)
-        : ApiQuerierBase(parent), m_model(new model_type(this)), m_client(detail::get_client()) {
+    ApiQuerier(QObject* parent): ApiQuerierBase(parent), m_model(new model_type(this)) {
         if constexpr (std::derived_from<TModel, QAbstractItemModel>) {
             connect(m_model,
                     &TModel::fetchMoreReq,
@@ -34,9 +30,17 @@ public:
     model_type* data() const override { return m_model; }
     void        reload() override {
         // co_spawn need strand for cancel
-        auto ex = asio::make_strand(m_client.get_executor());
+        auto cnt = gen_context();
+        if (! cnt) {
+            cancel();
+            set_error("session not valid");
+            set_status(Status::Error);
+            return;
+        }
+
+        auto ex = asio::make_strand(cnt->client.get_executor());
         this->set_status(Status::Querying);
-        this->spawn(ex, [cnt = gen_context()]() mutable -> asio::awaitable<void> {
+        this->spawn(ex, [cnt = cnt.value()]() mutable -> asio::awaitable<void> {
             auto& self = cnt.self;
             auto& cli  = cnt.client;
 
@@ -65,7 +69,9 @@ protected:
     api_type&       api() { return m_api; }
     const api_type& api() const { return m_api; }
     model_type*     model() { return m_model; }
-    auto            client() const { return m_client; }
+    auto            client() -> std::optional<jellyfin::Client> {
+        return session()->client().and_then(get_jellfin_client);
+    }
 
 private:
     struct Context {
@@ -75,18 +81,19 @@ private:
         QPointer<ApiQuerier<TApi, TModel>> self;
     };
 
-    Context gen_context() {
-        return Context {
-            .main_ex = get_executor(),
-            .client  = m_client,
-            .api     = this->api(),
-            .self    = this,
-        };
+    auto gen_context() -> std::optional<Context> {
+        return client().transform([this](auto c) {
+            return Context {
+                .main_ex = get_executor(),
+                .client  = c,
+                .api     = this->api(),
+                .self    = this,
+            };
+        });
     }
 
-    api_type         m_api;
-    model_type*      m_model;
-    jellyfin::Client m_client;
+    api_type    m_api;
+    model_type* m_model;
 };
 
 } // namespace jellyfin_qml
