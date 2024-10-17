@@ -1,6 +1,7 @@
 #include "service_qml_jellyfin/client.h"
 #include <mutex>
 #include "request/response.h"
+#include "request/session_share.h"
 #include "qcm_interface/global.h"
 
 namespace jellyfin
@@ -11,6 +12,7 @@ public:
     executor_type        ex;
     std::string          device_id;
 
+    request::SessionShare                        session_share;
     request::Request                             common_req;
     std::string                                  base;
     std::optional<std::string>                   token;
@@ -22,7 +24,8 @@ Client::Client(rc<request::Session> session, executor_type ex, std::string devic
     : d_ptr(make_rc<Private>(session, ex, device_id)) {
     C_D(Client);
     d->common_req.set_header("Content-Type", "application/json")
-        .set_header("User-Agent", qcm::Global::instance()->user_agent());
+        .set_header("User-Agent", qcm::Global::instance()->user_agent())
+        .set_opt(request::req_opt::Share { d->session_share });
 }
 Client::~Client() {}
 
@@ -35,6 +38,7 @@ auto Client::make_req(std::string_view url, const UrlParams&) const -> request::
     C_D(const Client);
     request::Request req(d->common_req);
     req.set_url(url).set_header("Authorization", format_auth());
+    DEBUG_LOG("{}", req.header("Authorization"));
     return req;
 }
 auto Client::prop(std::string_view key) const -> std::optional<std::any> {
@@ -48,14 +52,9 @@ void Client::set_prop(std::string_view key, std::any val) {
     C_D(Client);
     d->props.insert_or_assign(std::string(key), val);
 }
-auto Client::post(const request::Request& req,
-                  std::string_view body) const -> asio::awaitable<Result<std::vector<byte>>> {
-    C_D(const Client);
-    rc<request::Response> rsp;
-    EC_RET_CO(rsp, co_await d->session->post(req, asio::buffer(body)));
 
-    _assert_(rsp);
-
+auto Client::process_rsp(rc<request::Response> rsp) const
+    -> asio::awaitable<Result<std::vector<byte>>> {
     asio::streambuf buf;
     auto [ec, size] = co_await asio::async_read(
         *rsp, buf, asio::transfer_all(), asio::as_tuple(asio::use_awaitable));
@@ -75,11 +74,29 @@ auto Client::post(const request::Request& req,
             co_return convert_from<std::vector<byte>>(buf);
         }
         default: {
-            Error::push(err, fmt::format("code: {}", code));
+            auto data    = convert_from<std::vector<byte>>(buf);
+            auto err_str = api::process_error(data);
+            Error::push(err, fmt::format("{}: {}", code, err_str));
         }
         }
     }
     co_return nstd::unexpected(err);
+}
+auto Client::get(const request::Request& req) const -> asio::awaitable<Result<std::vector<byte>>> {
+    C_D(const Client);
+    rc<request::Response> rsp;
+    EC_RET_CO(rsp, co_await d->session->get(req));
+    _assert_(rsp);
+    co_return co_await process_rsp(rsp);
+}
+auto Client::post(const request::Request& req,
+                  std::string_view body) const -> asio::awaitable<Result<std::vector<byte>>> {
+    C_D(const Client);
+    rc<request::Response> rsp;
+    EC_RET_CO(rsp, co_await d->session->post(req, asio::buffer(body)));
+
+    _assert_(rsp);
+    co_return co_await process_rsp(rsp);
 }
 
 void Client::set_base(std::string_view base) {
@@ -91,6 +108,11 @@ void Client::set_base(std::string_view base) {
     }
 }
 
+auto Client::token() const -> std::optional<std::string> {
+    C_D(const Client);
+    std::unique_lock lock { d->mutex };
+    return d->token;
+}
 void Client::set_token(std::optional<std::string_view> token) {
     C_D(Client);
     std::unique_lock lock { d->mutex };

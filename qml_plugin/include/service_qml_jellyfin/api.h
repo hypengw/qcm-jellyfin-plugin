@@ -6,6 +6,7 @@
 namespace jellyfin_qml
 {
 
+auto create_client() -> qcm::Client;
 auto get_jellfin_client(const qcm::Client& c) -> std::optional<jellyfin::Client>;
 
 template<typename TApi, typename TModel>
@@ -27,12 +28,14 @@ public:
         }
     }
 
-    model_type* data() const override { return m_model; }
-    void        reload() override {
+    virtual void handle_output(const out_type&) = 0;
+    model_type*  data() const override { return m_model; }
+    void         reload() override {
         // co_spawn need strand for cancel
         auto cnt = gen_context();
         if (! cnt) {
             cancel();
+            ERROR_LOG("session not valid");
             set_error("session not valid");
             set_status(Status::Error);
             return;
@@ -54,7 +57,7 @@ public:
             co_await asio::post(asio::bind_executor(cnt.main_ex, asio::use_awaitable));
             if (self) {
                 if (out) {
-                    helper_type::handle_output(self->api(), *(self->model()), out.value());
+                    self->handle_output(out.value());
                     self->set_status(Status::Finished);
                 } else {
                     self->set_error(convert_from<QString>(out.error().what()));

@@ -7,13 +7,16 @@ set(SOURCES
     include/service_qml_jellyfin/api/auth.h
     include/service_qml_jellyfin/api.h
     include/service_qml_jellyfin/type.h
+    include/service_qml_jellyfin/session.h
     api.cpp
     client.cpp
     model.cpp
+    session.cpp
     )
 
 set(QML_FILES
     qml/page/LoginPage.qml
+    qml/page/MinePage.qml
     qml/page/test.qml)
 
 set(RESOURCES
@@ -54,7 +57,7 @@ target_link_libraries(
 
 target_compile_definitions(
   service_qml_jellyfin
-  PRIVATE SERVICE_QML_jellyfin_EXPORT)
+  PRIVATE SERVICE_QML_JF_EXPORT)
 
 set_target_properties(
   service_qml_jellyfin

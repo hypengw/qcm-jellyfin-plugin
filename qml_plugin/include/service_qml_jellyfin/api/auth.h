@@ -24,20 +24,6 @@ public:
 } // namespace model
 
 using AuthQuerier_base = ApiQuerier<jellyfin::api::authenticateUserByName, model::Auth>;
-
-template<>
-inline void AuthQuerier_base::helper_type::handle_output(const api_type&, model_type&,
-                                                         const out_type& in) {
-    // detail::get_client().set_token(in.AccessToken);
-    // auto               user = new qcm::model::UserAccount;
-    // qcm::model::ItemId id;
-    // id.set_id(convert_from<QString>(fmt::format("{}", in.User->Id)));
-    // id.set_provider(provider_name);
-    // user->set_userId(id);
-    // user->set_token(convert_from<QString>(in.AccessToken.value_or("")));
-    // qcm::Global::instance()->user_model()->check_user(user);
-}
-
 class AuthQuerier : public AuthQuerier_base {
     Q_OBJECT
     QML_ELEMENT
@@ -66,6 +52,14 @@ public:
     }
 
     Q_SIGNAL void serverChanged();
+
+    void handle_output(const AuthQuerier_base::out_type& out) {
+        client().transform([&out, this](auto c) -> std::nullptr_t {
+            c.set_token(out.AccessToken);
+            qcm::Action::instance()->load_session(this->session());
+            return {};
+        });
+    }
 
 private:
     QUrl m_server;

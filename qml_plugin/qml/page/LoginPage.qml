@@ -10,8 +10,12 @@ MD.Page {
     id: root
     title: qsTr('log in')
 
+    QJF.Session {
+        id: m_session
+    }
     QJF.AuthQuerier {
         id: m_auth_querier
+        session: m_session
     }
 
     ColumnLayout {
@@ -91,9 +95,7 @@ MD.Page {
                             q.server = tf_server.text;
                             q.username = tf_username.text;
                             q.password = tf_password.text;
-                            // q.query();
-
-                            QA.Action.toast('work in progress');
+                            q.query();
                         }
                     }
                 }

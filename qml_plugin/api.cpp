@@ -1,5 +1,6 @@
 #include "service_qml_jellyfin/client.h"
 #include "service_qml_jellyfin/api.h"
+#include "service_qml_jellyfin/model.h"
 
 #include <QUuid>
 #include <asio/bind_executor.hpp>
@@ -11,6 +12,8 @@
 
 #include "asio_helper/detached_log.h"
 #include "asio_qt/qt_holder.h"
+
+#include "jellyfin/api/OAIUserApi.h"
 
 namespace jellyfin_qml::impl
 {
@@ -48,13 +51,34 @@ static auto logout(ClientBase& cbase) -> asio::awaitable<void> {
 }
 static auto session_check(ClientBase& cbase, helper::QWatcher<qcm::model::Session> session)
     -> asio::awaitable<Result<bool>> {
-    auto c = *get_client(cbase);
-    co_return false;
+    auto c     = *get_client(cbase);
+    auto token = c.token();
+    if (! token) co_return false;
+
+    jellyfin::api::getCurrentUser api;
+    auto                          out = co_await c.perform(api);
+
+    co_await asio::post(
+        asio::bind_executor(qcm::Global::instance()->qexecutor(), asio::use_awaitable));
+
+    auto user = session->user();
+    auto base = c.base();
+    co_return out.transform(
+        [session, user, base, token](const jellyfin::model::OAIUserDto& out) -> bool {
+            session->set_provider(convert_from<QString>(jellyfin_qml::provider_name));
+            user->set_server(convert_from<QString>(base));
+            user->set_token(convert_from<QString>(token.value()));
+            user->set_userId(to_item_id(jellyfin_qml::IdType::User, out.Id));
+            user->set_nickname(convert_from<QString>(out.Name.value_or("unknown")));
+            // user->set_avatarUrl(convert_from<QString>(out.profile->avatarUrl));
+            user->query();
+            return true;
+        });
 }
 
-void save(ClientBase& cbase, const std::filesystem::path& path) { auto c = *get_client(cbase); }
+void save(ClientBase& cbase, const std::filesystem::path&) { auto c = *get_client(cbase); }
 
-void load(ClientBase& cbase, const std::filesystem::path& path) { auto c = *get_client(cbase); }
+void load(ClientBase& cbase, const std::filesystem::path&) { auto c = *get_client(cbase); }
 
 bool make_request(ClientBase& cbase, request::Request& req, const QUrl& url,
                   const qcm::Client::ReqInfo& info) {
@@ -114,7 +138,7 @@ auto jellyfin_qml::get_jellfin_client(const qcm::Client& c) -> std::optional<jel
         return std::nullopt;
     }
 }
-//auto jellyfin_qml::uniq(const QUrl& url, const QVariant& info) -> QString {
-//    auto size = info.value<QSize>();
-//    return "";
-//}
+// auto jellyfin_qml::uniq(const QUrl& url, const QVariant& info) -> QString {
+//     auto size = info.value<QSize>();
+//     return "";
+// }

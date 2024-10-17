@@ -18,7 +18,9 @@ namespace api
 {
 auto format_api(std::string_view path, const UrlParams& query,
                 std::string_view body) -> std::string;
-}
+
+auto process_error(std::span<const byte>) -> std::string;
+} // namespace api
 
 class Client {
 public:
@@ -26,7 +28,7 @@ public:
 
     Client(rc<request::Session> session, executor_type ex, std::string device_id);
     ~Client();
-    Client(const Client&) = default;
+    Client(const Client&)            = default;
     Client& operator=(const Client&) = default;
 
     template<typename TApi>
@@ -52,10 +54,17 @@ public:
     auto perform(const TApi& api,
                  u32         timeout = 60) -> asio::awaitable<Result<typename TApi::out_type>> {
         auto                      req = make_req(format_url(api), api.query());
-        Result<std::vector<byte>> res = co_await post(req, api.body());
+        Result<std::vector<byte>> res;
+        if constexpr (api.oper == Operation::GET) {
+            res = co_await get(req);
+        } else if constexpr (api.oper == Operation::POST) {
+            res = co_await post(req, api.body());
+        } else {
+            _assert_rel_(false);
+        }
         co_return res
             .and_then([&api, this](const auto& res) {
-                DEBUG_LOG("{}", convert_from<std::string>(res));
+                // DEBUG_LOG("{}", convert_from<std::string>(res));
                 return parse<TApi>(res);
             })
             .transform_error([&api](auto err) {
@@ -71,10 +80,14 @@ public:
     void set_prop(std::string_view, std::any);
 
     void set_base(std::string_view);
+
+    auto token() const -> std::optional<std::string>;
     void set_token(std::optional<std::string_view>);
 
 private:
     auto format_auth() const -> std::string;
+    auto process_rsp(rc<request::Response>) const -> asio::awaitable<Result<std::vector<byte>>>;
+    auto get(const request::Request&) const -> asio::awaitable<Result<std::vector<byte>>>;
     auto post(const request::Request&,
               std::string_view) const -> asio::awaitable<Result<std::vector<byte>>>;
 

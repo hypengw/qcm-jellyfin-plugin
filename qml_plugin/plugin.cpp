@@ -7,6 +7,7 @@
 #include "qcm_interface/plugin.h"
 #include "qcm_interface/enum.h"
 #include "qcm_interface/model/page.h"
+#include "service_qml_jellyfin/session.h"
 
 #define QRC_URL  u"qrc:/Qcm/Service/Jellyfin/"
 #define PAGE_URL QRC_URL u"qml/page/"
@@ -37,16 +38,9 @@ public:
 
     auto router() -> qcm::Router* override { return m_router; }
     auto info() -> const qcm::model::PluginInfo& override { return m_info; }
-    auto main_pages() -> std::vector<qcm::model::Page> {
-        return { qcm::model::Page {
-            "library_music", "library", QStringLiteral(PAGE_URL "MinePage.qml"), true } };
-    }
+
     auto create_session() -> up<qcm::model::Session> override {
-        auto out = make_up<qcm::model::Session>();
-        out->set_valid(true);
-        out->set_pages(main_pages());
-        // out->set_client(ncm::qml::create_client());
-        return out;
+        return make_up<jellyfin_qml::Session>();
     }
     auto uniq(const QUrl&, const QVariant&) -> QString override { return {}; }
 
