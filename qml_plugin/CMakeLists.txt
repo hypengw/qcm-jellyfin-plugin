@@ -22,11 +22,18 @@ set(QML_FILES
 set(RESOURCES
     assets/jellyfin.svg)
 
+set(BUILD_TYPE SHARED)
+if(QCM_SERVICE_STATIC_BUILD)
+  set(BUILD_TYPE STATIC)
+  add_compile_definitions(QCM_STATIC_BUILD)
+  register_qcm_service(Qcm.Service.Jellyfin service_qml_jellyfinplugin)
+endif()
+
 qt_add_qml_module(
   service_qml_jellyfin
   URI
   Qcm.Service.Jellyfin
-  SHARED
+  ${BUILD_TYPE}
   RESOURCE_PREFIX
   /
   VERSION
