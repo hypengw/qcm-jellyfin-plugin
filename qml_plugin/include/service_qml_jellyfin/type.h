@@ -3,6 +3,7 @@
 #include "core/strv_helper.h"
 
 #include "jellyfin/type.h"
+#include "service_qml_jellyfin/info.h"
 
 namespace jellyfin_qml
 {
@@ -24,7 +25,6 @@ concept ApiCP_Header = requires(T t) {
     { t.header() } -> std::convertible_to<request::Header>;
 };
 
-constexpr auto provider_name { "jellyfin"sv };
 
 template<typename TApi, typename TModel>
 struct querier_helper {

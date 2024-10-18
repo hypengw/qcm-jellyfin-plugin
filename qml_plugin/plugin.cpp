@@ -8,6 +8,7 @@
 #include "qcm_interface/enum.h"
 #include "qcm_interface/model/page.h"
 #include "service_qml_jellyfin/session.h"
+#include "service_qml_jellyfin/info.h"
 
 #define QRC_URL  u"qrc:/Qcm/Service/Jellyfin/"
 #define PAGE_URL QRC_URL u"qml/page/"
@@ -21,7 +22,9 @@ class Qcm_Service_JellyfinPlugin : public QQmlEngineExtensionPlugin,
 
 public:
     Qcm_Service_JellyfinPlugin(QObject* parent = nullptr)
-        : QQmlEngineExtensionPlugin(parent), m_router(new qcm::Router(this)) {
+        : QQmlEngineExtensionPlugin(parent),
+          qcm::QcmPluginInterface(jellyfin_qml::provider_name),
+          m_router(new qcm::Router(this)) {
         QT_KEEP_SYMBOL(qml_register_types_Qcm_Service_Jellyfin);
 
         m_router->register_path(qcm::enums::PluginBasicPage::BPageLogin, PAGE_URL u"LoginPage.qml");

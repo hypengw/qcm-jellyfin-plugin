@@ -55,9 +55,9 @@ public:
                  u32         timeout = 60) -> asio::awaitable<Result<typename TApi::out_type>> {
         auto                      req = make_req(format_url(api), api.query());
         Result<std::vector<byte>> res;
-        if constexpr (api.oper == Operation::GET) {
+        if constexpr (TApi::oper == Operation::GET) {
             res = co_await get(req);
-        } else if constexpr (api.oper == Operation::POST) {
+        } else if constexpr (TApi::oper == Operation::POST) {
             res = co_await post(req, api.body());
         } else {
             _assert_rel_(false);
