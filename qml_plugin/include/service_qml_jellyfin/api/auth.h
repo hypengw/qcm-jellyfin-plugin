@@ -4,6 +4,7 @@
 #include "service_qml_jellyfin/api.h"
 #include "jellyfin/api/OAIUserApi.h"
 #include "qcm_interface/global.h"
+#include "qcm_interface/action.h"
 #include "qcm_interface/model/user_model.h"
 
 #include "core/log.h"

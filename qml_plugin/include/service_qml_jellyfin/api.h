@@ -29,7 +29,7 @@ public:
     }
 
     virtual void handle_output(const out_type&) = 0;
-    model_type*  data() const override { return m_model; }
+    QVariant     data() const override { return QVariant::fromValue(m_model); }
     void         reload() override {
         // co_spawn need strand for cancel
         auto cnt = gen_context();
