@@ -46,6 +46,10 @@ public:
         return make_up<jellyfin_qml::Session>();
     }
     auto uniq(const QUrl&, const QVariant&) -> QString override { return {}; }
+    auto valid_id(const qcm::model::ItemId& id) -> bool override {
+        auto sid = id.id();
+        return ! (sid.isEmpty() || sid == "0"sv);
+    }
 
 private:
     qcm::Router*           m_router;
