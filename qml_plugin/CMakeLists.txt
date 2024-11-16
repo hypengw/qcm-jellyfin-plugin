@@ -60,7 +60,7 @@ target_include_directories(
 target_link_libraries(
   service_qml_jellyfin
   PUBLIC Qt::Quick core qcm_interface
-  PRIVATE ctre platform jellyfin-cpp meta_model)
+  PRIVATE ctre::ctre platform jellyfin-cpp meta_model)
 
 target_compile_definitions(
   service_qml_jellyfin
