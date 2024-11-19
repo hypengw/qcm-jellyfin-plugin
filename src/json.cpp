@@ -344,11 +344,11 @@ namespace jellyfin::model {
 
 
 void to_json(json_t& j, const OAIAccessSchedule& o) {
-        j["Id"sv] = o.Id;
-        j["UserId"sv] = o.UserId;
-        j["DayOfWeek"sv] = o.DayOfWeek;
-        j["StartHour"sv] = o.StartHour;
-        j["EndHour"sv] = o.EndHour;
+       j["Id"sv] = o.Id;
+       j["UserId"sv] = o.UserId;
+       j["DayOfWeek"sv] = o.DayOfWeek;
+       j["StartHour"sv] = o.StartHour;
+       j["EndHour"sv] = o.EndHour;
 }
 void from_json(const json_t& j, OAIAccessSchedule& o) {
     
@@ -367,16 +367,16 @@ void from_json(const json_t& j, OAIAccessSchedule& o) {
 
 
 void to_json(json_t& j, const OAIActivityLogEntry& o) {
-        j["Id"sv] = o.Id;
-        j["Name"sv] = o.Name;
-        j["Overview"sv] = o.Overview;
-        j["ShortOverview"sv] = o.ShortOverview;
-        j["Type"sv] = o.Type;
-        j["ItemId"sv] = o.ItemId;
-        j["Date"sv] = o.Date;
-        j["UserId"sv] = o.UserId;
-        j["UserPrimaryImageTag"sv] = o.UserPrimaryImageTag;
-        j["Severity"sv] = o.Severity;
+       j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["Overview"sv] = o.Overview;
+       j["ShortOverview"sv] = o.ShortOverview;
+       j["Type"sv] = o.Type;
+       j["ItemId"sv] = o.ItemId;
+       j["Date"sv] = o.Date;
+       j["UserId"sv] = o.UserId;
+       // j["UserPrimaryImageTag"sv] = o.UserPrimaryImageTag;
+       j["Severity"sv] = o.Severity;
 }
 void from_json(const json_t& j, OAIActivityLogEntry& o) {
     
@@ -395,8 +395,8 @@ void from_json(const json_t& j, OAIActivityLogEntry& o) {
     j.at("Date"sv).get_to(o.Date);
     
     j.at("UserId"sv).get_to(o.UserId);
-    if(j.contains("UserPrimaryImageTag"sv))
-    j.at("UserPrimaryImageTag"sv).get_to(o.UserPrimaryImageTag);
+    // if(j.contains("UserPrimaryImageTag"sv))
+    // j.at("UserPrimaryImageTag"sv).get_to(o.UserPrimaryImageTag);
     
     j.at("Severity"sv).get_to(o.Severity);
 }
@@ -405,9 +405,9 @@ void from_json(const json_t& j, OAIActivityLogEntry& o) {
 
 
 void to_json(json_t& j, const OAIActivityLogEntryMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIActivityLogEntryMessage& o) {
     if(j.contains("Data"sv))
@@ -422,9 +422,9 @@ void from_json(const json_t& j, OAIActivityLogEntryMessage& o) {
 
 
 void to_json(json_t& j, const OAIActivityLogEntryQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAIActivityLogEntryQueryResult& o) {
     if(j.contains("Items"sv))
@@ -439,8 +439,8 @@ void from_json(const json_t& j, OAIActivityLogEntryQueryResult& o) {
 
 
 void to_json(json_t& j, const OAIActivityLogEntryStartMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIActivityLogEntryStartMessage& o) {
     if(j.contains("Data"sv))
@@ -453,7 +453,7 @@ void from_json(const json_t& j, OAIActivityLogEntryStartMessage& o) {
 
 
 void to_json(json_t& j, const OAIActivityLogEntryStopMessage& o) {
-        j["MessageType"sv] = o.MessageType;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIActivityLogEntryStopMessage& o) {
     
@@ -464,7 +464,7 @@ void from_json(const json_t& j, OAIActivityLogEntryStopMessage& o) {
 
 
 void to_json(json_t& j, const OAIAddVirtualFolderDto& o) {
-        j["LibraryOptions"sv] = o.LibraryOptions;
+       j["LibraryOptions"sv] = o.LibraryOptions;
 }
 void from_json(const json_t& j, OAIAddVirtualFolderDto& o) {
     if(j.contains("LibraryOptions"sv))
@@ -475,20 +475,20 @@ void from_json(const json_t& j, OAIAddVirtualFolderDto& o) {
 
 
 void to_json(json_t& j, const OAIAlbumInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
-        j["AlbumArtists"sv] = o.AlbumArtists;
-        j["ArtistProviderIds"sv] = o.ArtistProviderIds;
-        j["SongInfos"sv] = o.SongInfos;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
+       j["AlbumArtists"sv] = o.AlbumArtists;
+       j["ArtistProviderIds"sv] = o.ArtistProviderIds;
+       j["SongInfos"sv] = o.SongInfos;
 }
 void from_json(const json_t& j, OAIAlbumInfo& o) {
     if(j.contains("Name"sv))
@@ -525,10 +525,10 @@ void from_json(const json_t& j, OAIAlbumInfo& o) {
 
 
 void to_json(json_t& j, const OAIAlbumInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIAlbumInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -545,9 +545,9 @@ void from_json(const json_t& j, OAIAlbumInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAIAllThemeMediaResult& o) {
-        j["ThemeVideosResult"sv] = o.ThemeVideosResult;
-        j["ThemeSongsResult"sv] = o.ThemeSongsResult;
-        j["SoundtrackSongsResult"sv] = o.SoundtrackSongsResult;
+       j["ThemeVideosResult"sv] = o.ThemeVideosResult;
+       j["ThemeSongsResult"sv] = o.ThemeSongsResult;
+       j["SoundtrackSongsResult"sv] = o.SoundtrackSongsResult;
 }
 void from_json(const json_t& j, OAIAllThemeMediaResult& o) {
     if(j.contains("ThemeVideosResult"sv))
@@ -562,18 +562,18 @@ void from_json(const json_t& j, OAIAllThemeMediaResult& o) {
 
 
 void to_json(json_t& j, const OAIArtistInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
-        j["SongInfos"sv] = o.SongInfos;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
+       j["SongInfos"sv] = o.SongInfos;
 }
 void from_json(const json_t& j, OAIArtistInfo& o) {
     if(j.contains("Name"sv))
@@ -606,10 +606,10 @@ void from_json(const json_t& j, OAIArtistInfo& o) {
 
 
 void to_json(json_t& j, const OAIArtistInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIArtistInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -672,8 +672,8 @@ void from_json(const json_t& j, OAIAudioSpatialFormat& e) {
 
 
 void to_json(json_t& j, const OAIAuthenticateUserByName& o) {
-        j["Username"sv] = o.Username;
-        j["Pw"sv] = o.Pw;
+       j["Username"sv] = o.Username;
+       j["Pw"sv] = o.Pw;
 }
 void from_json(const json_t& j, OAIAuthenticateUserByName& o) {
     if(j.contains("Username"sv))
@@ -686,18 +686,18 @@ void from_json(const json_t& j, OAIAuthenticateUserByName& o) {
 
 
 void to_json(json_t& j, const OAIAuthenticationInfo& o) {
-        j["Id"sv] = o.Id;
-        j["AccessToken"sv] = o.AccessToken;
-        j["DeviceId"sv] = o.DeviceId;
-        j["AppName"sv] = o.AppName;
-        j["AppVersion"sv] = o.AppVersion;
-        j["DeviceName"sv] = o.DeviceName;
-        j["UserId"sv] = o.UserId;
-        j["IsActive"sv] = o.IsActive;
-        j["DateCreated"sv] = o.DateCreated;
-        j["DateRevoked"sv] = o.DateRevoked;
-        j["DateLastActivity"sv] = o.DateLastActivity;
-        j["UserName"sv] = o.UserName;
+       j["Id"sv] = o.Id;
+       j["AccessToken"sv] = o.AccessToken;
+       j["DeviceId"sv] = o.DeviceId;
+       j["AppName"sv] = o.AppName;
+       j["AppVersion"sv] = o.AppVersion;
+       j["DeviceName"sv] = o.DeviceName;
+       j["UserId"sv] = o.UserId;
+       j["IsActive"sv] = o.IsActive;
+       j["DateCreated"sv] = o.DateCreated;
+       j["DateRevoked"sv] = o.DateRevoked;
+       j["DateLastActivity"sv] = o.DateLastActivity;
+       j["UserName"sv] = o.UserName;
 }
 void from_json(const json_t& j, OAIAuthenticationInfo& o) {
     
@@ -730,9 +730,9 @@ void from_json(const json_t& j, OAIAuthenticationInfo& o) {
 
 
 void to_json(json_t& j, const OAIAuthenticationInfoQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAIAuthenticationInfoQueryResult& o) {
     if(j.contains("Items"sv))
@@ -747,10 +747,10 @@ void from_json(const json_t& j, OAIAuthenticationInfoQueryResult& o) {
 
 
 void to_json(json_t& j, const OAIAuthenticationResult& o) {
-        j["User"sv] = o.User;
-        j["SessionInfo"sv] = o.SessionInfo;
-        j["AccessToken"sv] = o.AccessToken;
-        j["ServerId"sv] = o.ServerId;
+       j["User"sv] = o.User;
+       j["SessionInfo"sv] = o.SessionInfo;
+       j["AccessToken"sv] = o.AccessToken;
+       j["ServerId"sv] = o.ServerId;
 }
 void from_json(const json_t& j, OAIAuthenticationResult& o) {
     if(j.contains("User"sv))
@@ -767,159 +767,159 @@ void from_json(const json_t& j, OAIAuthenticationResult& o) {
 
 
 void to_json(json_t& j, const OAIBaseItemDto& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["ServerId"sv] = o.ServerId;
-        j["Id"sv] = o.Id;
-        j["Etag"sv] = o.Etag;
-        j["SourceType"sv] = o.SourceType;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
-        j["DateCreated"sv] = o.DateCreated;
-        j["DateLastMediaAdded"sv] = o.DateLastMediaAdded;
-        j["ExtraType"sv] = o.ExtraType;
-        j["AirsBeforeSeasonNumber"sv] = o.AirsBeforeSeasonNumber;
-        j["AirsAfterSeasonNumber"sv] = o.AirsAfterSeasonNumber;
-        j["AirsBeforeEpisodeNumber"sv] = o.AirsBeforeEpisodeNumber;
-        j["CanDelete"sv] = o.CanDelete;
-        j["CanDownload"sv] = o.CanDownload;
-        j["HasLyrics"sv] = o.HasLyrics;
-        j["HasSubtitles"sv] = o.HasSubtitles;
-        j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
-        j["PreferredMetadataCountryCode"sv] = o.PreferredMetadataCountryCode;
-        j["Container"sv] = o.Container;
-        j["SortName"sv] = o.SortName;
-        j["ForcedSortName"sv] = o.ForcedSortName;
-        j["Video3DFormat"sv] = o.Video3DFormat;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["ExternalUrls"sv] = o.ExternalUrls;
-        j["MediaSources"sv] = o.MediaSources;
-        j["CriticRating"sv] = o.CriticRating;
-        j["ProductionLocations"sv] = o.ProductionLocations;
-        j["Path"sv] = o.Path;
-        j["EnableMediaSourceDisplay"sv] = o.EnableMediaSourceDisplay;
-        j["OfficialRating"sv] = o.OfficialRating;
-        j["CustomRating"sv] = o.CustomRating;
-        j["ChannelId"sv] = o.ChannelId;
-        j["ChannelName"sv] = o.ChannelName;
-        j["Overview"sv] = o.Overview;
-        j["Taglines"sv] = o.Taglines;
-        j["Genres"sv] = o.Genres;
-        j["CommunityRating"sv] = o.CommunityRating;
-        j["CumulativeRunTimeTicks"sv] = o.CumulativeRunTimeTicks;
-        j["RunTimeTicks"sv] = o.RunTimeTicks;
-        j["PlayAccess"sv] = o.PlayAccess;
-        j["AspectRatio"sv] = o.AspectRatio;
-        j["ProductionYear"sv] = o.ProductionYear;
-        j["IsPlaceHolder"sv] = o.IsPlaceHolder;
-        j["Number"sv] = o.Number;
-        j["ChannelNumber"sv] = o.ChannelNumber;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["IndexNumberEnd"sv] = o.IndexNumberEnd;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["RemoteTrailers"sv] = o.RemoteTrailers;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["IsHD"sv] = o.IsHD;
-        j["IsFolder"sv] = o.IsFolder;
-        j["ParentId"sv] = o.ParentId;
-        j["Type"sv] = o.Type;
-        j["People"sv] = o.People;
-        j["Studios"sv] = o.Studios;
-        j["GenreItems"sv] = o.GenreItems;
-        j["ParentLogoItemId"sv] = o.ParentLogoItemId;
-        j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
-        j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
-        j["LocalTrailerCount"sv] = o.LocalTrailerCount;
-        j["UserData"sv] = o.UserData;
-        j["RecursiveItemCount"sv] = o.RecursiveItemCount;
-        j["ChildCount"sv] = o.ChildCount;
-        j["SeriesName"sv] = o.SeriesName;
-        j["SeriesId"sv] = o.SeriesId;
-        j["SeasonId"sv] = o.SeasonId;
-        j["SpecialFeatureCount"sv] = o.SpecialFeatureCount;
-        j["DisplayPreferencesId"sv] = o.DisplayPreferencesId;
-        j["Status"sv] = o.Status;
-        j["AirTime"sv] = o.AirTime;
-        j["AirDays"sv] = o.AirDays;
-        j["Tags"sv] = o.Tags;
-        j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
-        j["Artists"sv] = o.Artists;
-        j["ArtistItems"sv] = o.ArtistItems;
-        j["Album"sv] = o.Album;
-        j["CollectionType"sv] = o.CollectionType;
-        j["DisplayOrder"sv] = o.DisplayOrder;
-        j["AlbumId"sv] = o.AlbumId;
-        j["AlbumPrimaryImageTag"sv] = o.AlbumPrimaryImageTag;
-        j["SeriesPrimaryImageTag"sv] = o.SeriesPrimaryImageTag;
-        j["AlbumArtist"sv] = o.AlbumArtist;
-        j["AlbumArtists"sv] = o.AlbumArtists;
-        j["SeasonName"sv] = o.SeasonName;
-        j["MediaStreams"sv] = o.MediaStreams;
-        j["VideoType"sv] = o.VideoType;
-        j["PartCount"sv] = o.PartCount;
-        j["MediaSourceCount"sv] = o.MediaSourceCount;
-        j["ImageTags"sv] = o.ImageTags;
-        j["BackdropImageTags"sv] = o.BackdropImageTags;
-        j["ScreenshotImageTags"sv] = o.ScreenshotImageTags;
-        j["ParentLogoImageTag"sv] = o.ParentLogoImageTag;
-        j["ParentArtItemId"sv] = o.ParentArtItemId;
-        j["ParentArtImageTag"sv] = o.ParentArtImageTag;
-        j["SeriesThumbImageTag"sv] = o.SeriesThumbImageTag;
-        j["ImageBlurHashes"sv] = o.ImageBlurHashes;
-        j["SeriesStudio"sv] = o.SeriesStudio;
-        j["ParentThumbItemId"sv] = o.ParentThumbItemId;
-        j["ParentThumbImageTag"sv] = o.ParentThumbImageTag;
-        j["ParentPrimaryImageItemId"sv] = o.ParentPrimaryImageItemId;
-        j["ParentPrimaryImageTag"sv] = o.ParentPrimaryImageTag;
-        j["Chapters"sv] = o.Chapters;
-        j["Trickplay"sv] = o.Trickplay;
-        j["LocationType"sv] = o.LocationType;
-        j["IsoType"sv] = o.IsoType;
-        j["MediaType"sv] = o.MediaType;
-        j["EndDate"sv] = o.EndDate;
-        j["LockedFields"sv] = o.LockedFields;
-        j["TrailerCount"sv] = o.TrailerCount;
-        j["MovieCount"sv] = o.MovieCount;
-        j["SeriesCount"sv] = o.SeriesCount;
-        j["ProgramCount"sv] = o.ProgramCount;
-        j["EpisodeCount"sv] = o.EpisodeCount;
-        j["SongCount"sv] = o.SongCount;
-        j["AlbumCount"sv] = o.AlbumCount;
-        j["ArtistCount"sv] = o.ArtistCount;
-        j["MusicVideoCount"sv] = o.MusicVideoCount;
-        j["LockData"sv] = o.LockData;
-        j["Width"sv] = o.Width;
-        j["Height"sv] = o.Height;
-        j["CameraMake"sv] = o.CameraMake;
-        j["CameraModel"sv] = o.CameraModel;
-        j["Software"sv] = o.Software;
-        j["ExposureTime"sv] = o.ExposureTime;
-        j["FocalLength"sv] = o.FocalLength;
-        j["ImageOrientation"sv] = o.ImageOrientation;
-        j["Aperture"sv] = o.Aperture;
-        j["ShutterSpeed"sv] = o.ShutterSpeed;
-        j["Latitude"sv] = o.Latitude;
-        j["Longitude"sv] = o.Longitude;
-        j["Altitude"sv] = o.Altitude;
-        j["IsoSpeedRating"sv] = o.IsoSpeedRating;
-        j["SeriesTimerId"sv] = o.SeriesTimerId;
-        j["ProgramId"sv] = o.ProgramId;
-        j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
-        j["StartDate"sv] = o.StartDate;
-        j["CompletionPercentage"sv] = o.CompletionPercentage;
-        j["IsRepeat"sv] = o.IsRepeat;
-        j["EpisodeTitle"sv] = o.EpisodeTitle;
-        j["ChannelType"sv] = o.ChannelType;
-        j["Audio"sv] = o.Audio;
-        j["IsMovie"sv] = o.IsMovie;
-        j["IsSports"sv] = o.IsSports;
-        j["IsSeries"sv] = o.IsSeries;
-        j["IsLive"sv] = o.IsLive;
-        j["IsNews"sv] = o.IsNews;
-        j["IsKids"sv] = o.IsKids;
-        j["IsPremiere"sv] = o.IsPremiere;
-        j["TimerId"sv] = o.TimerId;
-        j["NormalizationGain"sv] = o.NormalizationGain;
-        j["CurrentProgram"sv] = o.CurrentProgram;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["ServerId"sv] = o.ServerId;
+       j["Id"sv] = o.Id;
+       j["Etag"sv] = o.Etag;
+       j["SourceType"sv] = o.SourceType;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["DateCreated"sv] = o.DateCreated;
+       j["DateLastMediaAdded"sv] = o.DateLastMediaAdded;
+       j["ExtraType"sv] = o.ExtraType;
+       j["AirsBeforeSeasonNumber"sv] = o.AirsBeforeSeasonNumber;
+       j["AirsAfterSeasonNumber"sv] = o.AirsAfterSeasonNumber;
+       j["AirsBeforeEpisodeNumber"sv] = o.AirsBeforeEpisodeNumber;
+       j["CanDelete"sv] = o.CanDelete;
+       j["CanDownload"sv] = o.CanDownload;
+       j["HasLyrics"sv] = o.HasLyrics;
+       j["HasSubtitles"sv] = o.HasSubtitles;
+       j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
+       j["PreferredMetadataCountryCode"sv] = o.PreferredMetadataCountryCode;
+       j["Container"sv] = o.Container;
+       j["SortName"sv] = o.SortName;
+       j["ForcedSortName"sv] = o.ForcedSortName;
+       j["Video3DFormat"sv] = o.Video3DFormat;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["ExternalUrls"sv] = o.ExternalUrls;
+       j["MediaSources"sv] = o.MediaSources;
+       j["CriticRating"sv] = o.CriticRating;
+       j["ProductionLocations"sv] = o.ProductionLocations;
+       j["Path"sv] = o.Path;
+       j["EnableMediaSourceDisplay"sv] = o.EnableMediaSourceDisplay;
+       j["OfficialRating"sv] = o.OfficialRating;
+       j["CustomRating"sv] = o.CustomRating;
+       j["ChannelId"sv] = o.ChannelId;
+       j["ChannelName"sv] = o.ChannelName;
+       j["Overview"sv] = o.Overview;
+       j["Taglines"sv] = o.Taglines;
+       j["Genres"sv] = o.Genres;
+       j["CommunityRating"sv] = o.CommunityRating;
+       j["CumulativeRunTimeTicks"sv] = o.CumulativeRunTimeTicks;
+       j["RunTimeTicks"sv] = o.RunTimeTicks;
+       j["PlayAccess"sv] = o.PlayAccess;
+       j["AspectRatio"sv] = o.AspectRatio;
+       j["ProductionYear"sv] = o.ProductionYear;
+       j["IsPlaceHolder"sv] = o.IsPlaceHolder;
+       j["Number"sv] = o.Number;
+       j["ChannelNumber"sv] = o.ChannelNumber;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["IndexNumberEnd"sv] = o.IndexNumberEnd;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["RemoteTrailers"sv] = o.RemoteTrailers;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["IsHD"sv] = o.IsHD;
+       j["IsFolder"sv] = o.IsFolder;
+       j["ParentId"sv] = o.ParentId;
+       j["Type"sv] = o.Type;
+       j["People"sv] = o.People;
+       j["Studios"sv] = o.Studios;
+       j["GenreItems"sv] = o.GenreItems;
+       j["ParentLogoItemId"sv] = o.ParentLogoItemId;
+       j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
+       j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
+       j["LocalTrailerCount"sv] = o.LocalTrailerCount;
+       j["UserData"sv] = o.UserData;
+       j["RecursiveItemCount"sv] = o.RecursiveItemCount;
+       j["ChildCount"sv] = o.ChildCount;
+       j["SeriesName"sv] = o.SeriesName;
+       j["SeriesId"sv] = o.SeriesId;
+       j["SeasonId"sv] = o.SeasonId;
+       j["SpecialFeatureCount"sv] = o.SpecialFeatureCount;
+       j["DisplayPreferencesId"sv] = o.DisplayPreferencesId;
+       j["Status"sv] = o.Status;
+       j["AirTime"sv] = o.AirTime;
+       j["AirDays"sv] = o.AirDays;
+       j["Tags"sv] = o.Tags;
+       j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
+       j["Artists"sv] = o.Artists;
+       j["ArtistItems"sv] = o.ArtistItems;
+       j["Album"sv] = o.Album;
+       j["CollectionType"sv] = o.CollectionType;
+       j["DisplayOrder"sv] = o.DisplayOrder;
+       j["AlbumId"sv] = o.AlbumId;
+       j["AlbumPrimaryImageTag"sv] = o.AlbumPrimaryImageTag;
+       j["SeriesPrimaryImageTag"sv] = o.SeriesPrimaryImageTag;
+       j["AlbumArtist"sv] = o.AlbumArtist;
+       j["AlbumArtists"sv] = o.AlbumArtists;
+       j["SeasonName"sv] = o.SeasonName;
+       j["MediaStreams"sv] = o.MediaStreams;
+       j["VideoType"sv] = o.VideoType;
+       j["PartCount"sv] = o.PartCount;
+       j["MediaSourceCount"sv] = o.MediaSourceCount;
+       j["ImageTags"sv] = o.ImageTags;
+       j["BackdropImageTags"sv] = o.BackdropImageTags;
+       j["ScreenshotImageTags"sv] = o.ScreenshotImageTags;
+       j["ParentLogoImageTag"sv] = o.ParentLogoImageTag;
+       j["ParentArtItemId"sv] = o.ParentArtItemId;
+       j["ParentArtImageTag"sv] = o.ParentArtImageTag;
+       j["SeriesThumbImageTag"sv] = o.SeriesThumbImageTag;
+       j["ImageBlurHashes"sv] = o.ImageBlurHashes;
+       j["SeriesStudio"sv] = o.SeriesStudio;
+       j["ParentThumbItemId"sv] = o.ParentThumbItemId;
+       j["ParentThumbImageTag"sv] = o.ParentThumbImageTag;
+       j["ParentPrimaryImageItemId"sv] = o.ParentPrimaryImageItemId;
+       j["ParentPrimaryImageTag"sv] = o.ParentPrimaryImageTag;
+       j["Chapters"sv] = o.Chapters;
+       j["Trickplay"sv] = o.Trickplay;
+       j["LocationType"sv] = o.LocationType;
+       j["IsoType"sv] = o.IsoType;
+       j["MediaType"sv] = o.MediaType;
+       j["EndDate"sv] = o.EndDate;
+       j["LockedFields"sv] = o.LockedFields;
+       j["TrailerCount"sv] = o.TrailerCount;
+       j["MovieCount"sv] = o.MovieCount;
+       j["SeriesCount"sv] = o.SeriesCount;
+       j["ProgramCount"sv] = o.ProgramCount;
+       j["EpisodeCount"sv] = o.EpisodeCount;
+       j["SongCount"sv] = o.SongCount;
+       j["AlbumCount"sv] = o.AlbumCount;
+       j["ArtistCount"sv] = o.ArtistCount;
+       j["MusicVideoCount"sv] = o.MusicVideoCount;
+       j["LockData"sv] = o.LockData;
+       j["Width"sv] = o.Width;
+       j["Height"sv] = o.Height;
+       j["CameraMake"sv] = o.CameraMake;
+       j["CameraModel"sv] = o.CameraModel;
+       j["Software"sv] = o.Software;
+       j["ExposureTime"sv] = o.ExposureTime;
+       j["FocalLength"sv] = o.FocalLength;
+       j["ImageOrientation"sv] = o.ImageOrientation;
+       j["Aperture"sv] = o.Aperture;
+       j["ShutterSpeed"sv] = o.ShutterSpeed;
+       j["Latitude"sv] = o.Latitude;
+       j["Longitude"sv] = o.Longitude;
+       j["Altitude"sv] = o.Altitude;
+       j["IsoSpeedRating"sv] = o.IsoSpeedRating;
+       j["SeriesTimerId"sv] = o.SeriesTimerId;
+       j["ProgramId"sv] = o.ProgramId;
+       j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
+       j["StartDate"sv] = o.StartDate;
+       j["CompletionPercentage"sv] = o.CompletionPercentage;
+       j["IsRepeat"sv] = o.IsRepeat;
+       j["EpisodeTitle"sv] = o.EpisodeTitle;
+       j["ChannelType"sv] = o.ChannelType;
+       j["Audio"sv] = o.Audio;
+       j["IsMovie"sv] = o.IsMovie;
+       j["IsSports"sv] = o.IsSports;
+       j["IsSeries"sv] = o.IsSeries;
+       j["IsLive"sv] = o.IsLive;
+       j["IsNews"sv] = o.IsNews;
+       j["IsKids"sv] = o.IsKids;
+       j["IsPremiere"sv] = o.IsPremiere;
+       j["TimerId"sv] = o.TimerId;
+       j["NormalizationGain"sv] = o.NormalizationGain;
+       j["CurrentProgram"sv] = o.CurrentProgram;
 }
 void from_json(const json_t& j, OAIBaseItemDto& o) {
     if(j.contains("Name"sv))
@@ -1234,19 +1234,19 @@ void from_json(const json_t& j, OAIBaseItemDto& o) {
 
 
 void to_json(json_t& j, const OAIBaseItemDtoImageBlurHashes& o) {
-        j["Primary"sv] = o.Primary;
-        j["Art"sv] = o.Art;
-        j["Backdrop"sv] = o.Backdrop;
-        j["Banner"sv] = o.Banner;
-        j["Logo"sv] = o.Logo;
-        j["Thumb"sv] = o.Thumb;
-        j["Disc"sv] = o.Disc;
-        j["Box"sv] = o.Box;
-        j["Screenshot"sv] = o.Screenshot;
-        j["Menu"sv] = o.Menu;
-        j["Chapter"sv] = o.Chapter;
-        j["BoxRear"sv] = o.BoxRear;
-        j["Profile"sv] = o.Profile;
+       j["Primary"sv] = o.Primary;
+       j["Art"sv] = o.Art;
+       j["Backdrop"sv] = o.Backdrop;
+       j["Banner"sv] = o.Banner;
+       j["Logo"sv] = o.Logo;
+       j["Thumb"sv] = o.Thumb;
+       j["Disc"sv] = o.Disc;
+       j["Box"sv] = o.Box;
+       j["Screenshot"sv] = o.Screenshot;
+       j["Menu"sv] = o.Menu;
+       j["Chapter"sv] = o.Chapter;
+       j["BoxRear"sv] = o.BoxRear;
+       j["Profile"sv] = o.Profile;
 }
 void from_json(const json_t& j, OAIBaseItemDtoImageBlurHashes& o) {
     
@@ -1281,9 +1281,9 @@ void from_json(const json_t& j, OAIBaseItemDtoImageBlurHashes& o) {
 
 
 void to_json(json_t& j, const OAIBaseItemDtoQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAIBaseItemDtoQueryResult& o) {
     if(j.contains("Items"sv))
@@ -1616,12 +1616,12 @@ void from_json(const json_t& j, OAIBaseItemKind& e) {
 
 
 void to_json(json_t& j, const OAIBaseItemPerson& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
-        j["Role"sv] = o.Role;
-        j["Type"sv] = o.Type;
-        j["PrimaryImageTag"sv] = o.PrimaryImageTag;
-        j["ImageBlurHashes"sv] = o.ImageBlurHashes;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
+       j["Role"sv] = o.Role;
+       j["Type"sv] = o.Type;
+       j["PrimaryImageTag"sv] = o.PrimaryImageTag;
+       j["ImageBlurHashes"sv] = o.ImageBlurHashes;
 }
 void from_json(const json_t& j, OAIBaseItemPerson& o) {
     if(j.contains("Name"sv))
@@ -1642,19 +1642,19 @@ void from_json(const json_t& j, OAIBaseItemPerson& o) {
 
 
 void to_json(json_t& j, const OAIBaseItemPersonImageBlurHashes& o) {
-        j["Primary"sv] = o.Primary;
-        j["Art"sv] = o.Art;
-        j["Backdrop"sv] = o.Backdrop;
-        j["Banner"sv] = o.Banner;
-        j["Logo"sv] = o.Logo;
-        j["Thumb"sv] = o.Thumb;
-        j["Disc"sv] = o.Disc;
-        j["Box"sv] = o.Box;
-        j["Screenshot"sv] = o.Screenshot;
-        j["Menu"sv] = o.Menu;
-        j["Chapter"sv] = o.Chapter;
-        j["BoxRear"sv] = o.BoxRear;
-        j["Profile"sv] = o.Profile;
+       j["Primary"sv] = o.Primary;
+       j["Art"sv] = o.Art;
+       j["Backdrop"sv] = o.Backdrop;
+       j["Banner"sv] = o.Banner;
+       j["Logo"sv] = o.Logo;
+       j["Thumb"sv] = o.Thumb;
+       j["Disc"sv] = o.Disc;
+       j["Box"sv] = o.Box;
+       j["Screenshot"sv] = o.Screenshot;
+       j["Menu"sv] = o.Menu;
+       j["Chapter"sv] = o.Chapter;
+       j["BoxRear"sv] = o.BoxRear;
+       j["Profile"sv] = o.Profile;
 }
 void from_json(const json_t& j, OAIBaseItemPersonImageBlurHashes& o) {
     
@@ -1689,18 +1689,18 @@ void from_json(const json_t& j, OAIBaseItemPersonImageBlurHashes& o) {
 
 
 void to_json(json_t& j, const OAIBookInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
-        j["SeriesName"sv] = o.SeriesName;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
+       j["SeriesName"sv] = o.SeriesName;
 }
 void from_json(const json_t& j, OAIBookInfo& o) {
     if(j.contains("Name"sv))
@@ -1733,10 +1733,10 @@ void from_json(const json_t& j, OAIBookInfo& o) {
 
 
 void to_json(json_t& j, const OAIBookInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIBookInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -1753,17 +1753,17 @@ void from_json(const json_t& j, OAIBookInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAIBoxSetInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
 }
 void from_json(const json_t& j, OAIBoxSetInfo& o) {
     if(j.contains("Name"sv))
@@ -1794,10 +1794,10 @@ void from_json(const json_t& j, OAIBoxSetInfo& o) {
 
 
 void to_json(json_t& j, const OAIBoxSetInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIBoxSetInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -1814,9 +1814,9 @@ void from_json(const json_t& j, OAIBoxSetInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAIBrandingOptions& o) {
-        j["LoginDisclaimer"sv] = o.LoginDisclaimer;
-        j["CustomCss"sv] = o.CustomCss;
-        j["SplashscreenEnabled"sv] = o.SplashscreenEnabled;
+       j["LoginDisclaimer"sv] = o.LoginDisclaimer;
+       j["CustomCss"sv] = o.CustomCss;
+       j["SplashscreenEnabled"sv] = o.SplashscreenEnabled;
 }
 void from_json(const json_t& j, OAIBrandingOptions& o) {
     if(j.contains("LoginDisclaimer"sv))
@@ -1831,10 +1831,10 @@ void from_json(const json_t& j, OAIBrandingOptions& o) {
 
 
 void to_json(json_t& j, const OAIBufferRequestDto& o) {
-        j["When"sv] = o.When;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["IsPlaying"sv] = o.IsPlaying;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["When"sv] = o.When;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["IsPlaying"sv] = o.IsPlaying;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIBufferRequestDto& o) {
     
@@ -1851,8 +1851,8 @@ void from_json(const json_t& j, OAIBufferRequestDto& o) {
 
 
 void to_json(json_t& j, const OAICastReceiverApplication& o) {
-        j["Id"sv] = o.Id;
-        j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
 }
 void from_json(const json_t& j, OAICastReceiverApplication& o) {
     
@@ -1865,18 +1865,18 @@ void from_json(const json_t& j, OAICastReceiverApplication& o) {
 
 
 void to_json(json_t& j, const OAIChannelFeatures& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
-        j["CanSearch"sv] = o.CanSearch;
-        j["MediaTypes"sv] = o.MediaTypes;
-        j["ContentTypes"sv] = o.ContentTypes;
-        j["MaxPageSize"sv] = o.MaxPageSize;
-        j["AutoRefreshLevels"sv] = o.AutoRefreshLevels;
-        j["DefaultSortFields"sv] = o.DefaultSortFields;
-        j["SupportsSortOrderToggle"sv] = o.SupportsSortOrderToggle;
-        j["SupportsLatestMedia"sv] = o.SupportsLatestMedia;
-        j["CanFilter"sv] = o.CanFilter;
-        j["SupportsContentDownloading"sv] = o.SupportsContentDownloading;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
+       j["CanSearch"sv] = o.CanSearch;
+       j["MediaTypes"sv] = o.MediaTypes;
+       j["ContentTypes"sv] = o.ContentTypes;
+       j["MaxPageSize"sv] = o.MaxPageSize;
+       j["AutoRefreshLevels"sv] = o.AutoRefreshLevels;
+       j["DefaultSortFields"sv] = o.DefaultSortFields;
+       j["SupportsSortOrderToggle"sv] = o.SupportsSortOrderToggle;
+       j["SupportsLatestMedia"sv] = o.SupportsLatestMedia;
+       j["CanFilter"sv] = o.CanFilter;
+       j["SupportsContentDownloading"sv] = o.SupportsContentDownloading;
 }
 void from_json(const json_t& j, OAIChannelFeatures& o) {
     
@@ -1987,10 +1987,10 @@ void from_json(const json_t& j, OAIChannelItemSortField& e) {
 
 
 void to_json(json_t& j, const OAIChannelMappingOptionsDto& o) {
-        j["TunerChannels"sv] = o.TunerChannels;
-        j["ProviderChannels"sv] = o.ProviderChannels;
-        j["Mappings"sv] = o.Mappings;
-        j["ProviderName"sv] = o.ProviderName;
+       j["TunerChannels"sv] = o.TunerChannels;
+       j["ProviderChannels"sv] = o.ProviderChannels;
+       j["Mappings"sv] = o.Mappings;
+       j["ProviderName"sv] = o.ProviderName;
 }
 void from_json(const json_t& j, OAIChannelMappingOptionsDto& o) {
     
@@ -2177,11 +2177,11 @@ void from_json(const json_t& j, OAIChannelType& e) {
 
 
 void to_json(json_t& j, const OAIChapterInfo& o) {
-        j["StartPositionTicks"sv] = o.StartPositionTicks;
-        j["Name"sv] = o.Name;
-        j["ImagePath"sv] = o.ImagePath;
-        j["ImageDateModified"sv] = o.ImageDateModified;
-        j["ImageTag"sv] = o.ImageTag;
+       j["StartPositionTicks"sv] = o.StartPositionTicks;
+       j["Name"sv] = o.Name;
+       j["ImagePath"sv] = o.ImagePath;
+       j["ImageDateModified"sv] = o.ImageDateModified;
+       j["ImageTag"sv] = o.ImageTag;
 }
 void from_json(const json_t& j, OAIChapterInfo& o) {
     
@@ -2200,15 +2200,15 @@ void from_json(const json_t& j, OAIChapterInfo& o) {
 
 
 void to_json(json_t& j, const OAIClientCapabilities& o) {
-        j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
-        j["SupportedCommands"sv] = o.SupportedCommands;
-        j["SupportsMediaControl"sv] = o.SupportsMediaControl;
-        j["SupportsPersistentIdentifier"sv] = o.SupportsPersistentIdentifier;
-        j["DeviceProfile"sv] = o.DeviceProfile;
-        j["AppStoreUrl"sv] = o.AppStoreUrl;
-        j["IconUrl"sv] = o.IconUrl;
-        j["SupportsContentUploading"sv] = o.SupportsContentUploading;
-        j["SupportsSync"sv] = o.SupportsSync;
+       j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
+       j["SupportedCommands"sv] = o.SupportedCommands;
+       j["SupportsMediaControl"sv] = o.SupportsMediaControl;
+       j["SupportsPersistentIdentifier"sv] = o.SupportsPersistentIdentifier;
+       j["DeviceProfile"sv] = o.DeviceProfile;
+       j["AppStoreUrl"sv] = o.AppStoreUrl;
+       j["IconUrl"sv] = o.IconUrl;
+       // j["SupportsContentUploading"sv] = o.SupportsContentUploading;
+       // j["SupportsSync"sv] = o.SupportsSync;
 }
 void from_json(const json_t& j, OAIClientCapabilities& o) {
     if(j.contains("PlayableMediaTypes"sv))
@@ -2225,25 +2225,25 @@ void from_json(const json_t& j, OAIClientCapabilities& o) {
     j.at("AppStoreUrl"sv).get_to(o.AppStoreUrl);
     if(j.contains("IconUrl"sv))
     j.at("IconUrl"sv).get_to(o.IconUrl);
-    if(j.contains("SupportsContentUploading"sv))
-    j.at("SupportsContentUploading"sv).get_to(o.SupportsContentUploading);
-    if(j.contains("SupportsSync"sv))
-    j.at("SupportsSync"sv).get_to(o.SupportsSync);
+    // if(j.contains("SupportsContentUploading"sv))
+    // j.at("SupportsContentUploading"sv).get_to(o.SupportsContentUploading);
+    // if(j.contains("SupportsSync"sv))
+    // j.at("SupportsSync"sv).get_to(o.SupportsSync);
 }
 
 
 
 
 void to_json(json_t& j, const OAIClientCapabilitiesDto& o) {
-        j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
-        j["SupportedCommands"sv] = o.SupportedCommands;
-        j["SupportsMediaControl"sv] = o.SupportsMediaControl;
-        j["SupportsPersistentIdentifier"sv] = o.SupportsPersistentIdentifier;
-        j["DeviceProfile"sv] = o.DeviceProfile;
-        j["AppStoreUrl"sv] = o.AppStoreUrl;
-        j["IconUrl"sv] = o.IconUrl;
-        j["SupportsContentUploading"sv] = o.SupportsContentUploading;
-        j["SupportsSync"sv] = o.SupportsSync;
+       j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
+       j["SupportedCommands"sv] = o.SupportedCommands;
+       j["SupportsMediaControl"sv] = o.SupportsMediaControl;
+       j["SupportsPersistentIdentifier"sv] = o.SupportsPersistentIdentifier;
+       j["DeviceProfile"sv] = o.DeviceProfile;
+       j["AppStoreUrl"sv] = o.AppStoreUrl;
+       j["IconUrl"sv] = o.IconUrl;
+       // j["SupportsContentUploading"sv] = o.SupportsContentUploading;
+       // j["SupportsSync"sv] = o.SupportsSync;
 }
 void from_json(const json_t& j, OAIClientCapabilitiesDto& o) {
     
@@ -2260,17 +2260,17 @@ void from_json(const json_t& j, OAIClientCapabilitiesDto& o) {
     j.at("AppStoreUrl"sv).get_to(o.AppStoreUrl);
     if(j.contains("IconUrl"sv))
     j.at("IconUrl"sv).get_to(o.IconUrl);
-    if(j.contains("SupportsContentUploading"sv))
-    j.at("SupportsContentUploading"sv).get_to(o.SupportsContentUploading);
-    if(j.contains("SupportsSync"sv))
-    j.at("SupportsSync"sv).get_to(o.SupportsSync);
+    // if(j.contains("SupportsContentUploading"sv))
+    // j.at("SupportsContentUploading"sv).get_to(o.SupportsContentUploading);
+    // if(j.contains("SupportsSync"sv))
+    // j.at("SupportsSync"sv).get_to(o.SupportsSync);
 }
 
 
 
 
 void to_json(json_t& j, const OAIClientLogDocumentResponseDto& o) {
-        j["FileName"sv] = o.FileName;
+       j["FileName"sv] = o.FileName;
 }
 void from_json(const json_t& j, OAIClientLogDocumentResponseDto& o) {
     
@@ -2281,11 +2281,11 @@ void from_json(const json_t& j, OAIClientLogDocumentResponseDto& o) {
 
 
 void to_json(json_t& j, const OAICodecProfile& o) {
-        j["Type"sv] = o.Type;
-        j["Conditions"sv] = o.Conditions;
-        j["ApplyConditions"sv] = o.ApplyConditions;
-        j["Codec"sv] = o.Codec;
-        j["Container"sv] = o.Container;
+       j["Type"sv] = o.Type;
+       j["Conditions"sv] = o.Conditions;
+       j["ApplyConditions"sv] = o.ApplyConditions;
+       j["Codec"sv] = o.Codec;
+       j["Container"sv] = o.Container;
 }
 void from_json(const json_t& j, OAICodecProfile& o) {
     
@@ -2350,7 +2350,7 @@ void from_json(const json_t& j, OAICodecType& e) {
 
 
 void to_json(json_t& j, const OAICollectionCreationResult& o) {
-        j["Id"sv] = o.Id;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAICollectionCreationResult& o) {
     
@@ -2573,13 +2573,13 @@ void from_json(const json_t& j, OAICollectionTypeOptions& e) {
 
 
 void to_json(json_t& j, const OAIConfigImageTypes& o) {
-        j["BackdropSizes"sv] = o.BackdropSizes;
-        j["BaseUrl"sv] = o.BaseUrl;
-        j["LogoSizes"sv] = o.LogoSizes;
-        j["PosterSizes"sv] = o.PosterSizes;
-        j["ProfileSizes"sv] = o.ProfileSizes;
-        j["SecureBaseUrl"sv] = o.SecureBaseUrl;
-        j["StillSizes"sv] = o.StillSizes;
+       j["BackdropSizes"sv] = o.BackdropSizes;
+       j["BaseUrl"sv] = o.BaseUrl;
+       j["LogoSizes"sv] = o.LogoSizes;
+       j["PosterSizes"sv] = o.PosterSizes;
+       j["ProfileSizes"sv] = o.ProfileSizes;
+       j["SecureBaseUrl"sv] = o.SecureBaseUrl;
+       j["StillSizes"sv] = o.StillSizes;
 }
 void from_json(const json_t& j, OAIConfigImageTypes& o) {
     if(j.contains("BackdropSizes"sv))
@@ -2602,12 +2602,12 @@ void from_json(const json_t& j, OAIConfigImageTypes& o) {
 
 
 void to_json(json_t& j, const OAIConfigurationPageInfo& o) {
-        j["Name"sv] = o.Name;
-        j["EnableInMainMenu"sv] = o.EnableInMainMenu;
-        j["MenuSection"sv] = o.MenuSection;
-        j["MenuIcon"sv] = o.MenuIcon;
-        j["DisplayName"sv] = o.DisplayName;
-        j["PluginId"sv] = o.PluginId;
+       j["Name"sv] = o.Name;
+       j["EnableInMainMenu"sv] = o.EnableInMainMenu;
+       j["MenuSection"sv] = o.MenuSection;
+       j["MenuIcon"sv] = o.MenuIcon;
+       j["DisplayName"sv] = o.DisplayName;
+       j["PluginId"sv] = o.PluginId;
 }
 void from_json(const json_t& j, OAIConfigurationPageInfo& o) {
     
@@ -2628,9 +2628,9 @@ void from_json(const json_t& j, OAIConfigurationPageInfo& o) {
 
 
 void to_json(json_t& j, const OAIContainerProfile& o) {
-        j["Type"sv] = o.Type;
-        j["Conditions"sv] = o.Conditions;
-        j["Container"sv] = o.Container;
+       j["Type"sv] = o.Type;
+       j["Conditions"sv] = o.Conditions;
+       j["Container"sv] = o.Container;
 }
 void from_json(const json_t& j, OAIContainerProfile& o) {
     
@@ -2645,10 +2645,10 @@ void from_json(const json_t& j, OAIContainerProfile& o) {
 
 
 void to_json(json_t& j, const OAICountryInfo& o) {
-        j["Name"sv] = o.Name;
-        j["DisplayName"sv] = o.DisplayName;
-        j["TwoLetterISORegionName"sv] = o.TwoLetterISORegionName;
-        j["ThreeLetterISORegionName"sv] = o.ThreeLetterISORegionName;
+       j["Name"sv] = o.Name;
+       j["DisplayName"sv] = o.DisplayName;
+       j["TwoLetterISORegionName"sv] = o.TwoLetterISORegionName;
+       j["ThreeLetterISORegionName"sv] = o.ThreeLetterISORegionName;
 }
 void from_json(const json_t& j, OAICountryInfo& o) {
     if(j.contains("Name"sv))
@@ -2665,12 +2665,12 @@ void from_json(const json_t& j, OAICountryInfo& o) {
 
 
 void to_json(json_t& j, const OAICreatePlaylistDto& o) {
-        j["Name"sv] = o.Name;
-        j["Ids"sv] = o.Ids;
-        j["UserId"sv] = o.UserId;
-        j["MediaType"sv] = o.MediaType;
-        j["Users"sv] = o.Users;
-        j["IsPublic"sv] = o.IsPublic;
+       j["Name"sv] = o.Name;
+       j["Ids"sv] = o.Ids;
+       j["UserId"sv] = o.UserId;
+       j["MediaType"sv] = o.MediaType;
+       j["Users"sv] = o.Users;
+       j["IsPublic"sv] = o.IsPublic;
 }
 void from_json(const json_t& j, OAICreatePlaylistDto& o) {
     
@@ -2691,8 +2691,8 @@ void from_json(const json_t& j, OAICreatePlaylistDto& o) {
 
 
 void to_json(json_t& j, const OAICreateUserByName& o) {
-        j["Name"sv] = o.Name;
-        j["Password"sv] = o.Password;
+       j["Name"sv] = o.Name;
+       j["Password"sv] = o.Password;
 }
 void from_json(const json_t& j, OAICreateUserByName& o) {
     
@@ -2705,11 +2705,11 @@ void from_json(const json_t& j, OAICreateUserByName& o) {
 
 
 void to_json(json_t& j, const OAICultureDto& o) {
-        j["Name"sv] = o.Name;
-        j["DisplayName"sv] = o.DisplayName;
-        j["TwoLetterISOLanguageName"sv] = o.TwoLetterISOLanguageName;
-        j["ThreeLetterISOLanguageName"sv] = o.ThreeLetterISOLanguageName;
-        j["ThreeLetterISOLanguageNames"sv] = o.ThreeLetterISOLanguageNames;
+       j["Name"sv] = o.Name;
+       j["DisplayName"sv] = o.DisplayName;
+       j["TwoLetterISOLanguageName"sv] = o.TwoLetterISOLanguageName;
+       j["ThreeLetterISOLanguageName"sv] = o.ThreeLetterISOLanguageName;
+       j["ThreeLetterISOLanguageNames"sv] = o.ThreeLetterISOLanguageNames;
 }
 void from_json(const json_t& j, OAICultureDto& o) {
     
@@ -2852,7 +2852,7 @@ void from_json(const json_t& j, OAIDayPattern& e) {
 
 
 void to_json(json_t& j, const OAIDefaultDirectoryBrowserInfoDto& o) {
-        j["Path"sv] = o.Path;
+       j["Path"sv] = o.Path;
 }
 void from_json(const json_t& j, OAIDefaultDirectoryBrowserInfoDto& o) {
     if(j.contains("Path"sv))
@@ -2863,17 +2863,17 @@ void from_json(const json_t& j, OAIDefaultDirectoryBrowserInfoDto& o) {
 
 
 void to_json(json_t& j, const OAIDeviceInfo& o) {
-        j["Name"sv] = o.Name;
-        j["CustomName"sv] = o.CustomName;
-        j["AccessToken"sv] = o.AccessToken;
-        j["Id"sv] = o.Id;
-        j["LastUserName"sv] = o.LastUserName;
-        j["AppName"sv] = o.AppName;
-        j["AppVersion"sv] = o.AppVersion;
-        j["LastUserId"sv] = o.LastUserId;
-        j["DateLastActivity"sv] = o.DateLastActivity;
-        j["Capabilities"sv] = o.Capabilities;
-        j["IconUrl"sv] = o.IconUrl;
+       j["Name"sv] = o.Name;
+       j["CustomName"sv] = o.CustomName;
+       j["AccessToken"sv] = o.AccessToken;
+       j["Id"sv] = o.Id;
+       j["LastUserName"sv] = o.LastUserName;
+       j["AppName"sv] = o.AppName;
+       j["AppVersion"sv] = o.AppVersion;
+       j["LastUserId"sv] = o.LastUserId;
+       j["DateLastActivity"sv] = o.DateLastActivity;
+       j["Capabilities"sv] = o.Capabilities;
+       j["IconUrl"sv] = o.IconUrl;
 }
 void from_json(const json_t& j, OAIDeviceInfo& o) {
     if(j.contains("Name"sv))
@@ -2904,9 +2904,9 @@ void from_json(const json_t& j, OAIDeviceInfo& o) {
 
 
 void to_json(json_t& j, const OAIDeviceInfoQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAIDeviceInfoQueryResult& o) {
     if(j.contains("Items"sv))
@@ -2921,9 +2921,9 @@ void from_json(const json_t& j, OAIDeviceInfoQueryResult& o) {
 
 
 void to_json(json_t& j, const OAIDeviceOptions& o) {
-        j["Id"sv] = o.Id;
-        j["DeviceId"sv] = o.DeviceId;
-        j["CustomName"sv] = o.CustomName;
+       j["Id"sv] = o.Id;
+       j["DeviceId"sv] = o.DeviceId;
+       j["CustomName"sv] = o.CustomName;
 }
 void from_json(const json_t& j, OAIDeviceOptions& o) {
     
@@ -2938,9 +2938,9 @@ void from_json(const json_t& j, OAIDeviceOptions& o) {
 
 
 void to_json(json_t& j, const OAIDeviceOptionsDto& o) {
-        j["Id"sv] = o.Id;
-        j["DeviceId"sv] = o.DeviceId;
-        j["CustomName"sv] = o.CustomName;
+       j["Id"sv] = o.Id;
+       j["DeviceId"sv] = o.DeviceId;
+       j["CustomName"sv] = o.CustomName;
 }
 void from_json(const json_t& j, OAIDeviceOptionsDto& o) {
     
@@ -2955,17 +2955,17 @@ void from_json(const json_t& j, OAIDeviceOptionsDto& o) {
 
 
 void to_json(json_t& j, const OAIDeviceProfile& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
-        j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
-        j["MaxStaticBitrate"sv] = o.MaxStaticBitrate;
-        j["MusicStreamingTranscodingBitrate"sv] = o.MusicStreamingTranscodingBitrate;
-        j["MaxStaticMusicBitrate"sv] = o.MaxStaticMusicBitrate;
-        j["DirectPlayProfiles"sv] = o.DirectPlayProfiles;
-        j["TranscodingProfiles"sv] = o.TranscodingProfiles;
-        j["ContainerProfiles"sv] = o.ContainerProfiles;
-        j["CodecProfiles"sv] = o.CodecProfiles;
-        j["SubtitleProfiles"sv] = o.SubtitleProfiles;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
+       j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
+       j["MaxStaticBitrate"sv] = o.MaxStaticBitrate;
+       j["MusicStreamingTranscodingBitrate"sv] = o.MusicStreamingTranscodingBitrate;
+       j["MaxStaticMusicBitrate"sv] = o.MaxStaticMusicBitrate;
+       j["DirectPlayProfiles"sv] = o.DirectPlayProfiles;
+       j["TranscodingProfiles"sv] = o.TranscodingProfiles;
+       j["ContainerProfiles"sv] = o.ContainerProfiles;
+       j["CodecProfiles"sv] = o.CodecProfiles;
+       j["SubtitleProfiles"sv] = o.SubtitleProfiles;
 }
 void from_json(const json_t& j, OAIDeviceProfile& o) {
     if(j.contains("Name"sv))
@@ -2996,10 +2996,10 @@ void from_json(const json_t& j, OAIDeviceProfile& o) {
 
 
 void to_json(json_t& j, const OAIDirectPlayProfile& o) {
-        j["Container"sv] = o.Container;
-        j["AudioCodec"sv] = o.AudioCodec;
-        j["VideoCodec"sv] = o.VideoCodec;
-        j["Type"sv] = o.Type;
+       j["Container"sv] = o.Container;
+       j["AudioCodec"sv] = o.AudioCodec;
+       j["VideoCodec"sv] = o.VideoCodec;
+       j["Type"sv] = o.Type;
 }
 void from_json(const json_t& j, OAIDirectPlayProfile& o) {
     if(j.contains("Container"sv))
@@ -3016,20 +3016,20 @@ void from_json(const json_t& j, OAIDirectPlayProfile& o) {
 
 
 void to_json(json_t& j, const OAIDisplayPreferencesDto& o) {
-        j["Id"sv] = o.Id;
-        j["ViewType"sv] = o.ViewType;
-        j["SortBy"sv] = o.SortBy;
-        j["IndexBy"sv] = o.IndexBy;
-        j["RememberIndexing"sv] = o.RememberIndexing;
-        j["PrimaryImageHeight"sv] = o.PrimaryImageHeight;
-        j["PrimaryImageWidth"sv] = o.PrimaryImageWidth;
-        j["CustomPrefs"sv] = o.CustomPrefs;
-        j["ScrollDirection"sv] = o.ScrollDirection;
-        j["ShowBackdrop"sv] = o.ShowBackdrop;
-        j["RememberSorting"sv] = o.RememberSorting;
-        j["SortOrder"sv] = o.SortOrder;
-        j["ShowSidebar"sv] = o.ShowSidebar;
-        j["Client"sv] = o.Client;
+       j["Id"sv] = o.Id;
+       j["ViewType"sv] = o.ViewType;
+       j["SortBy"sv] = o.SortBy;
+       j["IndexBy"sv] = o.IndexBy;
+       j["RememberIndexing"sv] = o.RememberIndexing;
+       j["PrimaryImageHeight"sv] = o.PrimaryImageHeight;
+       j["PrimaryImageWidth"sv] = o.PrimaryImageWidth;
+       j["CustomPrefs"sv] = o.CustomPrefs;
+       j["ScrollDirection"sv] = o.ScrollDirection;
+       j["ShowBackdrop"sv] = o.ShowBackdrop;
+       j["RememberSorting"sv] = o.RememberSorting;
+       j["SortOrder"sv] = o.SortOrder;
+       j["ShowSidebar"sv] = o.ShowSidebar;
+       j["Client"sv] = o.Client;
 }
 void from_json(const json_t& j, OAIDisplayPreferencesDto& o) {
     if(j.contains("Id"sv))
@@ -3368,50 +3368,50 @@ void from_json(const json_t& j, OAIEncodingContext& e) {
 
 
 void to_json(json_t& j, const OAIEncodingOptions& o) {
-        j["EncodingThreadCount"sv] = o.EncodingThreadCount;
-        j["TranscodingTempPath"sv] = o.TranscodingTempPath;
-        j["FallbackFontPath"sv] = o.FallbackFontPath;
-        j["EnableFallbackFont"sv] = o.EnableFallbackFont;
-        j["EnableAudioVbr"sv] = o.EnableAudioVbr;
-        j["DownMixAudioBoost"sv] = o.DownMixAudioBoost;
-        j["DownMixStereoAlgorithm"sv] = o.DownMixStereoAlgorithm;
-        j["MaxMuxingQueueSize"sv] = o.MaxMuxingQueueSize;
-        j["EnableThrottling"sv] = o.EnableThrottling;
-        j["ThrottleDelaySeconds"sv] = o.ThrottleDelaySeconds;
-        j["EnableSegmentDeletion"sv] = o.EnableSegmentDeletion;
-        j["SegmentKeepSeconds"sv] = o.SegmentKeepSeconds;
-        j["HardwareAccelerationType"sv] = o.HardwareAccelerationType;
-        j["EncoderAppPath"sv] = o.EncoderAppPath;
-        j["EncoderAppPathDisplay"sv] = o.EncoderAppPathDisplay;
-        j["VaapiDevice"sv] = o.VaapiDevice;
-        j["EnableTonemapping"sv] = o.EnableTonemapping;
-        j["EnableVppTonemapping"sv] = o.EnableVppTonemapping;
-        j["EnableVideoToolboxTonemapping"sv] = o.EnableVideoToolboxTonemapping;
-        j["TonemappingAlgorithm"sv] = o.TonemappingAlgorithm;
-        j["TonemappingMode"sv] = o.TonemappingMode;
-        j["TonemappingRange"sv] = o.TonemappingRange;
-        j["TonemappingDesat"sv] = o.TonemappingDesat;
-        j["TonemappingPeak"sv] = o.TonemappingPeak;
-        j["TonemappingParam"sv] = o.TonemappingParam;
-        j["VppTonemappingBrightness"sv] = o.VppTonemappingBrightness;
-        j["VppTonemappingContrast"sv] = o.VppTonemappingContrast;
-        j["H264Crf"sv] = o.H264Crf;
-        j["H265Crf"sv] = o.H265Crf;
-        j["EncoderPreset"sv] = o.EncoderPreset;
-        j["DeinterlaceDoubleRate"sv] = o.DeinterlaceDoubleRate;
-        j["DeinterlaceMethod"sv] = o.DeinterlaceMethod;
-        j["EnableDecodingColorDepth10Hevc"sv] = o.EnableDecodingColorDepth10Hevc;
-        j["EnableDecodingColorDepth10Vp9"sv] = o.EnableDecodingColorDepth10Vp9;
-        j["EnableEnhancedNvdecDecoder"sv] = o.EnableEnhancedNvdecDecoder;
-        j["PreferSystemNativeHwDecoder"sv] = o.PreferSystemNativeHwDecoder;
-        j["EnableIntelLowPowerH264HwEncoder"sv] = o.EnableIntelLowPowerH264HwEncoder;
-        j["EnableIntelLowPowerHevcHwEncoder"sv] = o.EnableIntelLowPowerHevcHwEncoder;
-        j["EnableHardwareEncoding"sv] = o.EnableHardwareEncoding;
-        j["AllowHevcEncoding"sv] = o.AllowHevcEncoding;
-        j["AllowAv1Encoding"sv] = o.AllowAv1Encoding;
-        j["EnableSubtitleExtraction"sv] = o.EnableSubtitleExtraction;
-        j["HardwareDecodingCodecs"sv] = o.HardwareDecodingCodecs;
-        j["AllowOnDemandMetadataBasedKeyframeExtractionForExtensions"sv] = o.AllowOnDemandMetadataBasedKeyframeExtractionForExtensions;
+       j["EncodingThreadCount"sv] = o.EncodingThreadCount;
+       j["TranscodingTempPath"sv] = o.TranscodingTempPath;
+       j["FallbackFontPath"sv] = o.FallbackFontPath;
+       j["EnableFallbackFont"sv] = o.EnableFallbackFont;
+       j["EnableAudioVbr"sv] = o.EnableAudioVbr;
+       j["DownMixAudioBoost"sv] = o.DownMixAudioBoost;
+       j["DownMixStereoAlgorithm"sv] = o.DownMixStereoAlgorithm;
+       j["MaxMuxingQueueSize"sv] = o.MaxMuxingQueueSize;
+       j["EnableThrottling"sv] = o.EnableThrottling;
+       j["ThrottleDelaySeconds"sv] = o.ThrottleDelaySeconds;
+       j["EnableSegmentDeletion"sv] = o.EnableSegmentDeletion;
+       j["SegmentKeepSeconds"sv] = o.SegmentKeepSeconds;
+       j["HardwareAccelerationType"sv] = o.HardwareAccelerationType;
+       j["EncoderAppPath"sv] = o.EncoderAppPath;
+       j["EncoderAppPathDisplay"sv] = o.EncoderAppPathDisplay;
+       j["VaapiDevice"sv] = o.VaapiDevice;
+       j["EnableTonemapping"sv] = o.EnableTonemapping;
+       j["EnableVppTonemapping"sv] = o.EnableVppTonemapping;
+       j["EnableVideoToolboxTonemapping"sv] = o.EnableVideoToolboxTonemapping;
+       j["TonemappingAlgorithm"sv] = o.TonemappingAlgorithm;
+       j["TonemappingMode"sv] = o.TonemappingMode;
+       j["TonemappingRange"sv] = o.TonemappingRange;
+       j["TonemappingDesat"sv] = o.TonemappingDesat;
+       j["TonemappingPeak"sv] = o.TonemappingPeak;
+       j["TonemappingParam"sv] = o.TonemappingParam;
+       j["VppTonemappingBrightness"sv] = o.VppTonemappingBrightness;
+       j["VppTonemappingContrast"sv] = o.VppTonemappingContrast;
+       j["H264Crf"sv] = o.H264Crf;
+       j["H265Crf"sv] = o.H265Crf;
+       j["EncoderPreset"sv] = o.EncoderPreset;
+       j["DeinterlaceDoubleRate"sv] = o.DeinterlaceDoubleRate;
+       j["DeinterlaceMethod"sv] = o.DeinterlaceMethod;
+       j["EnableDecodingColorDepth10Hevc"sv] = o.EnableDecodingColorDepth10Hevc;
+       j["EnableDecodingColorDepth10Vp9"sv] = o.EnableDecodingColorDepth10Vp9;
+       j["EnableEnhancedNvdecDecoder"sv] = o.EnableEnhancedNvdecDecoder;
+       j["PreferSystemNativeHwDecoder"sv] = o.PreferSystemNativeHwDecoder;
+       j["EnableIntelLowPowerH264HwEncoder"sv] = o.EnableIntelLowPowerH264HwEncoder;
+       j["EnableIntelLowPowerHevcHwEncoder"sv] = o.EnableIntelLowPowerHevcHwEncoder;
+       j["EnableHardwareEncoding"sv] = o.EnableHardwareEncoding;
+       j["AllowHevcEncoding"sv] = o.AllowHevcEncoding;
+       j["AllowAv1Encoding"sv] = o.AllowAv1Encoding;
+       j["EnableSubtitleExtraction"sv] = o.EnableSubtitleExtraction;
+       j["HardwareDecodingCodecs"sv] = o.HardwareDecodingCodecs;
+       j["AllowOnDemandMetadataBasedKeyframeExtractionForExtensions"sv] = o.AllowOnDemandMetadataBasedKeyframeExtractionForExtensions;
 }
 void from_json(const json_t& j, OAIEncodingOptions& o) {
     
@@ -3508,8 +3508,8 @@ void from_json(const json_t& j, OAIEncodingOptions& o) {
 
 
 void to_json(json_t& j, const OAIEndPointInfo& o) {
-        j["IsLocal"sv] = o.IsLocal;
-        j["IsInNetwork"sv] = o.IsInNetwork;
+       j["IsLocal"sv] = o.IsLocal;
+       j["IsInNetwork"sv] = o.IsInNetwork;
 }
 void from_json(const json_t& j, OAIEndPointInfo& o) {
     
@@ -3522,10 +3522,10 @@ void from_json(const json_t& j, OAIEndPointInfo& o) {
 
 
 void to_json(json_t& j, const OAIExternalIdInfo& o) {
-        j["Name"sv] = o.Name;
-        j["Key"sv] = o.Key;
-        j["Type"sv] = o.Type;
-        j["UrlFormatString"sv] = o.UrlFormatString;
+       j["Name"sv] = o.Name;
+       j["Key"sv] = o.Key;
+       j["Type"sv] = o.Type;
+       j["UrlFormatString"sv] = o.UrlFormatString;
 }
 void from_json(const json_t& j, OAIExternalIdInfo& o) {
     
@@ -3668,8 +3668,8 @@ void from_json(const json_t& j, OAIExternalIdMediaType& e) {
 
 
 void to_json(json_t& j, const OAIExternalUrl& o) {
-        j["Name"sv] = o.Name;
-        j["Url"sv] = o.Url;
+       j["Name"sv] = o.Name;
+       j["Url"sv] = o.Url;
 }
 void from_json(const json_t& j, OAIExternalUrl& o) {
     if(j.contains("Name"sv))
@@ -3800,9 +3800,9 @@ void from_json(const json_t& j, OAIExtraType& e) {
 
 
 void to_json(json_t& j, const OAIFileSystemEntryInfo& o) {
-        j["Name"sv] = o.Name;
-        j["Path"sv] = o.Path;
-        j["Type"sv] = o.Type;
+       j["Name"sv] = o.Name;
+       j["Path"sv] = o.Path;
+       j["Type"sv] = o.Type;
 }
 void from_json(const json_t& j, OAIFileSystemEntryInfo& o) {
     
@@ -3871,10 +3871,10 @@ void from_json(const json_t& j, OAIFileSystemEntryType& e) {
 
 
 void to_json(json_t& j, const OAIFontFile& o) {
-        j["Name"sv] = o.Name;
-        j["Size"sv] = o.Size;
-        j["DateCreated"sv] = o.DateCreated;
-        j["DateModified"sv] = o.DateModified;
+       j["Name"sv] = o.Name;
+       j["Size"sv] = o.Size;
+       j["DateCreated"sv] = o.DateCreated;
+       j["DateModified"sv] = o.DateModified;
 }
 void from_json(const json_t& j, OAIFontFile& o) {
     if(j.contains("Name"sv))
@@ -3891,9 +3891,9 @@ void from_json(const json_t& j, OAIFontFile& o) {
 
 
 void to_json(json_t& j, const OAIForceKeepAliveMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIForceKeepAliveMessage& o) {
     
@@ -3954,7 +3954,7 @@ void from_json(const json_t& j, OAIForgotPasswordAction& e) {
 
 
 void to_json(json_t& j, const OAIForgotPasswordDto& o) {
-        j["EnteredUsername"sv] = o.EnteredUsername;
+       j["EnteredUsername"sv] = o.EnteredUsername;
 }
 void from_json(const json_t& j, OAIForgotPasswordDto& o) {
     
@@ -3965,7 +3965,7 @@ void from_json(const json_t& j, OAIForgotPasswordDto& o) {
 
 
 void to_json(json_t& j, const OAIForgotPasswordPinDto& o) {
-        j["Pin"sv] = o.Pin;
+       j["Pin"sv] = o.Pin;
 }
 void from_json(const json_t& j, OAIForgotPasswordPinDto& o) {
     
@@ -3976,9 +3976,9 @@ void from_json(const json_t& j, OAIForgotPasswordPinDto& o) {
 
 
 void to_json(json_t& j, const OAIForgotPasswordResult& o) {
-        j["Action"sv] = o.Action;
-        j["PinFile"sv] = o.PinFile;
-        j["PinExpirationDate"sv] = o.PinExpirationDate;
+       j["Action"sv] = o.Action;
+       j["PinFile"sv] = o.PinFile;
+       j["PinExpirationDate"sv] = o.PinExpirationDate;
 }
 void from_json(const json_t& j, OAIForgotPasswordResult& o) {
     
@@ -3993,9 +3993,9 @@ void from_json(const json_t& j, OAIForgotPasswordResult& o) {
 
 
 void to_json(json_t& j, const OAIGeneralCommand& o) {
-        j["Name"sv] = o.Name;
-        j["ControllingUserId"sv] = o.ControllingUserId;
-        j["Arguments"sv] = o.Arguments;
+       j["Name"sv] = o.Name;
+       j["ControllingUserId"sv] = o.ControllingUserId;
+       j["Arguments"sv] = o.Arguments;
 }
 void from_json(const json_t& j, OAIGeneralCommand& o) {
     
@@ -4010,9 +4010,9 @@ void from_json(const json_t& j, OAIGeneralCommand& o) {
 
 
 void to_json(json_t& j, const OAIGeneralCommandMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIGeneralCommandMessage& o) {
     if(j.contains("Data"sv))
@@ -4393,33 +4393,33 @@ void from_json(const json_t& j, OAIGeneralCommandType& e) {
 
 
 void to_json(json_t& j, const OAIGetProgramsDto& o) {
-        j["ChannelIds"sv] = o.ChannelIds;
-        j["UserId"sv] = o.UserId;
-        j["MinStartDate"sv] = o.MinStartDate;
-        j["HasAired"sv] = o.HasAired;
-        j["IsAiring"sv] = o.IsAiring;
-        j["MaxStartDate"sv] = o.MaxStartDate;
-        j["MinEndDate"sv] = o.MinEndDate;
-        j["MaxEndDate"sv] = o.MaxEndDate;
-        j["IsMovie"sv] = o.IsMovie;
-        j["IsSeries"sv] = o.IsSeries;
-        j["IsNews"sv] = o.IsNews;
-        j["IsKids"sv] = o.IsKids;
-        j["IsSports"sv] = o.IsSports;
-        j["StartIndex"sv] = o.StartIndex;
-        j["Limit"sv] = o.Limit;
-        j["SortBy"sv] = o.SortBy;
-        j["SortOrder"sv] = o.SortOrder;
-        j["Genres"sv] = o.Genres;
-        j["GenreIds"sv] = o.GenreIds;
-        j["EnableImages"sv] = o.EnableImages;
-        j["EnableTotalRecordCount"sv] = o.EnableTotalRecordCount;
-        j["ImageTypeLimit"sv] = o.ImageTypeLimit;
-        j["EnableImageTypes"sv] = o.EnableImageTypes;
-        j["EnableUserData"sv] = o.EnableUserData;
-        j["SeriesTimerId"sv] = o.SeriesTimerId;
-        j["LibrarySeriesId"sv] = o.LibrarySeriesId;
-        j["Fields"sv] = o.Fields;
+       j["ChannelIds"sv] = o.ChannelIds;
+       j["UserId"sv] = o.UserId;
+       j["MinStartDate"sv] = o.MinStartDate;
+       j["HasAired"sv] = o.HasAired;
+       j["IsAiring"sv] = o.IsAiring;
+       j["MaxStartDate"sv] = o.MaxStartDate;
+       j["MinEndDate"sv] = o.MinEndDate;
+       j["MaxEndDate"sv] = o.MaxEndDate;
+       j["IsMovie"sv] = o.IsMovie;
+       j["IsSeries"sv] = o.IsSeries;
+       j["IsNews"sv] = o.IsNews;
+       j["IsKids"sv] = o.IsKids;
+       j["IsSports"sv] = o.IsSports;
+       j["StartIndex"sv] = o.StartIndex;
+       j["Limit"sv] = o.Limit;
+       j["SortBy"sv] = o.SortBy;
+       j["SortOrder"sv] = o.SortOrder;
+       j["Genres"sv] = o.Genres;
+       j["GenreIds"sv] = o.GenreIds;
+       j["EnableImages"sv] = o.EnableImages;
+       j["EnableTotalRecordCount"sv] = o.EnableTotalRecordCount;
+       j["ImageTypeLimit"sv] = o.ImageTypeLimit;
+       j["EnableImageTypes"sv] = o.EnableImageTypes;
+       j["EnableUserData"sv] = o.EnableUserData;
+       j["SeriesTimerId"sv] = o.SeriesTimerId;
+       j["LibrarySeriesId"sv] = o.LibrarySeriesId;
+       j["Fields"sv] = o.Fields;
 }
 void from_json(const json_t& j, OAIGetProgramsDto& o) {
     
@@ -4482,11 +4482,11 @@ void from_json(const json_t& j, OAIGetProgramsDto& o) {
 
 
 void to_json(json_t& j, const OAIGroupInfoDto& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["GroupName"sv] = o.GroupName;
-        j["State"sv] = o.State;
-        j["Participants"sv] = o.Participants;
-        j["LastUpdatedAt"sv] = o.LastUpdatedAt;
+       j["GroupId"sv] = o.GroupId;
+       j["GroupName"sv] = o.GroupName;
+       j["State"sv] = o.State;
+       j["Participants"sv] = o.Participants;
+       j["LastUpdatedAt"sv] = o.LastUpdatedAt;
 }
 void from_json(const json_t& j, OAIGroupInfoDto& o) {
     
@@ -4505,9 +4505,9 @@ void from_json(const json_t& j, OAIGroupInfoDto& o) {
 
 
 void to_json(json_t& j, const OAIGroupInfoDtoGroupUpdate& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["Type"sv] = o.Type;
-        j["Data"sv] = o.Data;
+       j["GroupId"sv] = o.GroupId;
+       j["Type"sv] = o.Type;
+       j["Data"sv] = o.Data;
 }
 void from_json(const json_t& j, OAIGroupInfoDtoGroupUpdate& o) {
     
@@ -4698,8 +4698,8 @@ void from_json(const json_t& j, OAIGroupStateType& e) {
 
 
 void to_json(json_t& j, const OAIGroupStateUpdate& o) {
-        j["State"sv] = o.State;
-        j["Reason"sv] = o.Reason;
+       j["State"sv] = o.State;
+       j["Reason"sv] = o.Reason;
 }
 void from_json(const json_t& j, OAIGroupStateUpdate& o) {
     
@@ -4712,9 +4712,9 @@ void from_json(const json_t& j, OAIGroupStateUpdate& o) {
 
 
 void to_json(json_t& j, const OAIGroupStateUpdateGroupUpdate& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["Type"sv] = o.Type;
-        j["Data"sv] = o.Data;
+       j["GroupId"sv] = o.GroupId;
+       j["Type"sv] = o.Type;
+       j["Data"sv] = o.Data;
 }
 void from_json(const json_t& j, OAIGroupStateUpdateGroupUpdate& o) {
     
@@ -4726,6 +4726,7 @@ void from_json(const json_t& j, OAIGroupStateUpdateGroupUpdate& o) {
 }
 
 
+// oneOf
 void to_json(json_t& j, const OAIGroupUpdate& o) {
 }
 void from_json(const json_t& j, OAIGroupUpdate& o) {
@@ -4846,8 +4847,8 @@ void from_json(const json_t& j, OAIGroupUpdateType& e) {
 
 
 void to_json(json_t& j, const OAIGuideInfo& o) {
-        j["StartDate"sv] = o.StartDate;
-        j["EndDate"sv] = o.EndDate;
+       j["StartDate"sv] = o.StartDate;
+       j["EndDate"sv] = o.EndDate;
 }
 void from_json(const json_t& j, OAIGuideInfo& o) {
     
@@ -4938,13 +4939,13 @@ void from_json(const json_t& j, OAIHardwareEncodingType& e) {
 
 
 void to_json(json_t& j, const OAIIPlugin& o) {
-        j["Name"sv] = o.Name;
-        j["Description"sv] = o.Description;
-        j["Id"sv] = o.Id;
-        j["Version"sv] = o.Version;
-        j["AssemblyFilePath"sv] = o.AssemblyFilePath;
-        j["CanUninstall"sv] = o.CanUninstall;
-        j["DataFolderPath"sv] = o.DataFolderPath;
+       j["Name"sv] = o.Name;
+       j["Description"sv] = o.Description;
+       j["Id"sv] = o.Id;
+       j["Version"sv] = o.Version;
+       j["AssemblyFilePath"sv] = o.AssemblyFilePath;
+       j["CanUninstall"sv] = o.CanUninstall;
+       j["DataFolderPath"sv] = o.DataFolderPath;
 }
 void from_json(const json_t& j, OAIIPlugin& o) {
     if(j.contains("Name"sv))
@@ -4967,7 +4968,7 @@ void from_json(const json_t& j, OAIIPlugin& o) {
 
 
 void to_json(json_t& j, const OAIIgnoreWaitRequestDto& o) {
-        j["IgnoreWait"sv] = o.IgnoreWait;
+       j["IgnoreWait"sv] = o.IgnoreWait;
 }
 void from_json(const json_t& j, OAIIgnoreWaitRequestDto& o) {
     
@@ -5048,14 +5049,14 @@ void from_json(const json_t& j, OAIImageFormat& e) {
 
 
 void to_json(json_t& j, const OAIImageInfo& o) {
-        j["ImageType"sv] = o.ImageType;
-        j["ImageIndex"sv] = o.ImageIndex;
-        j["ImageTag"sv] = o.ImageTag;
-        j["Path"sv] = o.Path;
-        j["BlurHash"sv] = o.BlurHash;
-        j["Height"sv] = o.Height;
-        j["Width"sv] = o.Width;
-        j["Size"sv] = o.Size;
+       j["ImageType"sv] = o.ImageType;
+       j["ImageIndex"sv] = o.ImageIndex;
+       j["ImageTag"sv] = o.ImageTag;
+       j["Path"sv] = o.Path;
+       j["BlurHash"sv] = o.BlurHash;
+       j["Height"sv] = o.Height;
+       j["Width"sv] = o.Width;
+       j["Size"sv] = o.Size;
 }
 void from_json(const json_t& j, OAIImageInfo& o) {
     
@@ -5080,9 +5081,9 @@ void from_json(const json_t& j, OAIImageInfo& o) {
 
 
 void to_json(json_t& j, const OAIImageOption& o) {
-        j["Type"sv] = o.Type;
-        j["Limit"sv] = o.Limit;
-        j["MinWidth"sv] = o.MinWidth;
+       j["Type"sv] = o.Type;
+       j["Limit"sv] = o.Limit;
+       j["MinWidth"sv] = o.MinWidth;
 }
 void from_json(const json_t& j, OAIImageOption& o) {
     
@@ -5183,8 +5184,8 @@ void from_json(const json_t& j, OAIImageOrientation& e) {
 
 
 void to_json(json_t& j, const OAIImageProviderInfo& o) {
-        j["Name"sv] = o.Name;
-        j["SupportedImages"sv] = o.SupportedImages;
+       j["Name"sv] = o.Name;
+       j["SupportedImages"sv] = o.SupportedImages;
 }
 void from_json(const json_t& j, OAIImageProviderInfo& o) {
     
@@ -5455,7 +5456,7 @@ void from_json(const json_t& j, OAIImageType& e) {
 
 
 void to_json(json_t& j, const OAIInboundKeepAliveMessage& o) {
-        j["MessageType"sv] = o.MessageType;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIInboundKeepAliveMessage& o) {
     
@@ -5463,6 +5464,7 @@ void from_json(const json_t& j, OAIInboundKeepAliveMessage& o) {
 }
 
 
+// oneOf
 void to_json(json_t& j, const OAIInboundWebSocketMessage& o) {
 }
 void from_json(const json_t& j, OAIInboundWebSocketMessage& o) {
@@ -5473,13 +5475,13 @@ void from_json(const json_t& j, OAIInboundWebSocketMessage& o) {
 
 
 void to_json(json_t& j, const OAIInstallationInfo& o) {
-        j["Guid"sv] = o.Guid;
-        j["Name"sv] = o.Name;
-        j["Version"sv] = o.Version;
-        j["Changelog"sv] = o.Changelog;
-        j["SourceUrl"sv] = o.SourceUrl;
-        j["Checksum"sv] = o.Checksum;
-        j["PackageInfo"sv] = o.PackageInfo;
+       j["Guid"sv] = o.Guid;
+       j["Name"sv] = o.Name;
+       j["Version"sv] = o.Version;
+       j["Changelog"sv] = o.Changelog;
+       j["SourceUrl"sv] = o.SourceUrl;
+       j["Checksum"sv] = o.Checksum;
+       j["PackageInfo"sv] = o.PackageInfo;
 }
 void from_json(const json_t& j, OAIInstallationInfo& o) {
     
@@ -5540,18 +5542,18 @@ void from_json(const json_t& j, OAIIsoType& e) {
 
 
 void to_json(json_t& j, const OAIItemCounts& o) {
-        j["MovieCount"sv] = o.MovieCount;
-        j["SeriesCount"sv] = o.SeriesCount;
-        j["EpisodeCount"sv] = o.EpisodeCount;
-        j["ArtistCount"sv] = o.ArtistCount;
-        j["ProgramCount"sv] = o.ProgramCount;
-        j["TrailerCount"sv] = o.TrailerCount;
-        j["SongCount"sv] = o.SongCount;
-        j["AlbumCount"sv] = o.AlbumCount;
-        j["MusicVideoCount"sv] = o.MusicVideoCount;
-        j["BoxSetCount"sv] = o.BoxSetCount;
-        j["BookCount"sv] = o.BookCount;
-        j["ItemCount"sv] = o.ItemCount;
+       j["MovieCount"sv] = o.MovieCount;
+       j["SeriesCount"sv] = o.SeriesCount;
+       j["EpisodeCount"sv] = o.EpisodeCount;
+       j["ArtistCount"sv] = o.ArtistCount;
+       j["ProgramCount"sv] = o.ProgramCount;
+       j["TrailerCount"sv] = o.TrailerCount;
+       j["SongCount"sv] = o.SongCount;
+       j["AlbumCount"sv] = o.AlbumCount;
+       j["MusicVideoCount"sv] = o.MusicVideoCount;
+       j["BoxSetCount"sv] = o.BoxSetCount;
+       j["BookCount"sv] = o.BookCount;
+       j["ItemCount"sv] = o.ItemCount;
 }
 void from_json(const json_t& j, OAIItemCounts& o) {
     
@@ -6458,7 +6460,7 @@ void from_json(const json_t& j, OAIItemSortBy& e) {
 
 
 void to_json(json_t& j, const OAIJoinGroupRequestDto& o) {
-        j["GroupId"sv] = o.GroupId;
+       j["GroupId"sv] = o.GroupId;
 }
 void from_json(const json_t& j, OAIJoinGroupRequestDto& o) {
     
@@ -6523,9 +6525,9 @@ void from_json(const json_t& j, OAIKeepUntil& e) {
 
 
 void to_json(json_t& j, const OAILibraryChangedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAILibraryChangedMessage& o) {
     if(j.contains("Data"sv))
@@ -6540,8 +6542,8 @@ void from_json(const json_t& j, OAILibraryChangedMessage& o) {
 
 
 void to_json(json_t& j, const OAILibraryOptionInfoDto& o) {
-        j["Name"sv] = o.Name;
-        j["DefaultEnabled"sv] = o.DefaultEnabled;
+       j["Name"sv] = o.Name;
+       j["DefaultEnabled"sv] = o.DefaultEnabled;
 }
 void from_json(const json_t& j, OAILibraryOptionInfoDto& o) {
     if(j.contains("Name"sv))
@@ -6554,39 +6556,39 @@ void from_json(const json_t& j, OAILibraryOptionInfoDto& o) {
 
 
 void to_json(json_t& j, const OAILibraryOptions& o) {
-        j["Enabled"sv] = o.Enabled;
-        j["EnablePhotos"sv] = o.EnablePhotos;
-        j["EnableRealtimeMonitor"sv] = o.EnableRealtimeMonitor;
-        j["EnableLUFSScan"sv] = o.EnableLUFSScan;
-        j["EnableChapterImageExtraction"sv] = o.EnableChapterImageExtraction;
-        j["ExtractChapterImagesDuringLibraryScan"sv] = o.ExtractChapterImagesDuringLibraryScan;
-        j["EnableTrickplayImageExtraction"sv] = o.EnableTrickplayImageExtraction;
-        j["ExtractTrickplayImagesDuringLibraryScan"sv] = o.ExtractTrickplayImagesDuringLibraryScan;
-        j["PathInfos"sv] = o.PathInfos;
-        j["SaveLocalMetadata"sv] = o.SaveLocalMetadata;
-        j["EnableInternetProviders"sv] = o.EnableInternetProviders;
-        j["EnableAutomaticSeriesGrouping"sv] = o.EnableAutomaticSeriesGrouping;
-        j["EnableEmbeddedTitles"sv] = o.EnableEmbeddedTitles;
-        j["EnableEmbeddedExtrasTitles"sv] = o.EnableEmbeddedExtrasTitles;
-        j["EnableEmbeddedEpisodeInfos"sv] = o.EnableEmbeddedEpisodeInfos;
-        j["AutomaticRefreshIntervalDays"sv] = o.AutomaticRefreshIntervalDays;
-        j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["SeasonZeroDisplayName"sv] = o.SeasonZeroDisplayName;
-        j["MetadataSavers"sv] = o.MetadataSavers;
-        j["DisabledLocalMetadataReaders"sv] = o.DisabledLocalMetadataReaders;
-        j["LocalMetadataReaderOrder"sv] = o.LocalMetadataReaderOrder;
-        j["DisabledSubtitleFetchers"sv] = o.DisabledSubtitleFetchers;
-        j["SubtitleFetcherOrder"sv] = o.SubtitleFetcherOrder;
-        j["SkipSubtitlesIfEmbeddedSubtitlesPresent"sv] = o.SkipSubtitlesIfEmbeddedSubtitlesPresent;
-        j["SkipSubtitlesIfAudioTrackMatches"sv] = o.SkipSubtitlesIfAudioTrackMatches;
-        j["SubtitleDownloadLanguages"sv] = o.SubtitleDownloadLanguages;
-        j["RequirePerfectSubtitleMatch"sv] = o.RequirePerfectSubtitleMatch;
-        j["SaveSubtitlesWithMedia"sv] = o.SaveSubtitlesWithMedia;
-        j["SaveLyricsWithMedia"sv] = o.SaveLyricsWithMedia;
-        j["AutomaticallyAddToCollection"sv] = o.AutomaticallyAddToCollection;
-        j["AllowEmbeddedSubtitles"sv] = o.AllowEmbeddedSubtitles;
-        j["TypeOptions"sv] = o.TypeOptions;
+       j["Enabled"sv] = o.Enabled;
+       j["EnablePhotos"sv] = o.EnablePhotos;
+       j["EnableRealtimeMonitor"sv] = o.EnableRealtimeMonitor;
+       j["EnableLUFSScan"sv] = o.EnableLUFSScan;
+       j["EnableChapterImageExtraction"sv] = o.EnableChapterImageExtraction;
+       j["ExtractChapterImagesDuringLibraryScan"sv] = o.ExtractChapterImagesDuringLibraryScan;
+       j["EnableTrickplayImageExtraction"sv] = o.EnableTrickplayImageExtraction;
+       j["ExtractTrickplayImagesDuringLibraryScan"sv] = o.ExtractTrickplayImagesDuringLibraryScan;
+       j["PathInfos"sv] = o.PathInfos;
+       j["SaveLocalMetadata"sv] = o.SaveLocalMetadata;
+       // j["EnableInternetProviders"sv] = o.EnableInternetProviders;
+       j["EnableAutomaticSeriesGrouping"sv] = o.EnableAutomaticSeriesGrouping;
+       j["EnableEmbeddedTitles"sv] = o.EnableEmbeddedTitles;
+       j["EnableEmbeddedExtrasTitles"sv] = o.EnableEmbeddedExtrasTitles;
+       j["EnableEmbeddedEpisodeInfos"sv] = o.EnableEmbeddedEpisodeInfos;
+       j["AutomaticRefreshIntervalDays"sv] = o.AutomaticRefreshIntervalDays;
+       j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["SeasonZeroDisplayName"sv] = o.SeasonZeroDisplayName;
+       j["MetadataSavers"sv] = o.MetadataSavers;
+       j["DisabledLocalMetadataReaders"sv] = o.DisabledLocalMetadataReaders;
+       j["LocalMetadataReaderOrder"sv] = o.LocalMetadataReaderOrder;
+       j["DisabledSubtitleFetchers"sv] = o.DisabledSubtitleFetchers;
+       j["SubtitleFetcherOrder"sv] = o.SubtitleFetcherOrder;
+       j["SkipSubtitlesIfEmbeddedSubtitlesPresent"sv] = o.SkipSubtitlesIfEmbeddedSubtitlesPresent;
+       j["SkipSubtitlesIfAudioTrackMatches"sv] = o.SkipSubtitlesIfAudioTrackMatches;
+       j["SubtitleDownloadLanguages"sv] = o.SubtitleDownloadLanguages;
+       j["RequirePerfectSubtitleMatch"sv] = o.RequirePerfectSubtitleMatch;
+       j["SaveSubtitlesWithMedia"sv] = o.SaveSubtitlesWithMedia;
+       j["SaveLyricsWithMedia"sv] = o.SaveLyricsWithMedia;
+       j["AutomaticallyAddToCollection"sv] = o.AutomaticallyAddToCollection;
+       j["AllowEmbeddedSubtitles"sv] = o.AllowEmbeddedSubtitles;
+       j["TypeOptions"sv] = o.TypeOptions;
 }
 void from_json(const json_t& j, OAILibraryOptions& o) {
     
@@ -6609,8 +6611,8 @@ void from_json(const json_t& j, OAILibraryOptions& o) {
     j.at("PathInfos"sv).get_to(o.PathInfos);
     
     j.at("SaveLocalMetadata"sv).get_to(o.SaveLocalMetadata);
-    
-    j.at("EnableInternetProviders"sv).get_to(o.EnableInternetProviders);
+    // 
+    // j.at("EnableInternetProviders"sv).get_to(o.EnableInternetProviders);
     
     j.at("EnableAutomaticSeriesGrouping"sv).get_to(o.EnableAutomaticSeriesGrouping);
     
@@ -6661,10 +6663,10 @@ void from_json(const json_t& j, OAILibraryOptions& o) {
 
 
 void to_json(json_t& j, const OAILibraryOptionsResultDto& o) {
-        j["MetadataSavers"sv] = o.MetadataSavers;
-        j["MetadataReaders"sv] = o.MetadataReaders;
-        j["SubtitleFetchers"sv] = o.SubtitleFetchers;
-        j["TypeOptions"sv] = o.TypeOptions;
+       j["MetadataSavers"sv] = o.MetadataSavers;
+       j["MetadataReaders"sv] = o.MetadataReaders;
+       j["SubtitleFetchers"sv] = o.SubtitleFetchers;
+       j["TypeOptions"sv] = o.TypeOptions;
 }
 void from_json(const json_t& j, OAILibraryOptionsResultDto& o) {
     
@@ -6681,11 +6683,11 @@ void from_json(const json_t& j, OAILibraryOptionsResultDto& o) {
 
 
 void to_json(json_t& j, const OAILibraryTypeOptionsDto& o) {
-        j["Type"sv] = o.Type;
-        j["MetadataFetchers"sv] = o.MetadataFetchers;
-        j["ImageFetchers"sv] = o.ImageFetchers;
-        j["SupportedImageTypes"sv] = o.SupportedImageTypes;
-        j["DefaultImageOptions"sv] = o.DefaultImageOptions;
+       j["Type"sv] = o.Type;
+       j["MetadataFetchers"sv] = o.MetadataFetchers;
+       j["ImageFetchers"sv] = o.ImageFetchers;
+       j["SupportedImageTypes"sv] = o.SupportedImageTypes;
+       j["DefaultImageOptions"sv] = o.DefaultImageOptions;
 }
 void from_json(const json_t& j, OAILibraryTypeOptionsDto& o) {
     if(j.contains("Type"sv))
@@ -6704,13 +6706,13 @@ void from_json(const json_t& j, OAILibraryTypeOptionsDto& o) {
 
 
 void to_json(json_t& j, const OAILibraryUpdateInfo& o) {
-        j["FoldersAddedTo"sv] = o.FoldersAddedTo;
-        j["FoldersRemovedFrom"sv] = o.FoldersRemovedFrom;
-        j["ItemsAdded"sv] = o.ItemsAdded;
-        j["ItemsRemoved"sv] = o.ItemsRemoved;
-        j["ItemsUpdated"sv] = o.ItemsUpdated;
-        j["CollectionFolders"sv] = o.CollectionFolders;
-        j["IsEmpty"sv] = o.IsEmpty;
+       j["FoldersAddedTo"sv] = o.FoldersAddedTo;
+       j["FoldersRemovedFrom"sv] = o.FoldersRemovedFrom;
+       j["ItemsAdded"sv] = o.ItemsAdded;
+       j["ItemsRemoved"sv] = o.ItemsRemoved;
+       j["ItemsUpdated"sv] = o.ItemsUpdated;
+       j["CollectionFolders"sv] = o.CollectionFolders;
+       j["IsEmpty"sv] = o.IsEmpty;
 }
 void from_json(const json_t& j, OAILibraryUpdateInfo& o) {
     
@@ -6733,24 +6735,24 @@ void from_json(const json_t& j, OAILibraryUpdateInfo& o) {
 
 
 void to_json(json_t& j, const OAIListingsProviderInfo& o) {
-        j["Id"sv] = o.Id;
-        j["Type"sv] = o.Type;
-        j["Username"sv] = o.Username;
-        j["Password"sv] = o.Password;
-        j["ListingsId"sv] = o.ListingsId;
-        j["ZipCode"sv] = o.ZipCode;
-        j["Country"sv] = o.Country;
-        j["Path"sv] = o.Path;
-        j["EnabledTuners"sv] = o.EnabledTuners;
-        j["EnableAllTuners"sv] = o.EnableAllTuners;
-        j["NewsCategories"sv] = o.NewsCategories;
-        j["SportsCategories"sv] = o.SportsCategories;
-        j["KidsCategories"sv] = o.KidsCategories;
-        j["MovieCategories"sv] = o.MovieCategories;
-        j["ChannelMappings"sv] = o.ChannelMappings;
-        j["MoviePrefix"sv] = o.MoviePrefix;
-        j["PreferredLanguage"sv] = o.PreferredLanguage;
-        j["UserAgent"sv] = o.UserAgent;
+       j["Id"sv] = o.Id;
+       j["Type"sv] = o.Type;
+       j["Username"sv] = o.Username;
+       j["Password"sv] = o.Password;
+       j["ListingsId"sv] = o.ListingsId;
+       j["ZipCode"sv] = o.ZipCode;
+       j["Country"sv] = o.Country;
+       j["Path"sv] = o.Path;
+       j["EnabledTuners"sv] = o.EnabledTuners;
+       j["EnableAllTuners"sv] = o.EnableAllTuners;
+       j["NewsCategories"sv] = o.NewsCategories;
+       j["SportsCategories"sv] = o.SportsCategories;
+       j["KidsCategories"sv] = o.KidsCategories;
+       j["MovieCategories"sv] = o.MovieCategories;
+       j["ChannelMappings"sv] = o.ChannelMappings;
+       j["MoviePrefix"sv] = o.MoviePrefix;
+       j["PreferredLanguage"sv] = o.PreferredLanguage;
+       j["UserAgent"sv] = o.UserAgent;
 }
 void from_json(const json_t& j, OAIListingsProviderInfo& o) {
     if(j.contains("Id"sv))
@@ -6795,7 +6797,7 @@ void from_json(const json_t& j, OAIListingsProviderInfo& o) {
 
 
 void to_json(json_t& j, const OAILiveStreamResponse& o) {
-        j["MediaSource"sv] = o.MediaSource;
+       j["MediaSource"sv] = o.MediaSource;
 }
 void from_json(const json_t& j, OAILiveStreamResponse& o) {
     
@@ -6806,9 +6808,9 @@ void from_json(const json_t& j, OAILiveStreamResponse& o) {
 
 
 void to_json(json_t& j, const OAILiveTvInfo& o) {
-        j["Services"sv] = o.Services;
-        j["IsEnabled"sv] = o.IsEnabled;
-        j["EnabledUsers"sv] = o.EnabledUsers;
+       j["Services"sv] = o.Services;
+       j["IsEnabled"sv] = o.IsEnabled;
+       j["EnabledUsers"sv] = o.EnabledUsers;
 }
 void from_json(const json_t& j, OAILiveTvInfo& o) {
     
@@ -6823,21 +6825,21 @@ void from_json(const json_t& j, OAILiveTvInfo& o) {
 
 
 void to_json(json_t& j, const OAILiveTvOptions& o) {
-        j["GuideDays"sv] = o.GuideDays;
-        j["RecordingPath"sv] = o.RecordingPath;
-        j["MovieRecordingPath"sv] = o.MovieRecordingPath;
-        j["SeriesRecordingPath"sv] = o.SeriesRecordingPath;
-        j["EnableRecordingSubfolders"sv] = o.EnableRecordingSubfolders;
-        j["EnableOriginalAudioWithEncodedRecordings"sv] = o.EnableOriginalAudioWithEncodedRecordings;
-        j["TunerHosts"sv] = o.TunerHosts;
-        j["ListingProviders"sv] = o.ListingProviders;
-        j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
-        j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
-        j["MediaLocationsCreated"sv] = o.MediaLocationsCreated;
-        j["RecordingPostProcessor"sv] = o.RecordingPostProcessor;
-        j["RecordingPostProcessorArguments"sv] = o.RecordingPostProcessorArguments;
-        j["SaveRecordingNFO"sv] = o.SaveRecordingNFO;
-        j["SaveRecordingImages"sv] = o.SaveRecordingImages;
+       j["GuideDays"sv] = o.GuideDays;
+       j["RecordingPath"sv] = o.RecordingPath;
+       j["MovieRecordingPath"sv] = o.MovieRecordingPath;
+       j["SeriesRecordingPath"sv] = o.SeriesRecordingPath;
+       j["EnableRecordingSubfolders"sv] = o.EnableRecordingSubfolders;
+       j["EnableOriginalAudioWithEncodedRecordings"sv] = o.EnableOriginalAudioWithEncodedRecordings;
+       j["TunerHosts"sv] = o.TunerHosts;
+       j["ListingProviders"sv] = o.ListingProviders;
+       j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
+       j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
+       j["MediaLocationsCreated"sv] = o.MediaLocationsCreated;
+       j["RecordingPostProcessor"sv] = o.RecordingPostProcessor;
+       j["RecordingPostProcessorArguments"sv] = o.RecordingPostProcessorArguments;
+       j["SaveRecordingNFO"sv] = o.SaveRecordingNFO;
+       j["SaveRecordingImages"sv] = o.SaveRecordingImages;
 }
 void from_json(const json_t& j, OAILiveTvOptions& o) {
     if(j.contains("GuideDays"sv))
@@ -6876,14 +6878,14 @@ void from_json(const json_t& j, OAILiveTvOptions& o) {
 
 
 void to_json(json_t& j, const OAILiveTvServiceInfo& o) {
-        j["Name"sv] = o.Name;
-        j["HomePageUrl"sv] = o.HomePageUrl;
-        j["Status"sv] = o.Status;
-        j["StatusMessage"sv] = o.StatusMessage;
-        j["Version"sv] = o.Version;
-        j["HasUpdateAvailable"sv] = o.HasUpdateAvailable;
-        j["IsVisible"sv] = o.IsVisible;
-        j["Tuners"sv] = o.Tuners;
+       j["Name"sv] = o.Name;
+       j["HomePageUrl"sv] = o.HomePageUrl;
+       j["Status"sv] = o.Status;
+       j["StatusMessage"sv] = o.StatusMessage;
+       j["Version"sv] = o.Version;
+       j["HasUpdateAvailable"sv] = o.HasUpdateAvailable;
+       j["IsVisible"sv] = o.IsVisible;
+       j["Tuners"sv] = o.Tuners;
 }
 void from_json(const json_t& j, OAILiveTvServiceInfo& o) {
     if(j.contains("Name"sv))
@@ -6946,8 +6948,8 @@ void from_json(const json_t& j, OAILiveTvServiceStatus& e) {
 
 
 void to_json(json_t& j, const OAILocalizationOption& o) {
-        j["Name"sv] = o.Name;
-        j["Value"sv] = o.Value;
+       j["Name"sv] = o.Name;
+       j["Value"sv] = o.Value;
 }
 void from_json(const json_t& j, OAILocalizationOption& o) {
     if(j.contains("Name"sv))
@@ -7014,10 +7016,10 @@ void from_json(const json_t& j, OAILocationType& e) {
 
 
 void to_json(json_t& j, const OAILogFile& o) {
-        j["DateCreated"sv] = o.DateCreated;
-        j["DateModified"sv] = o.DateModified;
-        j["Size"sv] = o.Size;
-        j["Name"sv] = o.Name;
+       j["DateCreated"sv] = o.DateCreated;
+       j["DateModified"sv] = o.DateModified;
+       j["Size"sv] = o.Size;
+       j["Name"sv] = o.Name;
 }
 void from_json(const json_t& j, OAILogFile& o) {
     
@@ -7112,8 +7114,8 @@ void from_json(const json_t& j, OAILogLevel& e) {
 
 
 void to_json(json_t& j, const OAILyricDto& o) {
-        j["Metadata"sv] = o.Metadata;
-        j["Lyrics"sv] = o.Lyrics;
+       j["Metadata"sv] = o.Metadata;
+       j["Lyrics"sv] = o.Lyrics;
 }
 void from_json(const json_t& j, OAILyricDto& o) {
     
@@ -7126,8 +7128,8 @@ void from_json(const json_t& j, OAILyricDto& o) {
 
 
 void to_json(json_t& j, const OAILyricLine& o) {
-        j["Text"sv] = o.Text;
-        j["Start"sv] = o.Start;
+       j["Text"sv] = o.Text;
+       j["Start"sv] = o.Start;
 }
 void from_json(const json_t& j, OAILyricLine& o) {
     
@@ -7140,16 +7142,16 @@ void from_json(const json_t& j, OAILyricLine& o) {
 
 
 void to_json(json_t& j, const OAILyricMetadata& o) {
-        j["Artist"sv] = o.Artist;
-        j["Album"sv] = o.Album;
-        j["Title"sv] = o.Title;
-        j["Author"sv] = o.Author;
-        j["Length"sv] = o.Length;
-        j["By"sv] = o.By;
-        j["Offset"sv] = o.Offset;
-        j["Creator"sv] = o.Creator;
-        j["Version"sv] = o.Version;
-        j["IsSynced"sv] = o.IsSynced;
+       j["Artist"sv] = o.Artist;
+       j["Album"sv] = o.Album;
+       j["Title"sv] = o.Title;
+       j["Author"sv] = o.Author;
+       j["Length"sv] = o.Length;
+       j["By"sv] = o.By;
+       j["Offset"sv] = o.Offset;
+       j["Creator"sv] = o.Creator;
+       j["Version"sv] = o.Version;
+       j["IsSynced"sv] = o.IsSynced;
 }
 void from_json(const json_t& j, OAILyricMetadata& o) {
     if(j.contains("Artist"sv))
@@ -7178,13 +7180,13 @@ void from_json(const json_t& j, OAILyricMetadata& o) {
 
 
 void to_json(json_t& j, const OAIMediaAttachment& o) {
-        j["Codec"sv] = o.Codec;
-        j["CodecTag"sv] = o.CodecTag;
-        j["Comment"sv] = o.Comment;
-        j["Index"sv] = o.Index;
-        j["FileName"sv] = o.FileName;
-        j["MimeType"sv] = o.MimeType;
-        j["DeliveryUrl"sv] = o.DeliveryUrl;
+       j["Codec"sv] = o.Codec;
+       j["CodecTag"sv] = o.CodecTag;
+       j["Comment"sv] = o.Comment;
+       j["Index"sv] = o.Index;
+       j["FileName"sv] = o.FileName;
+       j["MimeType"sv] = o.MimeType;
+       j["DeliveryUrl"sv] = o.DeliveryUrl;
 }
 void from_json(const json_t& j, OAIMediaAttachment& o) {
     if(j.contains("Codec"sv))
@@ -7207,9 +7209,9 @@ void from_json(const json_t& j, OAIMediaAttachment& o) {
 
 
 void to_json(json_t& j, const OAIMediaPathDto& o) {
-        j["Name"sv] = o.Name;
-        j["Path"sv] = o.Path;
-        j["PathInfo"sv] = o.PathInfo;
+       j["Name"sv] = o.Name;
+       j["Path"sv] = o.Path;
+       j["PathInfo"sv] = o.PathInfo;
 }
 void from_json(const json_t& j, OAIMediaPathDto& o) {
     
@@ -7224,8 +7226,8 @@ void from_json(const json_t& j, OAIMediaPathDto& o) {
 
 
 void to_json(json_t& j, const OAIMediaPathInfo& o) {
-        j["Path"sv] = o.Path;
-        j["NetworkPath"sv] = o.NetworkPath;
+       j["Path"sv] = o.Path;
+       j["NetworkPath"sv] = o.NetworkPath;
 }
 void from_json(const json_t& j, OAIMediaPathInfo& o) {
     
@@ -7316,48 +7318,48 @@ void from_json(const json_t& j, OAIMediaProtocol& e) {
 
 
 void to_json(json_t& j, const OAIMediaSourceInfo& o) {
-        j["Protocol"sv] = o.Protocol;
-        j["Id"sv] = o.Id;
-        j["Path"sv] = o.Path;
-        j["EncoderPath"sv] = o.EncoderPath;
-        j["EncoderProtocol"sv] = o.EncoderProtocol;
-        j["Type"sv] = o.Type;
-        j["Container"sv] = o.Container;
-        j["Size"sv] = o.Size;
-        j["Name"sv] = o.Name;
-        j["IsRemote"sv] = o.IsRemote;
-        j["ETag"sv] = o.ETag;
-        j["RunTimeTicks"sv] = o.RunTimeTicks;
-        j["ReadAtNativeFramerate"sv] = o.ReadAtNativeFramerate;
-        j["IgnoreDts"sv] = o.IgnoreDts;
-        j["IgnoreIndex"sv] = o.IgnoreIndex;
-        j["GenPtsInput"sv] = o.GenPtsInput;
-        j["SupportsTranscoding"sv] = o.SupportsTranscoding;
-        j["SupportsDirectStream"sv] = o.SupportsDirectStream;
-        j["SupportsDirectPlay"sv] = o.SupportsDirectPlay;
-        j["IsInfiniteStream"sv] = o.IsInfiniteStream;
-        j["RequiresOpening"sv] = o.RequiresOpening;
-        j["OpenToken"sv] = o.OpenToken;
-        j["RequiresClosing"sv] = o.RequiresClosing;
-        j["LiveStreamId"sv] = o.LiveStreamId;
-        j["BufferMs"sv] = o.BufferMs;
-        j["RequiresLooping"sv] = o.RequiresLooping;
-        j["SupportsProbing"sv] = o.SupportsProbing;
-        j["VideoType"sv] = o.VideoType;
-        j["IsoType"sv] = o.IsoType;
-        j["Video3DFormat"sv] = o.Video3DFormat;
-        j["MediaStreams"sv] = o.MediaStreams;
-        j["MediaAttachments"sv] = o.MediaAttachments;
-        j["Formats"sv] = o.Formats;
-        j["Bitrate"sv] = o.Bitrate;
-        j["Timestamp"sv] = o.Timestamp;
-        j["RequiredHttpHeaders"sv] = o.RequiredHttpHeaders;
-        j["TranscodingUrl"sv] = o.TranscodingUrl;
-        j["TranscodingSubProtocol"sv] = o.TranscodingSubProtocol;
-        j["TranscodingContainer"sv] = o.TranscodingContainer;
-        j["AnalyzeDurationMs"sv] = o.AnalyzeDurationMs;
-        j["DefaultAudioStreamIndex"sv] = o.DefaultAudioStreamIndex;
-        j["DefaultSubtitleStreamIndex"sv] = o.DefaultSubtitleStreamIndex;
+       j["Protocol"sv] = o.Protocol;
+       j["Id"sv] = o.Id;
+       j["Path"sv] = o.Path;
+       j["EncoderPath"sv] = o.EncoderPath;
+       j["EncoderProtocol"sv] = o.EncoderProtocol;
+       j["Type"sv] = o.Type;
+       j["Container"sv] = o.Container;
+       j["Size"sv] = o.Size;
+       j["Name"sv] = o.Name;
+       j["IsRemote"sv] = o.IsRemote;
+       j["ETag"sv] = o.ETag;
+       j["RunTimeTicks"sv] = o.RunTimeTicks;
+       j["ReadAtNativeFramerate"sv] = o.ReadAtNativeFramerate;
+       j["IgnoreDts"sv] = o.IgnoreDts;
+       j["IgnoreIndex"sv] = o.IgnoreIndex;
+       j["GenPtsInput"sv] = o.GenPtsInput;
+       j["SupportsTranscoding"sv] = o.SupportsTranscoding;
+       j["SupportsDirectStream"sv] = o.SupportsDirectStream;
+       j["SupportsDirectPlay"sv] = o.SupportsDirectPlay;
+       j["IsInfiniteStream"sv] = o.IsInfiniteStream;
+       j["RequiresOpening"sv] = o.RequiresOpening;
+       j["OpenToken"sv] = o.OpenToken;
+       j["RequiresClosing"sv] = o.RequiresClosing;
+       j["LiveStreamId"sv] = o.LiveStreamId;
+       j["BufferMs"sv] = o.BufferMs;
+       j["RequiresLooping"sv] = o.RequiresLooping;
+       j["SupportsProbing"sv] = o.SupportsProbing;
+       j["VideoType"sv] = o.VideoType;
+       j["IsoType"sv] = o.IsoType;
+       j["Video3DFormat"sv] = o.Video3DFormat;
+       j["MediaStreams"sv] = o.MediaStreams;
+       j["MediaAttachments"sv] = o.MediaAttachments;
+       j["Formats"sv] = o.Formats;
+       j["Bitrate"sv] = o.Bitrate;
+       j["Timestamp"sv] = o.Timestamp;
+       j["RequiredHttpHeaders"sv] = o.RequiredHttpHeaders;
+       j["TranscodingUrl"sv] = o.TranscodingUrl;
+       j["TranscodingSubProtocol"sv] = o.TranscodingSubProtocol;
+       j["TranscodingContainer"sv] = o.TranscodingContainer;
+       j["AnalyzeDurationMs"sv] = o.AnalyzeDurationMs;
+       j["DefaultAudioStreamIndex"sv] = o.DefaultAudioStreamIndex;
+       j["DefaultSubtitleStreamIndex"sv] = o.DefaultSubtitleStreamIndex;
 }
 void from_json(const json_t& j, OAIMediaSourceInfo& o) {
     
@@ -7496,67 +7498,67 @@ void from_json(const json_t& j, OAIMediaSourceType& e) {
 
 
 void to_json(json_t& j, const OAIMediaStream& o) {
-        j["Codec"sv] = o.Codec;
-        j["CodecTag"sv] = o.CodecTag;
-        j["Language"sv] = o.Language;
-        j["ColorRange"sv] = o.ColorRange;
-        j["ColorSpace"sv] = o.ColorSpace;
-        j["ColorTransfer"sv] = o.ColorTransfer;
-        j["ColorPrimaries"sv] = o.ColorPrimaries;
-        j["DvVersionMajor"sv] = o.DvVersionMajor;
-        j["DvVersionMinor"sv] = o.DvVersionMinor;
-        j["DvProfile"sv] = o.DvProfile;
-        j["DvLevel"sv] = o.DvLevel;
-        j["RpuPresentFlag"sv] = o.RpuPresentFlag;
-        j["ElPresentFlag"sv] = o.ElPresentFlag;
-        j["BlPresentFlag"sv] = o.BlPresentFlag;
-        j["DvBlSignalCompatibilityId"sv] = o.DvBlSignalCompatibilityId;
-        j["Comment"sv] = o.Comment;
-        j["TimeBase"sv] = o.TimeBase;
-        j["CodecTimeBase"sv] = o.CodecTimeBase;
-        j["Title"sv] = o.Title;
-        j["VideoRange"sv] = o.VideoRange;
-        j["VideoRangeType"sv] = o.VideoRangeType;
-        j["VideoDoViTitle"sv] = o.VideoDoViTitle;
-        j["AudioSpatialFormat"sv] = o.AudioSpatialFormat;
-        j["LocalizedUndefined"sv] = o.LocalizedUndefined;
-        j["LocalizedDefault"sv] = o.LocalizedDefault;
-        j["LocalizedForced"sv] = o.LocalizedForced;
-        j["LocalizedExternal"sv] = o.LocalizedExternal;
-        j["LocalizedHearingImpaired"sv] = o.LocalizedHearingImpaired;
-        j["DisplayTitle"sv] = o.DisplayTitle;
-        j["NalLengthSize"sv] = o.NalLengthSize;
-        j["IsInterlaced"sv] = o.IsInterlaced;
-        j["IsAVC"sv] = o.IsAVC;
-        j["ChannelLayout"sv] = o.ChannelLayout;
-        j["BitRate"sv] = o.BitRate;
-        j["BitDepth"sv] = o.BitDepth;
-        j["RefFrames"sv] = o.RefFrames;
-        j["PacketLength"sv] = o.PacketLength;
-        j["Channels"sv] = o.Channels;
-        j["SampleRate"sv] = o.SampleRate;
-        j["IsDefault"sv] = o.IsDefault;
-        j["IsForced"sv] = o.IsForced;
-        j["IsHearingImpaired"sv] = o.IsHearingImpaired;
-        j["Height"sv] = o.Height;
-        j["Width"sv] = o.Width;
-        j["AverageFrameRate"sv] = o.AverageFrameRate;
-        j["RealFrameRate"sv] = o.RealFrameRate;
-        j["Profile"sv] = o.Profile;
-        j["Type"sv] = o.Type;
-        j["AspectRatio"sv] = o.AspectRatio;
-        j["Index"sv] = o.Index;
-        j["Score"sv] = o.Score;
-        j["IsExternal"sv] = o.IsExternal;
-        j["DeliveryMethod"sv] = o.DeliveryMethod;
-        j["DeliveryUrl"sv] = o.DeliveryUrl;
-        j["IsExternalUrl"sv] = o.IsExternalUrl;
-        j["IsTextSubtitleStream"sv] = o.IsTextSubtitleStream;
-        j["SupportsExternalStream"sv] = o.SupportsExternalStream;
-        j["Path"sv] = o.Path;
-        j["PixelFormat"sv] = o.PixelFormat;
-        j["Level"sv] = o.Level;
-        j["IsAnamorphic"sv] = o.IsAnamorphic;
+       j["Codec"sv] = o.Codec;
+       j["CodecTag"sv] = o.CodecTag;
+       j["Language"sv] = o.Language;
+       j["ColorRange"sv] = o.ColorRange;
+       j["ColorSpace"sv] = o.ColorSpace;
+       j["ColorTransfer"sv] = o.ColorTransfer;
+       j["ColorPrimaries"sv] = o.ColorPrimaries;
+       j["DvVersionMajor"sv] = o.DvVersionMajor;
+       j["DvVersionMinor"sv] = o.DvVersionMinor;
+       j["DvProfile"sv] = o.DvProfile;
+       j["DvLevel"sv] = o.DvLevel;
+       j["RpuPresentFlag"sv] = o.RpuPresentFlag;
+       j["ElPresentFlag"sv] = o.ElPresentFlag;
+       j["BlPresentFlag"sv] = o.BlPresentFlag;
+       j["DvBlSignalCompatibilityId"sv] = o.DvBlSignalCompatibilityId;
+       j["Comment"sv] = o.Comment;
+       j["TimeBase"sv] = o.TimeBase;
+       j["CodecTimeBase"sv] = o.CodecTimeBase;
+       j["Title"sv] = o.Title;
+       j["VideoRange"sv] = o.VideoRange;
+       j["VideoRangeType"sv] = o.VideoRangeType;
+       j["VideoDoViTitle"sv] = o.VideoDoViTitle;
+       j["AudioSpatialFormat"sv] = o.AudioSpatialFormat;
+       j["LocalizedUndefined"sv] = o.LocalizedUndefined;
+       j["LocalizedDefault"sv] = o.LocalizedDefault;
+       j["LocalizedForced"sv] = o.LocalizedForced;
+       j["LocalizedExternal"sv] = o.LocalizedExternal;
+       j["LocalizedHearingImpaired"sv] = o.LocalizedHearingImpaired;
+       j["DisplayTitle"sv] = o.DisplayTitle;
+       j["NalLengthSize"sv] = o.NalLengthSize;
+       j["IsInterlaced"sv] = o.IsInterlaced;
+       j["IsAVC"sv] = o.IsAVC;
+       j["ChannelLayout"sv] = o.ChannelLayout;
+       j["BitRate"sv] = o.BitRate;
+       j["BitDepth"sv] = o.BitDepth;
+       j["RefFrames"sv] = o.RefFrames;
+       j["PacketLength"sv] = o.PacketLength;
+       j["Channels"sv] = o.Channels;
+       j["SampleRate"sv] = o.SampleRate;
+       j["IsDefault"sv] = o.IsDefault;
+       j["IsForced"sv] = o.IsForced;
+       j["IsHearingImpaired"sv] = o.IsHearingImpaired;
+       j["Height"sv] = o.Height;
+       j["Width"sv] = o.Width;
+       j["AverageFrameRate"sv] = o.AverageFrameRate;
+       j["RealFrameRate"sv] = o.RealFrameRate;
+       j["Profile"sv] = o.Profile;
+       j["Type"sv] = o.Type;
+       j["AspectRatio"sv] = o.AspectRatio;
+       j["Index"sv] = o.Index;
+       j["Score"sv] = o.Score;
+       j["IsExternal"sv] = o.IsExternal;
+       j["DeliveryMethod"sv] = o.DeliveryMethod;
+       j["DeliveryUrl"sv] = o.DeliveryUrl;
+       j["IsExternalUrl"sv] = o.IsExternalUrl;
+       j["IsTextSubtitleStream"sv] = o.IsTextSubtitleStream;
+       j["SupportsExternalStream"sv] = o.SupportsExternalStream;
+       j["Path"sv] = o.Path;
+       j["PixelFormat"sv] = o.PixelFormat;
+       j["Level"sv] = o.Level;
+       j["IsAnamorphic"sv] = o.IsAnamorphic;
 }
 void from_json(const json_t& j, OAIMediaStream& o) {
     if(j.contains("Codec"sv))
@@ -7857,7 +7859,7 @@ void from_json(const json_t& j, OAIMediaType& e) {
 
 
 void to_json(json_t& j, const OAIMediaUpdateInfoDto& o) {
-        j["Updates"sv] = o.Updates;
+       j["Updates"sv] = o.Updates;
 }
 void from_json(const json_t& j, OAIMediaUpdateInfoDto& o) {
     
@@ -7868,8 +7870,8 @@ void from_json(const json_t& j, OAIMediaUpdateInfoDto& o) {
 
 
 void to_json(json_t& j, const OAIMediaUpdateInfoPathDto& o) {
-        j["Path"sv] = o.Path;
-        j["UpdateType"sv] = o.UpdateType;
+       j["Path"sv] = o.Path;
+       j["UpdateType"sv] = o.UpdateType;
 }
 void from_json(const json_t& j, OAIMediaUpdateInfoPathDto& o) {
     if(j.contains("Path"sv))
@@ -7882,8 +7884,8 @@ void from_json(const json_t& j, OAIMediaUpdateInfoPathDto& o) {
 
 
 void to_json(json_t& j, const OAIMediaUrl& o) {
-        j["Url"sv] = o.Url;
-        j["Name"sv] = o.Name;
+       j["Url"sv] = o.Url;
+       j["Name"sv] = o.Name;
 }
 void from_json(const json_t& j, OAIMediaUrl& o) {
     if(j.contains("Url"sv))
@@ -7896,9 +7898,9 @@ void from_json(const json_t& j, OAIMediaUrl& o) {
 
 
 void to_json(json_t& j, const OAIMessageCommand& o) {
-        j["Header"sv] = o.Header;
-        j["Text"sv] = o.Text;
-        j["TimeoutMs"sv] = o.TimeoutMs;
+       j["Header"sv] = o.Header;
+       j["Text"sv] = o.Text;
+       j["TimeoutMs"sv] = o.TimeoutMs;
 }
 void from_json(const json_t& j, OAIMessageCommand& o) {
     if(j.contains("Header"sv))
@@ -7913,7 +7915,7 @@ void from_json(const json_t& j, OAIMessageCommand& o) {
 
 
 void to_json(json_t& j, const OAIMetadataConfiguration& o) {
-        j["UseFileCreationTimeForDateAdded"sv] = o.UseFileCreationTimeForDateAdded;
+       j["UseFileCreationTimeForDateAdded"sv] = o.UseFileCreationTimeForDateAdded;
 }
 void from_json(const json_t& j, OAIMetadataConfiguration& o) {
     
@@ -7924,12 +7926,12 @@ void from_json(const json_t& j, OAIMetadataConfiguration& o) {
 
 
 void to_json(json_t& j, const OAIMetadataEditorInfo& o) {
-        j["ParentalRatingOptions"sv] = o.ParentalRatingOptions;
-        j["Countries"sv] = o.Countries;
-        j["Cultures"sv] = o.Cultures;
-        j["ExternalIdInfos"sv] = o.ExternalIdInfos;
-        j["ContentType"sv] = o.ContentType;
-        j["ContentTypeOptions"sv] = o.ContentTypeOptions;
+       j["ParentalRatingOptions"sv] = o.ParentalRatingOptions;
+       j["Countries"sv] = o.Countries;
+       j["Cultures"sv] = o.Cultures;
+       j["ExternalIdInfos"sv] = o.ExternalIdInfos;
+       j["ContentType"sv] = o.ContentType;
+       j["ContentTypeOptions"sv] = o.ContentTypeOptions;
 }
 void from_json(const json_t& j, OAIMetadataEditorInfo& o) {
     
@@ -8044,13 +8046,13 @@ void from_json(const json_t& j, OAIMetadataField& e) {
 
 
 void to_json(json_t& j, const OAIMetadataOptions& o) {
-        j["ItemType"sv] = o.ItemType;
-        j["DisabledMetadataSavers"sv] = o.DisabledMetadataSavers;
-        j["LocalMetadataReaderOrder"sv] = o.LocalMetadataReaderOrder;
-        j["DisabledMetadataFetchers"sv] = o.DisabledMetadataFetchers;
-        j["MetadataFetcherOrder"sv] = o.MetadataFetcherOrder;
-        j["DisabledImageFetchers"sv] = o.DisabledImageFetchers;
-        j["ImageFetcherOrder"sv] = o.ImageFetcherOrder;
+       j["ItemType"sv] = o.ItemType;
+       j["DisabledMetadataSavers"sv] = o.DisabledMetadataSavers;
+       j["LocalMetadataReaderOrder"sv] = o.LocalMetadataReaderOrder;
+       j["DisabledMetadataFetchers"sv] = o.DisabledMetadataFetchers;
+       j["MetadataFetcherOrder"sv] = o.MetadataFetcherOrder;
+       j["DisabledImageFetchers"sv] = o.DisabledImageFetchers;
+       j["ImageFetcherOrder"sv] = o.ImageFetcherOrder;
 }
 void from_json(const json_t& j, OAIMetadataOptions& o) {
     if(j.contains("ItemType"sv))
@@ -8127,8 +8129,8 @@ void from_json(const json_t& j, OAIMetadataRefreshMode& e) {
 
 
 void to_json(json_t& j, const OAIMovePlaylistItemRequestDto& o) {
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
-        j["NewIndex"sv] = o.NewIndex;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["NewIndex"sv] = o.NewIndex;
 }
 void from_json(const json_t& j, OAIMovePlaylistItemRequestDto& o) {
     
@@ -8141,17 +8143,17 @@ void from_json(const json_t& j, OAIMovePlaylistItemRequestDto& o) {
 
 
 void to_json(json_t& j, const OAIMovieInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
 }
 void from_json(const json_t& j, OAIMovieInfo& o) {
     if(j.contains("Name"sv))
@@ -8182,10 +8184,10 @@ void from_json(const json_t& j, OAIMovieInfo& o) {
 
 
 void to_json(json_t& j, const OAIMovieInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIMovieInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -8202,18 +8204,18 @@ void from_json(const json_t& j, OAIMovieInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAIMusicVideoInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
-        j["Artists"sv] = o.Artists;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
+       j["Artists"sv] = o.Artists;
 }
 void from_json(const json_t& j, OAIMusicVideoInfo& o) {
     if(j.contains("Name"sv))
@@ -8246,10 +8248,10 @@ void from_json(const json_t& j, OAIMusicVideoInfo& o) {
 
 
 void to_json(json_t& j, const OAIMusicVideoInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIMusicVideoInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -8266,8 +8268,8 @@ void from_json(const json_t& j, OAIMusicVideoInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAINameGuidPair& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAINameGuidPair& o) {
     if(j.contains("Name"sv))
@@ -8280,8 +8282,8 @@ void from_json(const json_t& j, OAINameGuidPair& o) {
 
 
 void to_json(json_t& j, const OAINameIdPair& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAINameIdPair& o) {
     if(j.contains("Name"sv))
@@ -8294,8 +8296,8 @@ void from_json(const json_t& j, OAINameIdPair& o) {
 
 
 void to_json(json_t& j, const OAINameValuePair& o) {
-        j["Name"sv] = o.Name;
-        j["Value"sv] = o.Value;
+       j["Name"sv] = o.Name;
+       j["Value"sv] = o.Value;
 }
 void from_json(const json_t& j, OAINameValuePair& o) {
     if(j.contains("Name"sv))
@@ -8308,29 +8310,29 @@ void from_json(const json_t& j, OAINameValuePair& o) {
 
 
 void to_json(json_t& j, const OAINetworkConfiguration& o) {
-        j["BaseUrl"sv] = o.BaseUrl;
-        j["EnableHttps"sv] = o.EnableHttps;
-        j["RequireHttps"sv] = o.RequireHttps;
-        j["CertificatePath"sv] = o.CertificatePath;
-        j["CertificatePassword"sv] = o.CertificatePassword;
-        j["InternalHttpPort"sv] = o.InternalHttpPort;
-        j["InternalHttpsPort"sv] = o.InternalHttpsPort;
-        j["PublicHttpPort"sv] = o.PublicHttpPort;
-        j["PublicHttpsPort"sv] = o.PublicHttpsPort;
-        j["AutoDiscovery"sv] = o.AutoDiscovery;
-        j["EnableUPnP"sv] = o.EnableUPnP;
-        j["EnableIPv4"sv] = o.EnableIPv4;
-        j["EnableIPv6"sv] = o.EnableIPv6;
-        j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
-        j["LocalNetworkSubnets"sv] = o.LocalNetworkSubnets;
-        j["LocalNetworkAddresses"sv] = o.LocalNetworkAddresses;
-        j["KnownProxies"sv] = o.KnownProxies;
-        j["IgnoreVirtualInterfaces"sv] = o.IgnoreVirtualInterfaces;
-        j["VirtualInterfaceNames"sv] = o.VirtualInterfaceNames;
-        j["EnablePublishedServerUriByRequest"sv] = o.EnablePublishedServerUriByRequest;
-        j["PublishedServerUriBySubnet"sv] = o.PublishedServerUriBySubnet;
-        j["RemoteIPFilter"sv] = o.RemoteIPFilter;
-        j["IsRemoteIPFilterBlacklist"sv] = o.IsRemoteIPFilterBlacklist;
+       j["BaseUrl"sv] = o.BaseUrl;
+       j["EnableHttps"sv] = o.EnableHttps;
+       j["RequireHttps"sv] = o.RequireHttps;
+       j["CertificatePath"sv] = o.CertificatePath;
+       j["CertificatePassword"sv] = o.CertificatePassword;
+       j["InternalHttpPort"sv] = o.InternalHttpPort;
+       j["InternalHttpsPort"sv] = o.InternalHttpsPort;
+       j["PublicHttpPort"sv] = o.PublicHttpPort;
+       j["PublicHttpsPort"sv] = o.PublicHttpsPort;
+       j["AutoDiscovery"sv] = o.AutoDiscovery;
+       j["EnableUPnP"sv] = o.EnableUPnP;
+       j["EnableIPv4"sv] = o.EnableIPv4;
+       j["EnableIPv6"sv] = o.EnableIPv6;
+       j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
+       j["LocalNetworkSubnets"sv] = o.LocalNetworkSubnets;
+       j["LocalNetworkAddresses"sv] = o.LocalNetworkAddresses;
+       j["KnownProxies"sv] = o.KnownProxies;
+       j["IgnoreVirtualInterfaces"sv] = o.IgnoreVirtualInterfaces;
+       j["VirtualInterfaceNames"sv] = o.VirtualInterfaceNames;
+       j["EnablePublishedServerUriByRequest"sv] = o.EnablePublishedServerUriByRequest;
+       j["PublishedServerUriBySubnet"sv] = o.PublishedServerUriBySubnet;
+       j["RemoteIPFilter"sv] = o.RemoteIPFilter;
+       j["IsRemoteIPFilterBlacklist"sv] = o.IsRemoteIPFilterBlacklist;
 }
 void from_json(const json_t& j, OAINetworkConfiguration& o) {
     
@@ -8385,7 +8387,7 @@ void from_json(const json_t& j, OAINetworkConfiguration& o) {
 
 
 void to_json(json_t& j, const OAINewGroupRequestDto& o) {
-        j["GroupName"sv] = o.GroupName;
+       j["GroupName"sv] = o.GroupName;
 }
 void from_json(const json_t& j, OAINewGroupRequestDto& o) {
     
@@ -8396,7 +8398,7 @@ void from_json(const json_t& j, OAINewGroupRequestDto& o) {
 
 
 void to_json(json_t& j, const OAINextItemRequestDto& o) {
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAINextItemRequestDto& o) {
     
@@ -8407,19 +8409,19 @@ void from_json(const json_t& j, OAINextItemRequestDto& o) {
 
 
 void to_json(json_t& j, const OAIOpenLiveStreamDto& o) {
-        j["OpenToken"sv] = o.OpenToken;
-        j["UserId"sv] = o.UserId;
-        j["PlaySessionId"sv] = o.PlaySessionId;
-        j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
-        j["StartTimeTicks"sv] = o.StartTimeTicks;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["MaxAudioChannels"sv] = o.MaxAudioChannels;
-        j["ItemId"sv] = o.ItemId;
-        j["EnableDirectPlay"sv] = o.EnableDirectPlay;
-        j["EnableDirectStream"sv] = o.EnableDirectStream;
-        j["DeviceProfile"sv] = o.DeviceProfile;
-        j["DirectPlayProtocols"sv] = o.DirectPlayProtocols;
+       j["OpenToken"sv] = o.OpenToken;
+       j["UserId"sv] = o.UserId;
+       j["PlaySessionId"sv] = o.PlaySessionId;
+       j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
+       j["StartTimeTicks"sv] = o.StartTimeTicks;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["MaxAudioChannels"sv] = o.MaxAudioChannels;
+       j["ItemId"sv] = o.ItemId;
+       j["EnableDirectPlay"sv] = o.EnableDirectPlay;
+       j["EnableDirectStream"sv] = o.EnableDirectStream;
+       j["DeviceProfile"sv] = o.DeviceProfile;
+       j["DirectPlayProtocols"sv] = o.DirectPlayProtocols;
 }
 void from_json(const json_t& j, OAIOpenLiveStreamDto& o) {
     if(j.contains("OpenToken"sv))
@@ -8454,8 +8456,8 @@ void from_json(const json_t& j, OAIOpenLiveStreamDto& o) {
 
 
 void to_json(json_t& j, const OAIOutboundKeepAliveMessage& o) {
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIOutboundKeepAliveMessage& o) {
     
@@ -8465,6 +8467,7 @@ void from_json(const json_t& j, OAIOutboundKeepAliveMessage& o) {
 }
 
 
+// oneOf
 void to_json(json_t& j, const OAIOutboundWebSocketMessage& o) {
 }
 void from_json(const json_t& j, OAIOutboundWebSocketMessage& o) {
@@ -8475,14 +8478,14 @@ void from_json(const json_t& j, OAIOutboundWebSocketMessage& o) {
 
 
 void to_json(json_t& j, const OAIPackageInfo& o) {
-        j["name"sv] = o.name;
-        j["description"sv] = o.description;
-        j["overview"sv] = o.overview;
-        j["owner"sv] = o.owner;
-        j["category"sv] = o.category;
-        j["guid"sv] = o.guid;
-        j["versions"sv] = o.versions;
-        j["imageUrl"sv] = o.imageUrl;
+       j["name"sv] = o.name;
+       j["description"sv] = o.description;
+       j["overview"sv] = o.overview;
+       j["owner"sv] = o.owner;
+       j["category"sv] = o.category;
+       j["guid"sv] = o.guid;
+       j["versions"sv] = o.versions;
+       j["imageUrl"sv] = o.imageUrl;
 }
 void from_json(const json_t& j, OAIPackageInfo& o) {
     
@@ -8507,8 +8510,8 @@ void from_json(const json_t& j, OAIPackageInfo& o) {
 
 
 void to_json(json_t& j, const OAIParentalRating& o) {
-        j["Name"sv] = o.Name;
-        j["Value"sv] = o.Value;
+       j["Name"sv] = o.Name;
+       j["Value"sv] = o.Value;
 }
 void from_json(const json_t& j, OAIParentalRating& o) {
     if(j.contains("Name"sv))
@@ -8521,8 +8524,8 @@ void from_json(const json_t& j, OAIParentalRating& o) {
 
 
 void to_json(json_t& j, const OAIPathSubstitution& o) {
-        j["From"sv] = o.From;
-        j["To"sv] = o.To;
+       j["From"sv] = o.From;
+       j["To"sv] = o.To;
 }
 void from_json(const json_t& j, OAIPathSubstitution& o) {
     
@@ -8757,17 +8760,17 @@ void from_json(const json_t& j, OAIPersonKind& e) {
 
 
 void to_json(json_t& j, const OAIPersonLookupInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
 }
 void from_json(const json_t& j, OAIPersonLookupInfo& o) {
     if(j.contains("Name"sv))
@@ -8798,10 +8801,10 @@ void from_json(const json_t& j, OAIPersonLookupInfo& o) {
 
 
 void to_json(json_t& j, const OAIPersonLookupInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAIPersonLookupInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -8818,8 +8821,8 @@ void from_json(const json_t& j, OAIPersonLookupInfoRemoteSearchQuery& o) {
 
 
 void to_json(json_t& j, const OAIPinRedeemResult& o) {
-        j["Success"sv] = o.Success;
-        j["UsersReset"sv] = o.UsersReset;
+       j["Success"sv] = o.Success;
+       j["UsersReset"sv] = o.UsersReset;
 }
 void from_json(const json_t& j, OAIPinRedeemResult& o) {
     
@@ -8832,7 +8835,7 @@ void from_json(const json_t& j, OAIPinRedeemResult& o) {
 
 
 void to_json(json_t& j, const OAIPingRequestDto& o) {
-        j["Ping"sv] = o.Ping;
+       j["Ping"sv] = o.Ping;
 }
 void from_json(const json_t& j, OAIPingRequestDto& o) {
     
@@ -8943,9 +8946,9 @@ void from_json(const json_t& j, OAIPlayCommand& e) {
 
 
 void to_json(json_t& j, const OAIPlayMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPlayMessage& o) {
     if(j.contains("Data"sv))
@@ -9006,14 +9009,14 @@ void from_json(const json_t& j, OAIPlayMethod& e) {
 
 
 void to_json(json_t& j, const OAIPlayQueueUpdate& o) {
-        j["Reason"sv] = o.Reason;
-        j["LastUpdate"sv] = o.LastUpdate;
-        j["Playlist"sv] = o.Playlist;
-        j["PlayingItemIndex"sv] = o.PlayingItemIndex;
-        j["StartPositionTicks"sv] = o.StartPositionTicks;
-        j["IsPlaying"sv] = o.IsPlaying;
-        j["ShuffleMode"sv] = o.ShuffleMode;
-        j["RepeatMode"sv] = o.RepeatMode;
+       j["Reason"sv] = o.Reason;
+       j["LastUpdate"sv] = o.LastUpdate;
+       j["Playlist"sv] = o.Playlist;
+       j["PlayingItemIndex"sv] = o.PlayingItemIndex;
+       j["StartPositionTicks"sv] = o.StartPositionTicks;
+       j["IsPlaying"sv] = o.IsPlaying;
+       j["ShuffleMode"sv] = o.ShuffleMode;
+       j["RepeatMode"sv] = o.RepeatMode;
 }
 void from_json(const json_t& j, OAIPlayQueueUpdate& o) {
     
@@ -9038,9 +9041,9 @@ void from_json(const json_t& j, OAIPlayQueueUpdate& o) {
 
 
 void to_json(json_t& j, const OAIPlayQueueUpdateGroupUpdate& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["Type"sv] = o.Type;
-        j["Data"sv] = o.Data;
+       j["GroupId"sv] = o.GroupId;
+       j["Type"sv] = o.Type;
+       j["Data"sv] = o.Data;
 }
 void from_json(const json_t& j, OAIPlayQueueUpdateGroupUpdate& o) {
     
@@ -9157,14 +9160,14 @@ void from_json(const json_t& j, OAIPlayQueueUpdateReason& e) {
 
 
 void to_json(json_t& j, const OAIPlayRequest& o) {
-        j["ItemIds"sv] = o.ItemIds;
-        j["StartPositionTicks"sv] = o.StartPositionTicks;
-        j["PlayCommand"sv] = o.PlayCommand;
-        j["ControllingUserId"sv] = o.ControllingUserId;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["StartIndex"sv] = o.StartIndex;
+       j["ItemIds"sv] = o.ItemIds;
+       j["StartPositionTicks"sv] = o.StartPositionTicks;
+       j["PlayCommand"sv] = o.PlayCommand;
+       j["ControllingUserId"sv] = o.ControllingUserId;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAIPlayRequest& o) {
     if(j.contains("ItemIds"sv))
@@ -9189,9 +9192,9 @@ void from_json(const json_t& j, OAIPlayRequest& o) {
 
 
 void to_json(json_t& j, const OAIPlayRequestDto& o) {
-        j["PlayingQueue"sv] = o.PlayingQueue;
-        j["PlayingItemPosition"sv] = o.PlayingItemPosition;
-        j["StartPositionTicks"sv] = o.StartPositionTicks;
+       j["PlayingQueue"sv] = o.PlayingQueue;
+       j["PlayingItemPosition"sv] = o.PlayingItemPosition;
+       j["StartPositionTicks"sv] = o.StartPositionTicks;
 }
 void from_json(const json_t& j, OAIPlayRequestDto& o) {
     
@@ -9252,21 +9255,21 @@ void from_json(const json_t& j, OAIPlaybackErrorCode& e) {
 
 
 void to_json(json_t& j, const OAIPlaybackInfoDto& o) {
-        j["UserId"sv] = o.UserId;
-        j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
-        j["StartTimeTicks"sv] = o.StartTimeTicks;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["MaxAudioChannels"sv] = o.MaxAudioChannels;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["LiveStreamId"sv] = o.LiveStreamId;
-        j["DeviceProfile"sv] = o.DeviceProfile;
-        j["EnableDirectPlay"sv] = o.EnableDirectPlay;
-        j["EnableDirectStream"sv] = o.EnableDirectStream;
-        j["EnableTranscoding"sv] = o.EnableTranscoding;
-        j["AllowVideoStreamCopy"sv] = o.AllowVideoStreamCopy;
-        j["AllowAudioStreamCopy"sv] = o.AllowAudioStreamCopy;
-        j["AutoOpenLiveStream"sv] = o.AutoOpenLiveStream;
+       j["UserId"sv] = o.UserId;
+       j["MaxStreamingBitrate"sv] = o.MaxStreamingBitrate;
+       j["StartTimeTicks"sv] = o.StartTimeTicks;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["MaxAudioChannels"sv] = o.MaxAudioChannels;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["LiveStreamId"sv] = o.LiveStreamId;
+       j["DeviceProfile"sv] = o.DeviceProfile;
+       j["EnableDirectPlay"sv] = o.EnableDirectPlay;
+       j["EnableDirectStream"sv] = o.EnableDirectStream;
+       j["EnableTranscoding"sv] = o.EnableTranscoding;
+       j["AllowVideoStreamCopy"sv] = o.AllowVideoStreamCopy;
+       j["AllowAudioStreamCopy"sv] = o.AllowAudioStreamCopy;
+       j["AutoOpenLiveStream"sv] = o.AutoOpenLiveStream;
 }
 void from_json(const json_t& j, OAIPlaybackInfoDto& o) {
     if(j.contains("UserId"sv))
@@ -9305,9 +9308,9 @@ void from_json(const json_t& j, OAIPlaybackInfoDto& o) {
 
 
 void to_json(json_t& j, const OAIPlaybackInfoResponse& o) {
-        j["MediaSources"sv] = o.MediaSources;
-        j["PlaySessionId"sv] = o.PlaySessionId;
-        j["ErrorCode"sv] = o.ErrorCode;
+       j["MediaSources"sv] = o.MediaSources;
+       j["PlaySessionId"sv] = o.PlaySessionId;
+       j["ErrorCode"sv] = o.ErrorCode;
 }
 void from_json(const json_t& j, OAIPlaybackInfoResponse& o) {
     
@@ -9360,27 +9363,27 @@ void from_json(const json_t& j, OAIPlaybackOrder& e) {
 
 
 void to_json(json_t& j, const OAIPlaybackProgressInfo& o) {
-        j["CanSeek"sv] = o.CanSeek;
-        j["Item"sv] = o.Item;
-        j["ItemId"sv] = o.ItemId;
-        j["SessionId"sv] = o.SessionId;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["IsPaused"sv] = o.IsPaused;
-        j["IsMuted"sv] = o.IsMuted;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["PlaybackStartTimeTicks"sv] = o.PlaybackStartTimeTicks;
-        j["VolumeLevel"sv] = o.VolumeLevel;
-        j["Brightness"sv] = o.Brightness;
-        j["AspectRatio"sv] = o.AspectRatio;
-        j["PlayMethod"sv] = o.PlayMethod;
-        j["LiveStreamId"sv] = o.LiveStreamId;
-        j["PlaySessionId"sv] = o.PlaySessionId;
-        j["RepeatMode"sv] = o.RepeatMode;
-        j["PlaybackOrder"sv] = o.PlaybackOrder;
-        j["NowPlayingQueue"sv] = o.NowPlayingQueue;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["CanSeek"sv] = o.CanSeek;
+       j["Item"sv] = o.Item;
+       j["ItemId"sv] = o.ItemId;
+       j["SessionId"sv] = o.SessionId;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["IsPaused"sv] = o.IsPaused;
+       j["IsMuted"sv] = o.IsMuted;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["PlaybackStartTimeTicks"sv] = o.PlaybackStartTimeTicks;
+       j["VolumeLevel"sv] = o.VolumeLevel;
+       j["Brightness"sv] = o.Brightness;
+       j["AspectRatio"sv] = o.AspectRatio;
+       j["PlayMethod"sv] = o.PlayMethod;
+       j["LiveStreamId"sv] = o.LiveStreamId;
+       j["PlaySessionId"sv] = o.PlaySessionId;
+       j["RepeatMode"sv] = o.RepeatMode;
+       j["PlaybackOrder"sv] = o.PlaybackOrder;
+       j["NowPlayingQueue"sv] = o.NowPlayingQueue;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIPlaybackProgressInfo& o) {
     
@@ -9589,27 +9592,27 @@ void from_json(const json_t& j, OAIPlaybackRequestType& e) {
 
 
 void to_json(json_t& j, const OAIPlaybackStartInfo& o) {
-        j["CanSeek"sv] = o.CanSeek;
-        j["Item"sv] = o.Item;
-        j["ItemId"sv] = o.ItemId;
-        j["SessionId"sv] = o.SessionId;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["IsPaused"sv] = o.IsPaused;
-        j["IsMuted"sv] = o.IsMuted;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["PlaybackStartTimeTicks"sv] = o.PlaybackStartTimeTicks;
-        j["VolumeLevel"sv] = o.VolumeLevel;
-        j["Brightness"sv] = o.Brightness;
-        j["AspectRatio"sv] = o.AspectRatio;
-        j["PlayMethod"sv] = o.PlayMethod;
-        j["LiveStreamId"sv] = o.LiveStreamId;
-        j["PlaySessionId"sv] = o.PlaySessionId;
-        j["RepeatMode"sv] = o.RepeatMode;
-        j["PlaybackOrder"sv] = o.PlaybackOrder;
-        j["NowPlayingQueue"sv] = o.NowPlayingQueue;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["CanSeek"sv] = o.CanSeek;
+       j["Item"sv] = o.Item;
+       j["ItemId"sv] = o.ItemId;
+       j["SessionId"sv] = o.SessionId;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["IsPaused"sv] = o.IsPaused;
+       j["IsMuted"sv] = o.IsMuted;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["PlaybackStartTimeTicks"sv] = o.PlaybackStartTimeTicks;
+       j["VolumeLevel"sv] = o.VolumeLevel;
+       j["Brightness"sv] = o.Brightness;
+       j["AspectRatio"sv] = o.AspectRatio;
+       j["PlayMethod"sv] = o.PlayMethod;
+       j["LiveStreamId"sv] = o.LiveStreamId;
+       j["PlaySessionId"sv] = o.PlaySessionId;
+       j["RepeatMode"sv] = o.RepeatMode;
+       j["PlaybackOrder"sv] = o.PlaybackOrder;
+       j["NowPlayingQueue"sv] = o.NowPlayingQueue;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIPlaybackStartInfo& o) {
     
@@ -9660,17 +9663,17 @@ void from_json(const json_t& j, OAIPlaybackStartInfo& o) {
 
 
 void to_json(json_t& j, const OAIPlaybackStopInfo& o) {
-        j["Item"sv] = o.Item;
-        j["ItemId"sv] = o.ItemId;
-        j["SessionId"sv] = o.SessionId;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["LiveStreamId"sv] = o.LiveStreamId;
-        j["PlaySessionId"sv] = o.PlaySessionId;
-        j["Failed"sv] = o.Failed;
-        j["NextMediaType"sv] = o.NextMediaType;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
-        j["NowPlayingQueue"sv] = o.NowPlayingQueue;
+       j["Item"sv] = o.Item;
+       j["ItemId"sv] = o.ItemId;
+       j["SessionId"sv] = o.SessionId;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["LiveStreamId"sv] = o.LiveStreamId;
+       j["PlaySessionId"sv] = o.PlaySessionId;
+       j["Failed"sv] = o.Failed;
+       j["NextMediaType"sv] = o.NextMediaType;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["NowPlayingQueue"sv] = o.NowPlayingQueue;
 }
 void from_json(const json_t& j, OAIPlaybackStopInfo& o) {
     if(j.contains("Item"sv))
@@ -9701,18 +9704,18 @@ void from_json(const json_t& j, OAIPlaybackStopInfo& o) {
 
 
 void to_json(json_t& j, const OAIPlayerStateInfo& o) {
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["CanSeek"sv] = o.CanSeek;
-        j["IsPaused"sv] = o.IsPaused;
-        j["IsMuted"sv] = o.IsMuted;
-        j["VolumeLevel"sv] = o.VolumeLevel;
-        j["AudioStreamIndex"sv] = o.AudioStreamIndex;
-        j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
-        j["MediaSourceId"sv] = o.MediaSourceId;
-        j["PlayMethod"sv] = o.PlayMethod;
-        j["RepeatMode"sv] = o.RepeatMode;
-        j["PlaybackOrder"sv] = o.PlaybackOrder;
-        j["LiveStreamId"sv] = o.LiveStreamId;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["CanSeek"sv] = o.CanSeek;
+       j["IsPaused"sv] = o.IsPaused;
+       j["IsMuted"sv] = o.IsMuted;
+       j["VolumeLevel"sv] = o.VolumeLevel;
+       j["AudioStreamIndex"sv] = o.AudioStreamIndex;
+       j["SubtitleStreamIndex"sv] = o.SubtitleStreamIndex;
+       j["MediaSourceId"sv] = o.MediaSourceId;
+       j["PlayMethod"sv] = o.PlayMethod;
+       j["RepeatMode"sv] = o.RepeatMode;
+       j["PlaybackOrder"sv] = o.PlaybackOrder;
+       j["LiveStreamId"sv] = o.LiveStreamId;
 }
 void from_json(const json_t& j, OAIPlayerStateInfo& o) {
     if(j.contains("PositionTicks"sv))
@@ -9745,7 +9748,7 @@ void from_json(const json_t& j, OAIPlayerStateInfo& o) {
 
 
 void to_json(json_t& j, const OAIPlaylistCreationResult& o) {
-        j["Id"sv] = o.Id;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAIPlaylistCreationResult& o) {
     
@@ -9756,8 +9759,8 @@ void from_json(const json_t& j, OAIPlaylistCreationResult& o) {
 
 
 void to_json(json_t& j, const OAIPlaylistUserPermissions& o) {
-        j["UserId"sv] = o.UserId;
-        j["CanEdit"sv] = o.CanEdit;
+       j["UserId"sv] = o.UserId;
+       j["CanEdit"sv] = o.CanEdit;
 }
 void from_json(const json_t& j, OAIPlaylistUserPermissions& o) {
     
@@ -9864,9 +9867,9 @@ void from_json(const json_t& j, OAIPlaystateCommand& e) {
 
 
 void to_json(json_t& j, const OAIPlaystateMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPlaystateMessage& o) {
     if(j.contains("Data"sv))
@@ -9881,9 +9884,9 @@ void from_json(const json_t& j, OAIPlaystateMessage& o) {
 
 
 void to_json(json_t& j, const OAIPlaystateRequest& o) {
-        j["Command"sv] = o.Command;
-        j["SeekPositionTicks"sv] = o.SeekPositionTicks;
-        j["ControllingUserId"sv] = o.ControllingUserId;
+       j["Command"sv] = o.Command;
+       j["SeekPositionTicks"sv] = o.SeekPositionTicks;
+       j["ControllingUserId"sv] = o.ControllingUserId;
 }
 void from_json(const json_t& j, OAIPlaystateRequest& o) {
     
@@ -9898,14 +9901,14 @@ void from_json(const json_t& j, OAIPlaystateRequest& o) {
 
 
 void to_json(json_t& j, const OAIPluginInfo& o) {
-        j["Name"sv] = o.Name;
-        j["Version"sv] = o.Version;
-        j["ConfigurationFileName"sv] = o.ConfigurationFileName;
-        j["Description"sv] = o.Description;
-        j["Id"sv] = o.Id;
-        j["CanUninstall"sv] = o.CanUninstall;
-        j["HasImage"sv] = o.HasImage;
-        j["Status"sv] = o.Status;
+       j["Name"sv] = o.Name;
+       j["Version"sv] = o.Version;
+       j["ConfigurationFileName"sv] = o.ConfigurationFileName;
+       j["Description"sv] = o.Description;
+       j["Id"sv] = o.Id;
+       j["CanUninstall"sv] = o.CanUninstall;
+       j["HasImage"sv] = o.HasImage;
+       j["Status"sv] = o.Status;
 }
 void from_json(const json_t& j, OAIPluginInfo& o) {
     
@@ -9930,9 +9933,9 @@ void from_json(const json_t& j, OAIPluginInfo& o) {
 
 
 void to_json(json_t& j, const OAIPluginInstallationCancelledMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPluginInstallationCancelledMessage& o) {
     if(j.contains("Data"sv))
@@ -9947,9 +9950,9 @@ void from_json(const json_t& j, OAIPluginInstallationCancelledMessage& o) {
 
 
 void to_json(json_t& j, const OAIPluginInstallationCompletedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPluginInstallationCompletedMessage& o) {
     if(j.contains("Data"sv))
@@ -9964,9 +9967,9 @@ void from_json(const json_t& j, OAIPluginInstallationCompletedMessage& o) {
 
 
 void to_json(json_t& j, const OAIPluginInstallationFailedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPluginInstallationFailedMessage& o) {
     if(j.contains("Data"sv))
@@ -9981,9 +9984,9 @@ void from_json(const json_t& j, OAIPluginInstallationFailedMessage& o) {
 
 
 void to_json(json_t& j, const OAIPluginInstallingMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPluginInstallingMessage& o) {
     if(j.contains("Data"sv))
@@ -10076,9 +10079,9 @@ void from_json(const json_t& j, OAIPluginStatus& e) {
 
 
 void to_json(json_t& j, const OAIPluginUninstalledMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIPluginUninstalledMessage& o) {
     if(j.contains("Data"sv))
@@ -10093,7 +10096,7 @@ void from_json(const json_t& j, OAIPluginUninstalledMessage& o) {
 
 
 void to_json(json_t& j, const OAIPreviousItemRequestDto& o) {
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIPreviousItemRequestDto& o) {
     
@@ -10178,10 +10181,10 @@ void from_json(const json_t& j, OAIProcessPriorityClass& e) {
 
 
 void to_json(json_t& j, const OAIProfileCondition& o) {
-        j["Condition"sv] = o.Condition;
-        j["Property"sv] = o.Property;
-        j["Value"sv] = o.Value;
-        j["IsRequired"sv] = o.IsRequired;
+       j["Condition"sv] = o.Condition;
+       j["Property"sv] = o.Property;
+       j["Value"sv] = o.Value;
+       j["IsRequired"sv] = o.IsRequired;
 }
 void from_json(const json_t& j, OAIProfileCondition& o) {
     
@@ -10544,13 +10547,13 @@ void from_json(const json_t& j, OAIProgramAudio& e) {
 
 
 void to_json(json_t& j, const OAIPublicSystemInfo& o) {
-        j["LocalAddress"sv] = o.LocalAddress;
-        j["ServerName"sv] = o.ServerName;
-        j["Version"sv] = o.Version;
-        j["ProductName"sv] = o.ProductName;
-        j["OperatingSystem"sv] = o.OperatingSystem;
-        j["Id"sv] = o.Id;
-        j["StartupWizardCompleted"sv] = o.StartupWizardCompleted;
+       j["LocalAddress"sv] = o.LocalAddress;
+       j["ServerName"sv] = o.ServerName;
+       j["Version"sv] = o.Version;
+       j["ProductName"sv] = o.ProductName;
+       // j["OperatingSystem"sv] = o.OperatingSystem;
+       j["Id"sv] = o.Id;
+       j["StartupWizardCompleted"sv] = o.StartupWizardCompleted;
 }
 void from_json(const json_t& j, OAIPublicSystemInfo& o) {
     if(j.contains("LocalAddress"sv))
@@ -10561,8 +10564,8 @@ void from_json(const json_t& j, OAIPublicSystemInfo& o) {
     j.at("Version"sv).get_to(o.Version);
     if(j.contains("ProductName"sv))
     j.at("ProductName"sv).get_to(o.ProductName);
-    if(j.contains("OperatingSystem"sv))
-    j.at("OperatingSystem"sv).get_to(o.OperatingSystem);
+    // if(j.contains("OperatingSystem"sv))
+    // j.at("OperatingSystem"sv).get_to(o.OperatingSystem);
     if(j.contains("Id"sv))
     j.at("Id"sv).get_to(o.Id);
     if(j.contains("StartupWizardCompleted"sv))
@@ -10573,8 +10576,8 @@ void from_json(const json_t& j, OAIPublicSystemInfo& o) {
 
 
 void to_json(json_t& j, const OAIQueryFilters& o) {
-        j["Genres"sv] = o.Genres;
-        j["Tags"sv] = o.Tags;
+       j["Genres"sv] = o.Genres;
+       j["Tags"sv] = o.Tags;
 }
 void from_json(const json_t& j, OAIQueryFilters& o) {
     if(j.contains("Genres"sv))
@@ -10587,10 +10590,10 @@ void from_json(const json_t& j, OAIQueryFilters& o) {
 
 
 void to_json(json_t& j, const OAIQueryFiltersLegacy& o) {
-        j["Genres"sv] = o.Genres;
-        j["Tags"sv] = o.Tags;
-        j["OfficialRatings"sv] = o.OfficialRatings;
-        j["Years"sv] = o.Years;
+       j["Genres"sv] = o.Genres;
+       j["Tags"sv] = o.Tags;
+       j["OfficialRatings"sv] = o.OfficialRatings;
+       j["Years"sv] = o.Years;
 }
 void from_json(const json_t& j, OAIQueryFiltersLegacy& o) {
     if(j.contains("Genres"sv))
@@ -10607,8 +10610,8 @@ void from_json(const json_t& j, OAIQueryFiltersLegacy& o) {
 
 
 void to_json(json_t& j, const OAIQueueItem& o) {
-        j["Id"sv] = o.Id;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["Id"sv] = o.Id;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIQueueItem& o) {
     
@@ -10621,8 +10624,8 @@ void from_json(const json_t& j, OAIQueueItem& o) {
 
 
 void to_json(json_t& j, const OAIQueueRequestDto& o) {
-        j["ItemIds"sv] = o.ItemIds;
-        j["Mode"sv] = o.Mode;
+       j["ItemIds"sv] = o.ItemIds;
+       j["Mode"sv] = o.Mode;
 }
 void from_json(const json_t& j, OAIQueueRequestDto& o) {
     
@@ -10635,7 +10638,7 @@ void from_json(const json_t& j, OAIQueueRequestDto& o) {
 
 
 void to_json(json_t& j, const OAIQuickConnectDto& o) {
-        j["Secret"sv] = o.Secret;
+       j["Secret"sv] = o.Secret;
 }
 void from_json(const json_t& j, OAIQuickConnectDto& o) {
     
@@ -10646,14 +10649,14 @@ void from_json(const json_t& j, OAIQuickConnectDto& o) {
 
 
 void to_json(json_t& j, const OAIQuickConnectResult& o) {
-        j["Authenticated"sv] = o.Authenticated;
-        j["Secret"sv] = o.Secret;
-        j["Code"sv] = o.Code;
-        j["DeviceId"sv] = o.DeviceId;
-        j["DeviceName"sv] = o.DeviceName;
-        j["AppName"sv] = o.AppName;
-        j["AppVersion"sv] = o.AppVersion;
-        j["DateAdded"sv] = o.DateAdded;
+       j["Authenticated"sv] = o.Authenticated;
+       j["Secret"sv] = o.Secret;
+       j["Code"sv] = o.Code;
+       j["DeviceId"sv] = o.DeviceId;
+       j["DeviceName"sv] = o.DeviceName;
+       j["AppName"sv] = o.AppName;
+       j["AppVersion"sv] = o.AppVersion;
+       j["DateAdded"sv] = o.DateAdded;
 }
 void from_json(const json_t& j, OAIQuickConnectResult& o) {
     
@@ -10716,10 +10719,10 @@ void from_json(const json_t& j, OAIRatingType& e) {
 
 
 void to_json(json_t& j, const OAIReadyRequestDto& o) {
-        j["When"sv] = o.When;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["IsPlaying"sv] = o.IsPlaying;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["When"sv] = o.When;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["IsPlaying"sv] = o.IsPlaying;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAIReadyRequestDto& o) {
     
@@ -10736,10 +10739,10 @@ void from_json(const json_t& j, OAIReadyRequestDto& o) {
 
 
 void to_json(json_t& j, const OAIRecommendationDto& o) {
-        j["Items"sv] = o.Items;
-        j["RecommendationType"sv] = o.RecommendationType;
-        j["BaselineItemName"sv] = o.BaselineItemName;
-        j["CategoryId"sv] = o.CategoryId;
+       j["Items"sv] = o.Items;
+       j["RecommendationType"sv] = o.RecommendationType;
+       j["BaselineItemName"sv] = o.BaselineItemName;
+       j["CategoryId"sv] = o.CategoryId;
 }
 void from_json(const json_t& j, OAIRecommendationDto& o) {
     if(j.contains("Items"sv))
@@ -10904,9 +10907,9 @@ void from_json(const json_t& j, OAIRecordingStatus& e) {
 
 
 void to_json(json_t& j, const OAIRefreshProgressMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIRefreshProgressMessage& o) {
     if(j.contains("Data"sv))
@@ -10921,16 +10924,16 @@ void from_json(const json_t& j, OAIRefreshProgressMessage& o) {
 
 
 void to_json(json_t& j, const OAIRemoteImageInfo& o) {
-        j["ProviderName"sv] = o.ProviderName;
-        j["Url"sv] = o.Url;
-        j["ThumbnailUrl"sv] = o.ThumbnailUrl;
-        j["Height"sv] = o.Height;
-        j["Width"sv] = o.Width;
-        j["CommunityRating"sv] = o.CommunityRating;
-        j["VoteCount"sv] = o.VoteCount;
-        j["Language"sv] = o.Language;
-        j["Type"sv] = o.Type;
-        j["RatingType"sv] = o.RatingType;
+       j["ProviderName"sv] = o.ProviderName;
+       j["Url"sv] = o.Url;
+       j["ThumbnailUrl"sv] = o.ThumbnailUrl;
+       j["Height"sv] = o.Height;
+       j["Width"sv] = o.Width;
+       j["CommunityRating"sv] = o.CommunityRating;
+       j["VoteCount"sv] = o.VoteCount;
+       j["Language"sv] = o.Language;
+       j["Type"sv] = o.Type;
+       j["RatingType"sv] = o.RatingType;
 }
 void from_json(const json_t& j, OAIRemoteImageInfo& o) {
     if(j.contains("ProviderName"sv))
@@ -10959,9 +10962,9 @@ void from_json(const json_t& j, OAIRemoteImageInfo& o) {
 
 
 void to_json(json_t& j, const OAIRemoteImageResult& o) {
-        j["Images"sv] = o.Images;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["Providers"sv] = o.Providers;
+       j["Images"sv] = o.Images;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["Providers"sv] = o.Providers;
 }
 void from_json(const json_t& j, OAIRemoteImageResult& o) {
     if(j.contains("Images"sv))
@@ -10976,9 +10979,9 @@ void from_json(const json_t& j, OAIRemoteImageResult& o) {
 
 
 void to_json(json_t& j, const OAIRemoteLyricInfoDto& o) {
-        j["Id"sv] = o.Id;
-        j["ProviderName"sv] = o.ProviderName;
-        j["Lyrics"sv] = o.Lyrics;
+       j["Id"sv] = o.Id;
+       j["ProviderName"sv] = o.ProviderName;
+       j["Lyrics"sv] = o.Lyrics;
 }
 void from_json(const json_t& j, OAIRemoteLyricInfoDto& o) {
     
@@ -10993,18 +10996,18 @@ void from_json(const json_t& j, OAIRemoteLyricInfoDto& o) {
 
 
 void to_json(json_t& j, const OAIRemoteSearchResult& o) {
-        j["Name"sv] = o.Name;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["ProductionYear"sv] = o.ProductionYear;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["IndexNumberEnd"sv] = o.IndexNumberEnd;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["ImageUrl"sv] = o.ImageUrl;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["Overview"sv] = o.Overview;
-        j["AlbumArtist"sv] = o.AlbumArtist;
-        j["Artists"sv] = o.Artists;
+       j["Name"sv] = o.Name;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["ProductionYear"sv] = o.ProductionYear;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["IndexNumberEnd"sv] = o.IndexNumberEnd;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["ImageUrl"sv] = o.ImageUrl;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["Overview"sv] = o.Overview;
+       j["AlbumArtist"sv] = o.AlbumArtist;
+       j["Artists"sv] = o.Artists;
 }
 void from_json(const json_t& j, OAIRemoteSearchResult& o) {
     if(j.contains("Name"sv))
@@ -11037,22 +11040,22 @@ void from_json(const json_t& j, OAIRemoteSearchResult& o) {
 
 
 void to_json(json_t& j, const OAIRemoteSubtitleInfo& o) {
-        j["ThreeLetterISOLanguageName"sv] = o.ThreeLetterISOLanguageName;
-        j["Id"sv] = o.Id;
-        j["ProviderName"sv] = o.ProviderName;
-        j["Name"sv] = o.Name;
-        j["Format"sv] = o.Format;
-        j["Author"sv] = o.Author;
-        j["Comment"sv] = o.Comment;
-        j["DateCreated"sv] = o.DateCreated;
-        j["CommunityRating"sv] = o.CommunityRating;
-        j["FrameRate"sv] = o.FrameRate;
-        j["DownloadCount"sv] = o.DownloadCount;
-        j["IsHashMatch"sv] = o.IsHashMatch;
-        j["AiTranslated"sv] = o.AiTranslated;
-        j["MachineTranslated"sv] = o.MachineTranslated;
-        j["Forced"sv] = o.Forced;
-        j["HearingImpaired"sv] = o.HearingImpaired;
+       j["ThreeLetterISOLanguageName"sv] = o.ThreeLetterISOLanguageName;
+       j["Id"sv] = o.Id;
+       j["ProviderName"sv] = o.ProviderName;
+       j["Name"sv] = o.Name;
+       j["Format"sv] = o.Format;
+       j["Author"sv] = o.Author;
+       j["Comment"sv] = o.Comment;
+       j["DateCreated"sv] = o.DateCreated;
+       j["CommunityRating"sv] = o.CommunityRating;
+       j["FrameRate"sv] = o.FrameRate;
+       j["DownloadCount"sv] = o.DownloadCount;
+       j["IsHashMatch"sv] = o.IsHashMatch;
+       j["AiTranslated"sv] = o.AiTranslated;
+       j["MachineTranslated"sv] = o.MachineTranslated;
+       j["Forced"sv] = o.Forced;
+       j["HearingImpaired"sv] = o.HearingImpaired;
 }
 void from_json(const json_t& j, OAIRemoteSubtitleInfo& o) {
     if(j.contains("ThreeLetterISOLanguageName"sv))
@@ -11093,9 +11096,9 @@ void from_json(const json_t& j, OAIRemoteSubtitleInfo& o) {
 
 
 void to_json(json_t& j, const OAIRemoveFromPlaylistRequestDto& o) {
-        j["PlaylistItemIds"sv] = o.PlaylistItemIds;
-        j["ClearPlaylist"sv] = o.ClearPlaylist;
-        j["ClearPlayingItem"sv] = o.ClearPlayingItem;
+       j["PlaylistItemIds"sv] = o.PlaylistItemIds;
+       j["ClearPlaylist"sv] = o.ClearPlaylist;
+       j["ClearPlayingItem"sv] = o.ClearPlayingItem;
 }
 void from_json(const json_t& j, OAIRemoveFromPlaylistRequestDto& o) {
     
@@ -11156,9 +11159,9 @@ void from_json(const json_t& j, OAIRepeatMode& e) {
 
 
 void to_json(json_t& j, const OAIRepositoryInfo& o) {
-        j["Name"sv] = o.Name;
-        j["Url"sv] = o.Url;
-        j["Enabled"sv] = o.Enabled;
+       j["Name"sv] = o.Name;
+       j["Url"sv] = o.Url;
+       j["Enabled"sv] = o.Enabled;
 }
 void from_json(const json_t& j, OAIRepositoryInfo& o) {
     if(j.contains("Name"sv))
@@ -11173,8 +11176,8 @@ void from_json(const json_t& j, OAIRepositoryInfo& o) {
 
 
 void to_json(json_t& j, const OAIRestartRequiredMessage& o) {
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIRestartRequiredMessage& o) {
     
@@ -11187,9 +11190,9 @@ void from_json(const json_t& j, OAIRestartRequiredMessage& o) {
 
 
 void to_json(json_t& j, const OAIScheduledTaskEndedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIScheduledTaskEndedMessage& o) {
     if(j.contains("Data"sv))
@@ -11204,9 +11207,9 @@ void from_json(const json_t& j, OAIScheduledTaskEndedMessage& o) {
 
 
 void to_json(json_t& j, const OAIScheduledTasksInfoMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIScheduledTasksInfoMessage& o) {
     if(j.contains("Data"sv))
@@ -11221,8 +11224,8 @@ void from_json(const json_t& j, OAIScheduledTasksInfoMessage& o) {
 
 
 void to_json(json_t& j, const OAIScheduledTasksInfoStartMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIScheduledTasksInfoStartMessage& o) {
     if(j.contains("Data"sv))
@@ -11235,7 +11238,7 @@ void from_json(const json_t& j, OAIScheduledTasksInfoStartMessage& o) {
 
 
 void to_json(json_t& j, const OAIScheduledTasksInfoStopMessage& o) {
-        j["MessageType"sv] = o.MessageType;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIScheduledTasksInfoStopMessage& o) {
     
@@ -11284,39 +11287,39 @@ void from_json(const json_t& j, OAIScrollDirection& e) {
 
 
 void to_json(json_t& j, const OAISearchHint& o) {
-        j["ItemId"sv] = o.ItemId;
-        j["Id"sv] = o.Id;
-        j["Name"sv] = o.Name;
-        j["MatchedTerm"sv] = o.MatchedTerm;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ProductionYear"sv] = o.ProductionYear;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PrimaryImageTag"sv] = o.PrimaryImageTag;
-        j["ThumbImageTag"sv] = o.ThumbImageTag;
-        j["ThumbImageItemId"sv] = o.ThumbImageItemId;
-        j["BackdropImageTag"sv] = o.BackdropImageTag;
-        j["BackdropImageItemId"sv] = o.BackdropImageItemId;
-        j["Type"sv] = o.Type;
-        j["IsFolder"sv] = o.IsFolder;
-        j["RunTimeTicks"sv] = o.RunTimeTicks;
-        j["MediaType"sv] = o.MediaType;
-        j["StartDate"sv] = o.StartDate;
-        j["EndDate"sv] = o.EndDate;
-        j["Series"sv] = o.Series;
-        j["Status"sv] = o.Status;
-        j["Album"sv] = o.Album;
-        j["AlbumId"sv] = o.AlbumId;
-        j["AlbumArtist"sv] = o.AlbumArtist;
-        j["Artists"sv] = o.Artists;
-        j["SongCount"sv] = o.SongCount;
-        j["EpisodeCount"sv] = o.EpisodeCount;
-        j["ChannelId"sv] = o.ChannelId;
-        j["ChannelName"sv] = o.ChannelName;
-        j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
+       // j["ItemId"sv] = o.ItemId;
+       j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["MatchedTerm"sv] = o.MatchedTerm;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ProductionYear"sv] = o.ProductionYear;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PrimaryImageTag"sv] = o.PrimaryImageTag;
+       j["ThumbImageTag"sv] = o.ThumbImageTag;
+       j["ThumbImageItemId"sv] = o.ThumbImageItemId;
+       j["BackdropImageTag"sv] = o.BackdropImageTag;
+       j["BackdropImageItemId"sv] = o.BackdropImageItemId;
+       j["Type"sv] = o.Type;
+       j["IsFolder"sv] = o.IsFolder;
+       j["RunTimeTicks"sv] = o.RunTimeTicks;
+       j["MediaType"sv] = o.MediaType;
+       j["StartDate"sv] = o.StartDate;
+       j["EndDate"sv] = o.EndDate;
+       j["Series"sv] = o.Series;
+       j["Status"sv] = o.Status;
+       j["Album"sv] = o.Album;
+       j["AlbumId"sv] = o.AlbumId;
+       j["AlbumArtist"sv] = o.AlbumArtist;
+       j["Artists"sv] = o.Artists;
+       j["SongCount"sv] = o.SongCount;
+       j["EpisodeCount"sv] = o.EpisodeCount;
+       j["ChannelId"sv] = o.ChannelId;
+       j["ChannelName"sv] = o.ChannelName;
+       j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
 }
 void from_json(const json_t& j, OAISearchHint& o) {
-    
-    j.at("ItemId"sv).get_to(o.ItemId);
+    // 
+    // j.at("ItemId"sv).get_to(o.ItemId);
     
     j.at("Id"sv).get_to(o.Id);
     
@@ -11379,8 +11382,8 @@ void from_json(const json_t& j, OAISearchHint& o) {
 
 
 void to_json(json_t& j, const OAISearchHintResult& o) {
-        j["SearchHints"sv] = o.SearchHints;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["SearchHints"sv] = o.SearchHints;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
 }
 void from_json(const json_t& j, OAISearchHintResult& o) {
     
@@ -11393,7 +11396,7 @@ void from_json(const json_t& j, OAISearchHintResult& o) {
 
 
 void to_json(json_t& j, const OAISeekRequestDto& o) {
-        j["PositionTicks"sv] = o.PositionTicks;
+       j["PositionTicks"sv] = o.PositionTicks;
 }
 void from_json(const json_t& j, OAISeekRequestDto& o) {
     
@@ -11404,12 +11407,12 @@ void from_json(const json_t& j, OAISeekRequestDto& o) {
 
 
 void to_json(json_t& j, const OAISendCommand& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
-        j["When"sv] = o.When;
-        j["PositionTicks"sv] = o.PositionTicks;
-        j["Command"sv] = o.Command;
-        j["EmittedAt"sv] = o.EmittedAt;
+       j["GroupId"sv] = o.GroupId;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["When"sv] = o.When;
+       j["PositionTicks"sv] = o.PositionTicks;
+       j["Command"sv] = o.Command;
+       j["EmittedAt"sv] = o.EmittedAt;
 }
 void from_json(const json_t& j, OAISendCommand& o) {
     
@@ -11484,17 +11487,17 @@ void from_json(const json_t& j, OAISendCommandType& e) {
 
 
 void to_json(json_t& j, const OAISeriesInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
 }
 void from_json(const json_t& j, OAISeriesInfo& o) {
     if(j.contains("Name"sv))
@@ -11525,10 +11528,10 @@ void from_json(const json_t& j, OAISeriesInfo& o) {
 
 
 void to_json(json_t& j, const OAISeriesInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAISeriesInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -11591,9 +11594,9 @@ void from_json(const json_t& j, OAISeriesStatus& e) {
 
 
 void to_json(json_t& j, const OAISeriesTimerCancelledMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISeriesTimerCancelledMessage& o) {
     if(j.contains("Data"sv))
@@ -11608,9 +11611,9 @@ void from_json(const json_t& j, OAISeriesTimerCancelledMessage& o) {
 
 
 void to_json(json_t& j, const OAISeriesTimerCreatedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISeriesTimerCreatedMessage& o) {
     if(j.contains("Data"sv))
@@ -11625,41 +11628,41 @@ void from_json(const json_t& j, OAISeriesTimerCreatedMessage& o) {
 
 
 void to_json(json_t& j, const OAISeriesTimerInfoDto& o) {
-        j["Id"sv] = o.Id;
-        j["Type"sv] = o.Type;
-        j["ServerId"sv] = o.ServerId;
-        j["ExternalId"sv] = o.ExternalId;
-        j["ChannelId"sv] = o.ChannelId;
-        j["ExternalChannelId"sv] = o.ExternalChannelId;
-        j["ChannelName"sv] = o.ChannelName;
-        j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
-        j["ProgramId"sv] = o.ProgramId;
-        j["ExternalProgramId"sv] = o.ExternalProgramId;
-        j["Name"sv] = o.Name;
-        j["Overview"sv] = o.Overview;
-        j["StartDate"sv] = o.StartDate;
-        j["EndDate"sv] = o.EndDate;
-        j["ServiceName"sv] = o.ServiceName;
-        j["Priority"sv] = o.Priority;
-        j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
-        j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
-        j["IsPrePaddingRequired"sv] = o.IsPrePaddingRequired;
-        j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
-        j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
-        j["IsPostPaddingRequired"sv] = o.IsPostPaddingRequired;
-        j["KeepUntil"sv] = o.KeepUntil;
-        j["RecordAnyTime"sv] = o.RecordAnyTime;
-        j["SkipEpisodesInLibrary"sv] = o.SkipEpisodesInLibrary;
-        j["RecordAnyChannel"sv] = o.RecordAnyChannel;
-        j["KeepUpTo"sv] = o.KeepUpTo;
-        j["RecordNewOnly"sv] = o.RecordNewOnly;
-        j["Days"sv] = o.Days;
-        j["DayPattern"sv] = o.DayPattern;
-        j["ImageTags"sv] = o.ImageTags;
-        j["ParentThumbItemId"sv] = o.ParentThumbItemId;
-        j["ParentThumbImageTag"sv] = o.ParentThumbImageTag;
-        j["ParentPrimaryImageItemId"sv] = o.ParentPrimaryImageItemId;
-        j["ParentPrimaryImageTag"sv] = o.ParentPrimaryImageTag;
+       j["Id"sv] = o.Id;
+       j["Type"sv] = o.Type;
+       j["ServerId"sv] = o.ServerId;
+       j["ExternalId"sv] = o.ExternalId;
+       j["ChannelId"sv] = o.ChannelId;
+       j["ExternalChannelId"sv] = o.ExternalChannelId;
+       j["ChannelName"sv] = o.ChannelName;
+       j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
+       j["ProgramId"sv] = o.ProgramId;
+       j["ExternalProgramId"sv] = o.ExternalProgramId;
+       j["Name"sv] = o.Name;
+       j["Overview"sv] = o.Overview;
+       j["StartDate"sv] = o.StartDate;
+       j["EndDate"sv] = o.EndDate;
+       j["ServiceName"sv] = o.ServiceName;
+       j["Priority"sv] = o.Priority;
+       j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
+       j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
+       j["IsPrePaddingRequired"sv] = o.IsPrePaddingRequired;
+       j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
+       j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
+       j["IsPostPaddingRequired"sv] = o.IsPostPaddingRequired;
+       j["KeepUntil"sv] = o.KeepUntil;
+       j["RecordAnyTime"sv] = o.RecordAnyTime;
+       j["SkipEpisodesInLibrary"sv] = o.SkipEpisodesInLibrary;
+       j["RecordAnyChannel"sv] = o.RecordAnyChannel;
+       j["KeepUpTo"sv] = o.KeepUpTo;
+       j["RecordNewOnly"sv] = o.RecordNewOnly;
+       j["Days"sv] = o.Days;
+       j["DayPattern"sv] = o.DayPattern;
+       j["ImageTags"sv] = o.ImageTags;
+       j["ParentThumbItemId"sv] = o.ParentThumbItemId;
+       j["ParentThumbImageTag"sv] = o.ParentThumbImageTag;
+       j["ParentPrimaryImageItemId"sv] = o.ParentPrimaryImageItemId;
+       j["ParentPrimaryImageTag"sv] = o.ParentPrimaryImageTag;
 }
 void from_json(const json_t& j, OAISeriesTimerInfoDto& o) {
     if(j.contains("Id"sv))
@@ -11738,9 +11741,9 @@ void from_json(const json_t& j, OAISeriesTimerInfoDto& o) {
 
 
 void to_json(json_t& j, const OAISeriesTimerInfoDtoQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAISeriesTimerInfoDtoQueryResult& o) {
     if(j.contains("Items"sv))
@@ -11755,61 +11758,61 @@ void from_json(const json_t& j, OAISeriesTimerInfoDtoQueryResult& o) {
 
 
 void to_json(json_t& j, const OAIServerConfiguration& o) {
-        j["LogFileRetentionDays"sv] = o.LogFileRetentionDays;
-        j["IsStartupWizardCompleted"sv] = o.IsStartupWizardCompleted;
-        j["CachePath"sv] = o.CachePath;
-        j["PreviousVersion"sv] = o.PreviousVersion;
-        j["PreviousVersionStr"sv] = o.PreviousVersionStr;
-        j["EnableMetrics"sv] = o.EnableMetrics;
-        j["EnableNormalizedItemByNameIds"sv] = o.EnableNormalizedItemByNameIds;
-        j["IsPortAuthorized"sv] = o.IsPortAuthorized;
-        j["QuickConnectAvailable"sv] = o.QuickConnectAvailable;
-        j["EnableCaseSensitiveItemIds"sv] = o.EnableCaseSensitiveItemIds;
-        j["DisableLiveTvChannelUserDataName"sv] = o.DisableLiveTvChannelUserDataName;
-        j["MetadataPath"sv] = o.MetadataPath;
-        j["MetadataNetworkPath"sv] = o.MetadataNetworkPath;
-        j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["SortReplaceCharacters"sv] = o.SortReplaceCharacters;
-        j["SortRemoveCharacters"sv] = o.SortRemoveCharacters;
-        j["SortRemoveWords"sv] = o.SortRemoveWords;
-        j["MinResumePct"sv] = o.MinResumePct;
-        j["MaxResumePct"sv] = o.MaxResumePct;
-        j["MinResumeDurationSeconds"sv] = o.MinResumeDurationSeconds;
-        j["MinAudiobookResume"sv] = o.MinAudiobookResume;
-        j["MaxAudiobookResume"sv] = o.MaxAudiobookResume;
-        j["InactiveSessionThreshold"sv] = o.InactiveSessionThreshold;
-        j["LibraryMonitorDelay"sv] = o.LibraryMonitorDelay;
-        j["LibraryUpdateDuration"sv] = o.LibraryUpdateDuration;
-        j["ImageSavingConvention"sv] = o.ImageSavingConvention;
-        j["MetadataOptions"sv] = o.MetadataOptions;
-        j["SkipDeserializationForBasicTypes"sv] = o.SkipDeserializationForBasicTypes;
-        j["ServerName"sv] = o.ServerName;
-        j["UICulture"sv] = o.UICulture;
-        j["SaveMetadataHidden"sv] = o.SaveMetadataHidden;
-        j["ContentTypes"sv] = o.ContentTypes;
-        j["RemoteClientBitrateLimit"sv] = o.RemoteClientBitrateLimit;
-        j["EnableFolderView"sv] = o.EnableFolderView;
-        j["EnableGroupingIntoCollections"sv] = o.EnableGroupingIntoCollections;
-        j["DisplaySpecialsWithinSeasons"sv] = o.DisplaySpecialsWithinSeasons;
-        j["CodecsUsed"sv] = o.CodecsUsed;
-        j["PluginRepositories"sv] = o.PluginRepositories;
-        j["EnableExternalContentInSuggestions"sv] = o.EnableExternalContentInSuggestions;
-        j["ImageExtractionTimeoutMs"sv] = o.ImageExtractionTimeoutMs;
-        j["PathSubstitutions"sv] = o.PathSubstitutions;
-        j["EnableSlowResponseWarning"sv] = o.EnableSlowResponseWarning;
-        j["SlowResponseThresholdMs"sv] = o.SlowResponseThresholdMs;
-        j["CorsHosts"sv] = o.CorsHosts;
-        j["ActivityLogRetentionDays"sv] = o.ActivityLogRetentionDays;
-        j["LibraryScanFanoutConcurrency"sv] = o.LibraryScanFanoutConcurrency;
-        j["LibraryMetadataRefreshConcurrency"sv] = o.LibraryMetadataRefreshConcurrency;
-        j["RemoveOldPlugins"sv] = o.RemoveOldPlugins;
-        j["AllowClientLogUpload"sv] = o.AllowClientLogUpload;
-        j["DummyChapterDuration"sv] = o.DummyChapterDuration;
-        j["ChapterImageResolution"sv] = o.ChapterImageResolution;
-        j["ParallelImageEncodingLimit"sv] = o.ParallelImageEncodingLimit;
-        j["CastReceiverApplications"sv] = o.CastReceiverApplications;
-        j["TrickplayOptions"sv] = o.TrickplayOptions;
+       j["LogFileRetentionDays"sv] = o.LogFileRetentionDays;
+       j["IsStartupWizardCompleted"sv] = o.IsStartupWizardCompleted;
+       j["CachePath"sv] = o.CachePath;
+       j["PreviousVersion"sv] = o.PreviousVersion;
+       j["PreviousVersionStr"sv] = o.PreviousVersionStr;
+       j["EnableMetrics"sv] = o.EnableMetrics;
+       j["EnableNormalizedItemByNameIds"sv] = o.EnableNormalizedItemByNameIds;
+       j["IsPortAuthorized"sv] = o.IsPortAuthorized;
+       j["QuickConnectAvailable"sv] = o.QuickConnectAvailable;
+       j["EnableCaseSensitiveItemIds"sv] = o.EnableCaseSensitiveItemIds;
+       j["DisableLiveTvChannelUserDataName"sv] = o.DisableLiveTvChannelUserDataName;
+       j["MetadataPath"sv] = o.MetadataPath;
+       j["MetadataNetworkPath"sv] = o.MetadataNetworkPath;
+       j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["SortReplaceCharacters"sv] = o.SortReplaceCharacters;
+       j["SortRemoveCharacters"sv] = o.SortRemoveCharacters;
+       j["SortRemoveWords"sv] = o.SortRemoveWords;
+       j["MinResumePct"sv] = o.MinResumePct;
+       j["MaxResumePct"sv] = o.MaxResumePct;
+       j["MinResumeDurationSeconds"sv] = o.MinResumeDurationSeconds;
+       j["MinAudiobookResume"sv] = o.MinAudiobookResume;
+       j["MaxAudiobookResume"sv] = o.MaxAudiobookResume;
+       j["InactiveSessionThreshold"sv] = o.InactiveSessionThreshold;
+       j["LibraryMonitorDelay"sv] = o.LibraryMonitorDelay;
+       j["LibraryUpdateDuration"sv] = o.LibraryUpdateDuration;
+       j["ImageSavingConvention"sv] = o.ImageSavingConvention;
+       j["MetadataOptions"sv] = o.MetadataOptions;
+       j["SkipDeserializationForBasicTypes"sv] = o.SkipDeserializationForBasicTypes;
+       j["ServerName"sv] = o.ServerName;
+       j["UICulture"sv] = o.UICulture;
+       j["SaveMetadataHidden"sv] = o.SaveMetadataHidden;
+       j["ContentTypes"sv] = o.ContentTypes;
+       j["RemoteClientBitrateLimit"sv] = o.RemoteClientBitrateLimit;
+       j["EnableFolderView"sv] = o.EnableFolderView;
+       j["EnableGroupingIntoCollections"sv] = o.EnableGroupingIntoCollections;
+       j["DisplaySpecialsWithinSeasons"sv] = o.DisplaySpecialsWithinSeasons;
+       j["CodecsUsed"sv] = o.CodecsUsed;
+       j["PluginRepositories"sv] = o.PluginRepositories;
+       j["EnableExternalContentInSuggestions"sv] = o.EnableExternalContentInSuggestions;
+       j["ImageExtractionTimeoutMs"sv] = o.ImageExtractionTimeoutMs;
+       j["PathSubstitutions"sv] = o.PathSubstitutions;
+       j["EnableSlowResponseWarning"sv] = o.EnableSlowResponseWarning;
+       j["SlowResponseThresholdMs"sv] = o.SlowResponseThresholdMs;
+       j["CorsHosts"sv] = o.CorsHosts;
+       j["ActivityLogRetentionDays"sv] = o.ActivityLogRetentionDays;
+       j["LibraryScanFanoutConcurrency"sv] = o.LibraryScanFanoutConcurrency;
+       j["LibraryMetadataRefreshConcurrency"sv] = o.LibraryMetadataRefreshConcurrency;
+       j["RemoveOldPlugins"sv] = o.RemoveOldPlugins;
+       j["AllowClientLogUpload"sv] = o.AllowClientLogUpload;
+       j["DummyChapterDuration"sv] = o.DummyChapterDuration;
+       j["ChapterImageResolution"sv] = o.ChapterImageResolution;
+       j["ParallelImageEncodingLimit"sv] = o.ParallelImageEncodingLimit;
+       j["CastReceiverApplications"sv] = o.CastReceiverApplications;
+       j["TrickplayOptions"sv] = o.TrickplayOptions;
 }
 void from_json(const json_t& j, OAIServerConfiguration& o) {
     
@@ -11928,10 +11931,10 @@ void from_json(const json_t& j, OAIServerConfiguration& o) {
 
 
 void to_json(json_t& j, const OAIServerDiscoveryInfo& o) {
-        j["Address"sv] = o.Address;
-        j["Id"sv] = o.Id;
-        j["Name"sv] = o.Name;
-        j["EndpointAddress"sv] = o.EndpointAddress;
+       j["Address"sv] = o.Address;
+       j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["EndpointAddress"sv] = o.EndpointAddress;
 }
 void from_json(const json_t& j, OAIServerDiscoveryInfo& o) {
     
@@ -11948,8 +11951,8 @@ void from_json(const json_t& j, OAIServerDiscoveryInfo& o) {
 
 
 void to_json(json_t& j, const OAIServerRestartingMessage& o) {
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIServerRestartingMessage& o) {
     
@@ -11962,8 +11965,8 @@ void from_json(const json_t& j, OAIServerRestartingMessage& o) {
 
 
 void to_json(json_t& j, const OAIServerShuttingDownMessage& o) {
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIServerShuttingDownMessage& o) {
     
@@ -11976,35 +11979,35 @@ void from_json(const json_t& j, OAIServerShuttingDownMessage& o) {
 
 
 void to_json(json_t& j, const OAISessionInfo& o) {
-        j["PlayState"sv] = o.PlayState;
-        j["AdditionalUsers"sv] = o.AdditionalUsers;
-        j["Capabilities"sv] = o.Capabilities;
-        j["RemoteEndPoint"sv] = o.RemoteEndPoint;
-        j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
-        j["Id"sv] = o.Id;
-        j["UserId"sv] = o.UserId;
-        j["UserName"sv] = o.UserName;
-        j["Client"sv] = o.Client;
-        j["LastActivityDate"sv] = o.LastActivityDate;
-        j["LastPlaybackCheckIn"sv] = o.LastPlaybackCheckIn;
-        j["LastPausedDate"sv] = o.LastPausedDate;
-        j["DeviceName"sv] = o.DeviceName;
-        j["DeviceType"sv] = o.DeviceType;
-        j["NowPlayingItem"sv] = o.NowPlayingItem;
-        j["NowViewingItem"sv] = o.NowViewingItem;
-        j["DeviceId"sv] = o.DeviceId;
-        j["ApplicationVersion"sv] = o.ApplicationVersion;
-        j["TranscodingInfo"sv] = o.TranscodingInfo;
-        j["IsActive"sv] = o.IsActive;
-        j["SupportsMediaControl"sv] = o.SupportsMediaControl;
-        j["SupportsRemoteControl"sv] = o.SupportsRemoteControl;
-        j["NowPlayingQueue"sv] = o.NowPlayingQueue;
-        j["NowPlayingQueueFullItems"sv] = o.NowPlayingQueueFullItems;
-        j["HasCustomDeviceName"sv] = o.HasCustomDeviceName;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
-        j["ServerId"sv] = o.ServerId;
-        j["UserPrimaryImageTag"sv] = o.UserPrimaryImageTag;
-        j["SupportedCommands"sv] = o.SupportedCommands;
+       j["PlayState"sv] = o.PlayState;
+       j["AdditionalUsers"sv] = o.AdditionalUsers;
+       j["Capabilities"sv] = o.Capabilities;
+       j["RemoteEndPoint"sv] = o.RemoteEndPoint;
+       j["PlayableMediaTypes"sv] = o.PlayableMediaTypes;
+       j["Id"sv] = o.Id;
+       j["UserId"sv] = o.UserId;
+       j["UserName"sv] = o.UserName;
+       j["Client"sv] = o.Client;
+       j["LastActivityDate"sv] = o.LastActivityDate;
+       j["LastPlaybackCheckIn"sv] = o.LastPlaybackCheckIn;
+       j["LastPausedDate"sv] = o.LastPausedDate;
+       j["DeviceName"sv] = o.DeviceName;
+       j["DeviceType"sv] = o.DeviceType;
+       j["NowPlayingItem"sv] = o.NowPlayingItem;
+       j["NowViewingItem"sv] = o.NowViewingItem;
+       j["DeviceId"sv] = o.DeviceId;
+       j["ApplicationVersion"sv] = o.ApplicationVersion;
+       j["TranscodingInfo"sv] = o.TranscodingInfo;
+       j["IsActive"sv] = o.IsActive;
+       j["SupportsMediaControl"sv] = o.SupportsMediaControl;
+       j["SupportsRemoteControl"sv] = o.SupportsRemoteControl;
+       j["NowPlayingQueue"sv] = o.NowPlayingQueue;
+       j["NowPlayingQueueFullItems"sv] = o.NowPlayingQueueFullItems;
+       j["HasCustomDeviceName"sv] = o.HasCustomDeviceName;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["ServerId"sv] = o.ServerId;
+       j["UserPrimaryImageTag"sv] = o.UserPrimaryImageTag;
+       j["SupportedCommands"sv] = o.SupportedCommands;
 }
 void from_json(const json_t& j, OAISessionInfo& o) {
     if(j.contains("PlayState"sv))
@@ -12365,8 +12368,8 @@ void from_json(const json_t& j, OAISessionMessageType& e) {
 
 
 void to_json(json_t& j, const OAISessionUserInfo& o) {
-        j["UserId"sv] = o.UserId;
-        j["UserName"sv] = o.UserName;
+       j["UserId"sv] = o.UserId;
+       j["UserName"sv] = o.UserName;
 }
 void from_json(const json_t& j, OAISessionUserInfo& o) {
     
@@ -12379,9 +12382,9 @@ void from_json(const json_t& j, OAISessionUserInfo& o) {
 
 
 void to_json(json_t& j, const OAISessionsMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISessionsMessage& o) {
     if(j.contains("Data"sv))
@@ -12396,8 +12399,8 @@ void from_json(const json_t& j, OAISessionsMessage& o) {
 
 
 void to_json(json_t& j, const OAISessionsStartMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISessionsStartMessage& o) {
     if(j.contains("Data"sv))
@@ -12410,7 +12413,7 @@ void from_json(const json_t& j, OAISessionsStartMessage& o) {
 
 
 void to_json(json_t& j, const OAISessionsStopMessage& o) {
-        j["MessageType"sv] = o.MessageType;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISessionsStopMessage& o) {
     
@@ -12421,9 +12424,9 @@ void from_json(const json_t& j, OAISessionsStopMessage& o) {
 
 
 void to_json(json_t& j, const OAISetChannelMappingDto& o) {
-        j["ProviderId"sv] = o.ProviderId;
-        j["TunerChannelId"sv] = o.TunerChannelId;
-        j["ProviderChannelId"sv] = o.ProviderChannelId;
+       j["ProviderId"sv] = o.ProviderId;
+       j["TunerChannelId"sv] = o.TunerChannelId;
+       j["ProviderChannelId"sv] = o.ProviderChannelId;
 }
 void from_json(const json_t& j, OAISetChannelMappingDto& o) {
     
@@ -12438,7 +12441,7 @@ void from_json(const json_t& j, OAISetChannelMappingDto& o) {
 
 
 void to_json(json_t& j, const OAISetPlaylistItemRequestDto& o) {
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAISetPlaylistItemRequestDto& o) {
     
@@ -12449,7 +12452,7 @@ void from_json(const json_t& j, OAISetPlaylistItemRequestDto& o) {
 
 
 void to_json(json_t& j, const OAISetRepeatModeRequestDto& o) {
-        j["Mode"sv] = o.Mode;
+       j["Mode"sv] = o.Mode;
 }
 void from_json(const json_t& j, OAISetRepeatModeRequestDto& o) {
     
@@ -12460,7 +12463,7 @@ void from_json(const json_t& j, OAISetRepeatModeRequestDto& o) {
 
 
 void to_json(json_t& j, const OAISetShuffleModeRequestDto& o) {
-        j["Mode"sv] = o.Mode;
+       j["Mode"sv] = o.Mode;
 }
 void from_json(const json_t& j, OAISetShuffleModeRequestDto& o) {
     
@@ -12471,20 +12474,20 @@ void from_json(const json_t& j, OAISetShuffleModeRequestDto& o) {
 
 
 void to_json(json_t& j, const OAISongInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
-        j["AlbumArtists"sv] = o.AlbumArtists;
-        j["Album"sv] = o.Album;
-        j["Artists"sv] = o.Artists;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
+       j["AlbumArtists"sv] = o.AlbumArtists;
+       j["Album"sv] = o.Album;
+       j["Artists"sv] = o.Artists;
 }
 void from_json(const json_t& j, OAISongInfo& o) {
     if(j.contains("Name"sv))
@@ -12559,8 +12562,8 @@ void from_json(const json_t& j, OAISortOrder& e) {
 
 
 void to_json(json_t& j, const OAISpecialViewOptionDto& o) {
-        j["Name"sv] = o.Name;
-        j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAISpecialViewOptionDto& o) {
     if(j.contains("Name"sv))
@@ -12573,9 +12576,9 @@ void from_json(const json_t& j, OAISpecialViewOptionDto& o) {
 
 
 void to_json(json_t& j, const OAIStartupConfigurationDto& o) {
-        j["UICulture"sv] = o.UICulture;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
+       j["UICulture"sv] = o.UICulture;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["PreferredMetadataLanguage"sv] = o.PreferredMetadataLanguage;
 }
 void from_json(const json_t& j, OAIStartupConfigurationDto& o) {
     if(j.contains("UICulture"sv))
@@ -12590,8 +12593,8 @@ void from_json(const json_t& j, OAIStartupConfigurationDto& o) {
 
 
 void to_json(json_t& j, const OAIStartupRemoteAccessDto& o) {
-        j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
-        j["EnableAutomaticPortMapping"sv] = o.EnableAutomaticPortMapping;
+       j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
+       j["EnableAutomaticPortMapping"sv] = o.EnableAutomaticPortMapping;
 }
 void from_json(const json_t& j, OAIStartupRemoteAccessDto& o) {
     
@@ -12604,8 +12607,8 @@ void from_json(const json_t& j, OAIStartupRemoteAccessDto& o) {
 
 
 void to_json(json_t& j, const OAIStartupUserDto& o) {
-        j["Name"sv] = o.Name;
-        j["Password"sv] = o.Password;
+       j["Name"sv] = o.Name;
+       j["Password"sv] = o.Password;
 }
 void from_json(const json_t& j, OAIStartupUserDto& o) {
     if(j.contains("Name"sv))
@@ -12618,9 +12621,9 @@ void from_json(const json_t& j, OAIStartupUserDto& o) {
 
 
 void to_json(json_t& j, const OAIStringGroupUpdate& o) {
-        j["GroupId"sv] = o.GroupId;
-        j["Type"sv] = o.Type;
-        j["Data"sv] = o.Data;
+       j["GroupId"sv] = o.GroupId;
+       j["Type"sv] = o.Type;
+       j["Data"sv] = o.Data;
 }
 void from_json(const json_t& j, OAIStringGroupUpdate& o) {
     
@@ -12697,15 +12700,15 @@ void from_json(const json_t& j, OAISubtitleDeliveryMethod& e) {
 
 
 void to_json(json_t& j, const OAISubtitleOptions& o) {
-        j["SkipIfEmbeddedSubtitlesPresent"sv] = o.SkipIfEmbeddedSubtitlesPresent;
-        j["SkipIfAudioTrackMatches"sv] = o.SkipIfAudioTrackMatches;
-        j["DownloadLanguages"sv] = o.DownloadLanguages;
-        j["DownloadMovieSubtitles"sv] = o.DownloadMovieSubtitles;
-        j["DownloadEpisodeSubtitles"sv] = o.DownloadEpisodeSubtitles;
-        j["OpenSubtitlesUsername"sv] = o.OpenSubtitlesUsername;
-        j["OpenSubtitlesPasswordHash"sv] = o.OpenSubtitlesPasswordHash;
-        j["IsOpenSubtitleVipAccount"sv] = o.IsOpenSubtitleVipAccount;
-        j["RequirePerfectMatch"sv] = o.RequirePerfectMatch;
+       j["SkipIfEmbeddedSubtitlesPresent"sv] = o.SkipIfEmbeddedSubtitlesPresent;
+       j["SkipIfAudioTrackMatches"sv] = o.SkipIfAudioTrackMatches;
+       j["DownloadLanguages"sv] = o.DownloadLanguages;
+       j["DownloadMovieSubtitles"sv] = o.DownloadMovieSubtitles;
+       j["DownloadEpisodeSubtitles"sv] = o.DownloadEpisodeSubtitles;
+       j["OpenSubtitlesUsername"sv] = o.OpenSubtitlesUsername;
+       j["OpenSubtitlesPasswordHash"sv] = o.OpenSubtitlesPasswordHash;
+       j["IsOpenSubtitleVipAccount"sv] = o.IsOpenSubtitleVipAccount;
+       j["RequirePerfectMatch"sv] = o.RequirePerfectMatch;
 }
 void from_json(const json_t& j, OAISubtitleOptions& o) {
     
@@ -12794,11 +12797,11 @@ void from_json(const json_t& j, OAISubtitlePlaybackMode& e) {
 
 
 void to_json(json_t& j, const OAISubtitleProfile& o) {
-        j["Format"sv] = o.Format;
-        j["Method"sv] = o.Method;
-        j["DidlMode"sv] = o.DidlMode;
-        j["Language"sv] = o.Language;
-        j["Container"sv] = o.Container;
+       j["Format"sv] = o.Format;
+       j["Method"sv] = o.Method;
+       j["DidlMode"sv] = o.DidlMode;
+       j["Language"sv] = o.Language;
+       j["Container"sv] = o.Container;
 }
 void from_json(const json_t& j, OAISubtitleProfile& o) {
     if(j.contains("Format"sv))
@@ -12817,9 +12820,9 @@ void from_json(const json_t& j, OAISubtitleProfile& o) {
 
 
 void to_json(json_t& j, const OAISyncPlayCommandMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISyncPlayCommandMessage& o) {
     if(j.contains("Data"sv))
@@ -12834,9 +12837,9 @@ void from_json(const json_t& j, OAISyncPlayCommandMessage& o) {
 
 
 void to_json(json_t& j, const OAISyncPlayGroupUpdateCommandMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAISyncPlayGroupUpdateCommandMessage& o) {
     if(j.contains("Data"sv))
@@ -12851,8 +12854,8 @@ void from_json(const json_t& j, OAISyncPlayGroupUpdateCommandMessage& o) {
 
 
 void to_json(json_t& j, const OAISyncPlayQueueItem& o) {
-        j["ItemId"sv] = o.ItemId;
-        j["PlaylistItemId"sv] = o.PlaylistItemId;
+       j["ItemId"sv] = o.ItemId;
+       j["PlaylistItemId"sv] = o.PlaylistItemId;
 }
 void from_json(const json_t& j, OAISyncPlayQueueItem& o) {
     
@@ -12911,33 +12914,33 @@ void from_json(const json_t& j, OAISyncPlayUserAccessType& e) {
 
 
 void to_json(json_t& j, const OAISystemInfo& o) {
-        j["LocalAddress"sv] = o.LocalAddress;
-        j["ServerName"sv] = o.ServerName;
-        j["Version"sv] = o.Version;
-        j["ProductName"sv] = o.ProductName;
-        j["OperatingSystem"sv] = o.OperatingSystem;
-        j["Id"sv] = o.Id;
-        j["StartupWizardCompleted"sv] = o.StartupWizardCompleted;
-        j["OperatingSystemDisplayName"sv] = o.OperatingSystemDisplayName;
-        j["PackageName"sv] = o.PackageName;
-        j["HasPendingRestart"sv] = o.HasPendingRestart;
-        j["IsShuttingDown"sv] = o.IsShuttingDown;
-        j["SupportsLibraryMonitor"sv] = o.SupportsLibraryMonitor;
-        j["WebSocketPortNumber"sv] = o.WebSocketPortNumber;
-        j["CompletedInstallations"sv] = o.CompletedInstallations;
-        j["CanSelfRestart"sv] = o.CanSelfRestart;
-        j["CanLaunchWebBrowser"sv] = o.CanLaunchWebBrowser;
-        j["ProgramDataPath"sv] = o.ProgramDataPath;
-        j["WebPath"sv] = o.WebPath;
-        j["ItemsByNamePath"sv] = o.ItemsByNamePath;
-        j["CachePath"sv] = o.CachePath;
-        j["LogPath"sv] = o.LogPath;
-        j["InternalMetadataPath"sv] = o.InternalMetadataPath;
-        j["TranscodingTempPath"sv] = o.TranscodingTempPath;
-        j["CastReceiverApplications"sv] = o.CastReceiverApplications;
-        j["HasUpdateAvailable"sv] = o.HasUpdateAvailable;
-        j["EncoderLocation"sv] = o.EncoderLocation;
-        j["SystemArchitecture"sv] = o.SystemArchitecture;
+       j["LocalAddress"sv] = o.LocalAddress;
+       j["ServerName"sv] = o.ServerName;
+       j["Version"sv] = o.Version;
+       j["ProductName"sv] = o.ProductName;
+       // j["OperatingSystem"sv] = o.OperatingSystem;
+       j["Id"sv] = o.Id;
+       j["StartupWizardCompleted"sv] = o.StartupWizardCompleted;
+       // j["OperatingSystemDisplayName"sv] = o.OperatingSystemDisplayName;
+       j["PackageName"sv] = o.PackageName;
+       j["HasPendingRestart"sv] = o.HasPendingRestart;
+       j["IsShuttingDown"sv] = o.IsShuttingDown;
+       j["SupportsLibraryMonitor"sv] = o.SupportsLibraryMonitor;
+       j["WebSocketPortNumber"sv] = o.WebSocketPortNumber;
+       j["CompletedInstallations"sv] = o.CompletedInstallations;
+       // j["CanSelfRestart"sv] = o.CanSelfRestart;
+       // j["CanLaunchWebBrowser"sv] = o.CanLaunchWebBrowser;
+       j["ProgramDataPath"sv] = o.ProgramDataPath;
+       j["WebPath"sv] = o.WebPath;
+       j["ItemsByNamePath"sv] = o.ItemsByNamePath;
+       j["CachePath"sv] = o.CachePath;
+       j["LogPath"sv] = o.LogPath;
+       j["InternalMetadataPath"sv] = o.InternalMetadataPath;
+       j["TranscodingTempPath"sv] = o.TranscodingTempPath;
+       j["CastReceiverApplications"sv] = o.CastReceiverApplications;
+       // j["HasUpdateAvailable"sv] = o.HasUpdateAvailable;
+       // j["EncoderLocation"sv] = o.EncoderLocation;
+       // j["SystemArchitecture"sv] = o.SystemArchitecture;
 }
 void from_json(const json_t& j, OAISystemInfo& o) {
     if(j.contains("LocalAddress"sv))
@@ -12948,14 +12951,14 @@ void from_json(const json_t& j, OAISystemInfo& o) {
     j.at("Version"sv).get_to(o.Version);
     if(j.contains("ProductName"sv))
     j.at("ProductName"sv).get_to(o.ProductName);
-    if(j.contains("OperatingSystem"sv))
-    j.at("OperatingSystem"sv).get_to(o.OperatingSystem);
+    // if(j.contains("OperatingSystem"sv))
+    // j.at("OperatingSystem"sv).get_to(o.OperatingSystem);
     if(j.contains("Id"sv))
     j.at("Id"sv).get_to(o.Id);
     if(j.contains("StartupWizardCompleted"sv))
     j.at("StartupWizardCompleted"sv).get_to(o.StartupWizardCompleted);
-    if(j.contains("OperatingSystemDisplayName"sv))
-    j.at("OperatingSystemDisplayName"sv).get_to(o.OperatingSystemDisplayName);
+    // if(j.contains("OperatingSystemDisplayName"sv))
+    // j.at("OperatingSystemDisplayName"sv).get_to(o.OperatingSystemDisplayName);
     if(j.contains("PackageName"sv))
     j.at("PackageName"sv).get_to(o.PackageName);
     
@@ -12968,10 +12971,10 @@ void from_json(const json_t& j, OAISystemInfo& o) {
     j.at("WebSocketPortNumber"sv).get_to(o.WebSocketPortNumber);
     if(j.contains("CompletedInstallations"sv))
     j.at("CompletedInstallations"sv).get_to(o.CompletedInstallations);
-    
-    j.at("CanSelfRestart"sv).get_to(o.CanSelfRestart);
-    
-    j.at("CanLaunchWebBrowser"sv).get_to(o.CanLaunchWebBrowser);
+    // 
+    // j.at("CanSelfRestart"sv).get_to(o.CanSelfRestart);
+    // 
+    // j.at("CanLaunchWebBrowser"sv).get_to(o.CanLaunchWebBrowser);
     if(j.contains("ProgramDataPath"sv))
     j.at("ProgramDataPath"sv).get_to(o.ProgramDataPath);
     if(j.contains("WebPath"sv))
@@ -12988,12 +12991,12 @@ void from_json(const json_t& j, OAISystemInfo& o) {
     j.at("TranscodingTempPath"sv).get_to(o.TranscodingTempPath);
     if(j.contains("CastReceiverApplications"sv))
     j.at("CastReceiverApplications"sv).get_to(o.CastReceiverApplications);
-    
-    j.at("HasUpdateAvailable"sv).get_to(o.HasUpdateAvailable);
-    if(j.contains("EncoderLocation"sv))
-    j.at("EncoderLocation"sv).get_to(o.EncoderLocation);
-    if(j.contains("SystemArchitecture"sv))
-    j.at("SystemArchitecture"sv).get_to(o.SystemArchitecture);
+    // 
+    // j.at("HasUpdateAvailable"sv).get_to(o.HasUpdateAvailable);
+    // if(j.contains("EncoderLocation"sv))
+    // j.at("EncoderLocation"sv).get_to(o.EncoderLocation);
+    // if(j.contains("SystemArchitecture"sv))
+    // j.at("SystemArchitecture"sv).get_to(o.SystemArchitecture);
 }
 
 
@@ -13054,16 +13057,16 @@ void from_json(const json_t& j, OAITaskCompletionStatus& e) {
 
 
 void to_json(json_t& j, const OAITaskInfo& o) {
-        j["Name"sv] = o.Name;
-        j["State"sv] = o.State;
-        j["CurrentProgressPercentage"sv] = o.CurrentProgressPercentage;
-        j["Id"sv] = o.Id;
-        j["LastExecutionResult"sv] = o.LastExecutionResult;
-        j["Triggers"sv] = o.Triggers;
-        j["Description"sv] = o.Description;
-        j["Category"sv] = o.Category;
-        j["IsHidden"sv] = o.IsHidden;
-        j["Key"sv] = o.Key;
+       j["Name"sv] = o.Name;
+       j["State"sv] = o.State;
+       j["CurrentProgressPercentage"sv] = o.CurrentProgressPercentage;
+       j["Id"sv] = o.Id;
+       j["LastExecutionResult"sv] = o.LastExecutionResult;
+       j["Triggers"sv] = o.Triggers;
+       j["Description"sv] = o.Description;
+       j["Category"sv] = o.Category;
+       j["IsHidden"sv] = o.IsHidden;
+       j["Key"sv] = o.Key;
 }
 void from_json(const json_t& j, OAITaskInfo& o) {
     if(j.contains("Name"sv))
@@ -13092,14 +13095,14 @@ void from_json(const json_t& j, OAITaskInfo& o) {
 
 
 void to_json(json_t& j, const OAITaskResult& o) {
-        j["StartTimeUtc"sv] = o.StartTimeUtc;
-        j["EndTimeUtc"sv] = o.EndTimeUtc;
-        j["Status"sv] = o.Status;
-        j["Name"sv] = o.Name;
-        j["Key"sv] = o.Key;
-        j["Id"sv] = o.Id;
-        j["ErrorMessage"sv] = o.ErrorMessage;
-        j["LongErrorMessage"sv] = o.LongErrorMessage;
+       j["StartTimeUtc"sv] = o.StartTimeUtc;
+       j["EndTimeUtc"sv] = o.EndTimeUtc;
+       j["Status"sv] = o.Status;
+       j["Name"sv] = o.Name;
+       j["Key"sv] = o.Key;
+       j["Id"sv] = o.Id;
+       j["ErrorMessage"sv] = o.ErrorMessage;
+       j["LongErrorMessage"sv] = o.LongErrorMessage;
 }
 void from_json(const json_t& j, OAITaskResult& o) {
     
@@ -13170,11 +13173,11 @@ void from_json(const json_t& j, OAITaskState& e) {
 
 
 void to_json(json_t& j, const OAITaskTriggerInfo& o) {
-        j["Type"sv] = o.Type;
-        j["TimeOfDayTicks"sv] = o.TimeOfDayTicks;
-        j["IntervalTicks"sv] = o.IntervalTicks;
-        j["DayOfWeek"sv] = o.DayOfWeek;
-        j["MaxRuntimeTicks"sv] = o.MaxRuntimeTicks;
+       j["Type"sv] = o.Type;
+       j["TimeOfDayTicks"sv] = o.TimeOfDayTicks;
+       j["IntervalTicks"sv] = o.IntervalTicks;
+       j["DayOfWeek"sv] = o.DayOfWeek;
+       j["MaxRuntimeTicks"sv] = o.MaxRuntimeTicks;
 }
 void from_json(const json_t& j, OAITaskTriggerInfo& o) {
     if(j.contains("Type"sv))
@@ -13193,10 +13196,10 @@ void from_json(const json_t& j, OAITaskTriggerInfo& o) {
 
 
 void to_json(json_t& j, const OAIThemeMediaResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
-        j["OwnerId"sv] = o.OwnerId;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
+       j["OwnerId"sv] = o.OwnerId;
 }
 void from_json(const json_t& j, OAIThemeMediaResult& o) {
     if(j.contains("Items"sv))
@@ -13213,9 +13216,9 @@ void from_json(const json_t& j, OAIThemeMediaResult& o) {
 
 
 void to_json(json_t& j, const OAITimerCancelledMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAITimerCancelledMessage& o) {
     if(j.contains("Data"sv))
@@ -13230,9 +13233,9 @@ void from_json(const json_t& j, OAITimerCancelledMessage& o) {
 
 
 void to_json(json_t& j, const OAITimerCreatedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAITimerCreatedMessage& o) {
     if(j.contains("Data"sv))
@@ -13247,8 +13250,8 @@ void from_json(const json_t& j, OAITimerCreatedMessage& o) {
 
 
 void to_json(json_t& j, const OAITimerEventInfo& o) {
-        j["Id"sv] = o.Id;
-        j["ProgramId"sv] = o.ProgramId;
+       j["Id"sv] = o.Id;
+       j["ProgramId"sv] = o.ProgramId;
 }
 void from_json(const json_t& j, OAITimerEventInfo& o) {
     
@@ -13261,34 +13264,34 @@ void from_json(const json_t& j, OAITimerEventInfo& o) {
 
 
 void to_json(json_t& j, const OAITimerInfoDto& o) {
-        j["Id"sv] = o.Id;
-        j["Type"sv] = o.Type;
-        j["ServerId"sv] = o.ServerId;
-        j["ExternalId"sv] = o.ExternalId;
-        j["ChannelId"sv] = o.ChannelId;
-        j["ExternalChannelId"sv] = o.ExternalChannelId;
-        j["ChannelName"sv] = o.ChannelName;
-        j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
-        j["ProgramId"sv] = o.ProgramId;
-        j["ExternalProgramId"sv] = o.ExternalProgramId;
-        j["Name"sv] = o.Name;
-        j["Overview"sv] = o.Overview;
-        j["StartDate"sv] = o.StartDate;
-        j["EndDate"sv] = o.EndDate;
-        j["ServiceName"sv] = o.ServiceName;
-        j["Priority"sv] = o.Priority;
-        j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
-        j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
-        j["IsPrePaddingRequired"sv] = o.IsPrePaddingRequired;
-        j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
-        j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
-        j["IsPostPaddingRequired"sv] = o.IsPostPaddingRequired;
-        j["KeepUntil"sv] = o.KeepUntil;
-        j["Status"sv] = o.Status;
-        j["SeriesTimerId"sv] = o.SeriesTimerId;
-        j["ExternalSeriesTimerId"sv] = o.ExternalSeriesTimerId;
-        j["RunTimeTicks"sv] = o.RunTimeTicks;
-        j["ProgramInfo"sv] = o.ProgramInfo;
+       j["Id"sv] = o.Id;
+       j["Type"sv] = o.Type;
+       j["ServerId"sv] = o.ServerId;
+       j["ExternalId"sv] = o.ExternalId;
+       j["ChannelId"sv] = o.ChannelId;
+       j["ExternalChannelId"sv] = o.ExternalChannelId;
+       j["ChannelName"sv] = o.ChannelName;
+       j["ChannelPrimaryImageTag"sv] = o.ChannelPrimaryImageTag;
+       j["ProgramId"sv] = o.ProgramId;
+       j["ExternalProgramId"sv] = o.ExternalProgramId;
+       j["Name"sv] = o.Name;
+       j["Overview"sv] = o.Overview;
+       j["StartDate"sv] = o.StartDate;
+       j["EndDate"sv] = o.EndDate;
+       j["ServiceName"sv] = o.ServiceName;
+       j["Priority"sv] = o.Priority;
+       j["PrePaddingSeconds"sv] = o.PrePaddingSeconds;
+       j["PostPaddingSeconds"sv] = o.PostPaddingSeconds;
+       j["IsPrePaddingRequired"sv] = o.IsPrePaddingRequired;
+       j["ParentBackdropItemId"sv] = o.ParentBackdropItemId;
+       j["ParentBackdropImageTags"sv] = o.ParentBackdropImageTags;
+       j["IsPostPaddingRequired"sv] = o.IsPostPaddingRequired;
+       j["KeepUntil"sv] = o.KeepUntil;
+       j["Status"sv] = o.Status;
+       j["SeriesTimerId"sv] = o.SeriesTimerId;
+       j["ExternalSeriesTimerId"sv] = o.ExternalSeriesTimerId;
+       j["RunTimeTicks"sv] = o.RunTimeTicks;
+       j["ProgramInfo"sv] = o.ProgramInfo;
 }
 void from_json(const json_t& j, OAITimerInfoDto& o) {
     if(j.contains("Id"sv))
@@ -13353,9 +13356,9 @@ void from_json(const json_t& j, OAITimerInfoDto& o) {
 
 
 void to_json(json_t& j, const OAITimerInfoDtoQueryResult& o) {
-        j["Items"sv] = o.Items;
-        j["TotalRecordCount"sv] = o.TotalRecordCount;
-        j["StartIndex"sv] = o.StartIndex;
+       j["Items"sv] = o.Items;
+       j["TotalRecordCount"sv] = o.TotalRecordCount;
+       j["StartIndex"sv] = o.StartIndex;
 }
 void from_json(const json_t& j, OAITimerInfoDtoQueryResult& o) {
     if(j.contains("Items"sv))
@@ -13370,17 +13373,17 @@ void from_json(const json_t& j, OAITimerInfoDtoQueryResult& o) {
 
 
 void to_json(json_t& j, const OAITrailerInfo& o) {
-        j["Name"sv] = o.Name;
-        j["OriginalTitle"sv] = o.OriginalTitle;
-        j["Path"sv] = o.Path;
-        j["MetadataLanguage"sv] = o.MetadataLanguage;
-        j["MetadataCountryCode"sv] = o.MetadataCountryCode;
-        j["ProviderIds"sv] = o.ProviderIds;
-        j["Year"sv] = o.Year;
-        j["IndexNumber"sv] = o.IndexNumber;
-        j["ParentIndexNumber"sv] = o.ParentIndexNumber;
-        j["PremiereDate"sv] = o.PremiereDate;
-        j["IsAutomated"sv] = o.IsAutomated;
+       j["Name"sv] = o.Name;
+       j["OriginalTitle"sv] = o.OriginalTitle;
+       j["Path"sv] = o.Path;
+       j["MetadataLanguage"sv] = o.MetadataLanguage;
+       j["MetadataCountryCode"sv] = o.MetadataCountryCode;
+       j["ProviderIds"sv] = o.ProviderIds;
+       j["Year"sv] = o.Year;
+       j["IndexNumber"sv] = o.IndexNumber;
+       j["ParentIndexNumber"sv] = o.ParentIndexNumber;
+       j["PremiereDate"sv] = o.PremiereDate;
+       j["IsAutomated"sv] = o.IsAutomated;
 }
 void from_json(const json_t& j, OAITrailerInfo& o) {
     if(j.contains("Name"sv))
@@ -13411,10 +13414,10 @@ void from_json(const json_t& j, OAITrailerInfo& o) {
 
 
 void to_json(json_t& j, const OAITrailerInfoRemoteSearchQuery& o) {
-        j["SearchInfo"sv] = o.SearchInfo;
-        j["ItemId"sv] = o.ItemId;
-        j["SearchProviderName"sv] = o.SearchProviderName;
-        j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
+       j["SearchInfo"sv] = o.SearchInfo;
+       j["ItemId"sv] = o.ItemId;
+       j["SearchProviderName"sv] = o.SearchProviderName;
+       j["IncludeDisabledProviders"sv] = o.IncludeDisabledProviders;
 }
 void from_json(const json_t& j, OAITrailerInfoRemoteSearchQuery& o) {
     if(j.contains("SearchInfo"sv))
@@ -13691,19 +13694,19 @@ void from_json(const json_t& j, OAITranscodeSeekInfo& e) {
 
 
 void to_json(json_t& j, const OAITranscodingInfo& o) {
-        j["AudioCodec"sv] = o.AudioCodec;
-        j["VideoCodec"sv] = o.VideoCodec;
-        j["Container"sv] = o.Container;
-        j["IsVideoDirect"sv] = o.IsVideoDirect;
-        j["IsAudioDirect"sv] = o.IsAudioDirect;
-        j["Bitrate"sv] = o.Bitrate;
-        j["Framerate"sv] = o.Framerate;
-        j["CompletionPercentage"sv] = o.CompletionPercentage;
-        j["Width"sv] = o.Width;
-        j["Height"sv] = o.Height;
-        j["AudioChannels"sv] = o.AudioChannels;
-        j["HardwareAccelerationType"sv] = o.HardwareAccelerationType;
-        j["TranscodeReasons"sv] = o.TranscodeReasons;
+       j["AudioCodec"sv] = o.AudioCodec;
+       j["VideoCodec"sv] = o.VideoCodec;
+       j["Container"sv] = o.Container;
+       j["IsVideoDirect"sv] = o.IsVideoDirect;
+       j["IsAudioDirect"sv] = o.IsAudioDirect;
+       j["Bitrate"sv] = o.Bitrate;
+       j["Framerate"sv] = o.Framerate;
+       j["CompletionPercentage"sv] = o.CompletionPercentage;
+       j["Width"sv] = o.Width;
+       j["Height"sv] = o.Height;
+       j["AudioChannels"sv] = o.AudioChannels;
+       j["HardwareAccelerationType"sv] = o.HardwareAccelerationType;
+       j["TranscodeReasons"sv] = o.TranscodeReasons;
 }
 void from_json(const json_t& j, OAITranscodingInfo& o) {
     if(j.contains("AudioCodec"sv))
@@ -13738,22 +13741,22 @@ void from_json(const json_t& j, OAITranscodingInfo& o) {
 
 
 void to_json(json_t& j, const OAITranscodingProfile& o) {
-        j["Container"sv] = o.Container;
-        j["Type"sv] = o.Type;
-        j["VideoCodec"sv] = o.VideoCodec;
-        j["AudioCodec"sv] = o.AudioCodec;
-        j["Protocol"sv] = o.Protocol;
-        j["EstimateContentLength"sv] = o.EstimateContentLength;
-        j["EnableMpegtsM2TsMode"sv] = o.EnableMpegtsM2TsMode;
-        j["TranscodeSeekInfo"sv] = o.TranscodeSeekInfo;
-        j["CopyTimestamps"sv] = o.CopyTimestamps;
-        j["Context"sv] = o.Context;
-        j["EnableSubtitlesInManifest"sv] = o.EnableSubtitlesInManifest;
-        j["MaxAudioChannels"sv] = o.MaxAudioChannels;
-        j["MinSegments"sv] = o.MinSegments;
-        j["SegmentLength"sv] = o.SegmentLength;
-        j["BreakOnNonKeyFrames"sv] = o.BreakOnNonKeyFrames;
-        j["Conditions"sv] = o.Conditions;
+       j["Container"sv] = o.Container;
+       j["Type"sv] = o.Type;
+       j["VideoCodec"sv] = o.VideoCodec;
+       j["AudioCodec"sv] = o.AudioCodec;
+       j["Protocol"sv] = o.Protocol;
+       j["EstimateContentLength"sv] = o.EstimateContentLength;
+       j["EnableMpegtsM2TsMode"sv] = o.EnableMpegtsM2TsMode;
+       j["TranscodeSeekInfo"sv] = o.TranscodeSeekInfo;
+       j["CopyTimestamps"sv] = o.CopyTimestamps;
+       j["Context"sv] = o.Context;
+       j["EnableSubtitlesInManifest"sv] = o.EnableSubtitlesInManifest;
+       j["MaxAudioChannels"sv] = o.MaxAudioChannels;
+       j["MinSegments"sv] = o.MinSegments;
+       j["SegmentLength"sv] = o.SegmentLength;
+       j["BreakOnNonKeyFrames"sv] = o.BreakOnNonKeyFrames;
+       j["Conditions"sv] = o.Conditions;
 }
 void from_json(const json_t& j, OAITranscodingProfile& o) {
     
@@ -13840,13 +13843,13 @@ void from_json(const json_t& j, OAITransportStreamTimestamp& e) {
 
 
 void to_json(json_t& j, const OAITrickplayInfo& o) {
-        j["Width"sv] = o.Width;
-        j["Height"sv] = o.Height;
-        j["TileWidth"sv] = o.TileWidth;
-        j["TileHeight"sv] = o.TileHeight;
-        j["ThumbnailCount"sv] = o.ThumbnailCount;
-        j["Interval"sv] = o.Interval;
-        j["Bandwidth"sv] = o.Bandwidth;
+       j["Width"sv] = o.Width;
+       j["Height"sv] = o.Height;
+       j["TileWidth"sv] = o.TileWidth;
+       j["TileHeight"sv] = o.TileHeight;
+       j["ThumbnailCount"sv] = o.ThumbnailCount;
+       j["Interval"sv] = o.Interval;
+       j["Bandwidth"sv] = o.Bandwidth;
 }
 void from_json(const json_t& j, OAITrickplayInfo& o) {
     
@@ -13869,17 +13872,17 @@ void from_json(const json_t& j, OAITrickplayInfo& o) {
 
 
 void to_json(json_t& j, const OAITrickplayOptions& o) {
-        j["EnableHwAcceleration"sv] = o.EnableHwAcceleration;
-        j["EnableHwEncoding"sv] = o.EnableHwEncoding;
-        j["ScanBehavior"sv] = o.ScanBehavior;
-        j["ProcessPriority"sv] = o.ProcessPriority;
-        j["Interval"sv] = o.Interval;
-        j["WidthResolutions"sv] = o.WidthResolutions;
-        j["TileWidth"sv] = o.TileWidth;
-        j["TileHeight"sv] = o.TileHeight;
-        j["Qscale"sv] = o.Qscale;
-        j["JpegQuality"sv] = o.JpegQuality;
-        j["ProcessThreads"sv] = o.ProcessThreads;
+       j["EnableHwAcceleration"sv] = o.EnableHwAcceleration;
+       j["EnableHwEncoding"sv] = o.EnableHwEncoding;
+       j["ScanBehavior"sv] = o.ScanBehavior;
+       j["ProcessPriority"sv] = o.ProcessPriority;
+       j["Interval"sv] = o.Interval;
+       j["WidthResolutions"sv] = o.WidthResolutions;
+       j["TileWidth"sv] = o.TileWidth;
+       j["TileHeight"sv] = o.TileHeight;
+       j["Qscale"sv] = o.Qscale;
+       j["JpegQuality"sv] = o.JpegQuality;
+       j["ProcessThreads"sv] = o.ProcessThreads;
 }
 void from_json(const json_t& j, OAITrickplayOptions& o) {
     
@@ -13948,10 +13951,10 @@ void from_json(const json_t& j, OAITrickplayScanBehavior& e) {
 
 
 void to_json(json_t& j, const OAITunerChannelMapping& o) {
-        j["Name"sv] = o.Name;
-        j["ProviderChannelName"sv] = o.ProviderChannelName;
-        j["ProviderChannelId"sv] = o.ProviderChannelId;
-        j["Id"sv] = o.Id;
+       j["Name"sv] = o.Name;
+       j["ProviderChannelName"sv] = o.ProviderChannelName;
+       j["ProviderChannelId"sv] = o.ProviderChannelId;
+       j["Id"sv] = o.Id;
 }
 void from_json(const json_t& j, OAITunerChannelMapping& o) {
     if(j.contains("Name"sv))
@@ -13968,18 +13971,18 @@ void from_json(const json_t& j, OAITunerChannelMapping& o) {
 
 
 void to_json(json_t& j, const OAITunerHostInfo& o) {
-        j["Id"sv] = o.Id;
-        j["Url"sv] = o.Url;
-        j["Type"sv] = o.Type;
-        j["DeviceId"sv] = o.DeviceId;
-        j["FriendlyName"sv] = o.FriendlyName;
-        j["ImportFavoritesOnly"sv] = o.ImportFavoritesOnly;
-        j["AllowHWTranscoding"sv] = o.AllowHWTranscoding;
-        j["EnableStreamLooping"sv] = o.EnableStreamLooping;
-        j["Source"sv] = o.Source;
-        j["TunerCount"sv] = o.TunerCount;
-        j["UserAgent"sv] = o.UserAgent;
-        j["IgnoreDts"sv] = o.IgnoreDts;
+       j["Id"sv] = o.Id;
+       j["Url"sv] = o.Url;
+       j["Type"sv] = o.Type;
+       j["DeviceId"sv] = o.DeviceId;
+       j["FriendlyName"sv] = o.FriendlyName;
+       j["ImportFavoritesOnly"sv] = o.ImportFavoritesOnly;
+       j["AllowHWTranscoding"sv] = o.AllowHWTranscoding;
+       j["EnableStreamLooping"sv] = o.EnableStreamLooping;
+       j["Source"sv] = o.Source;
+       j["TunerCount"sv] = o.TunerCount;
+       j["UserAgent"sv] = o.UserAgent;
+       j["IgnoreDts"sv] = o.IgnoreDts;
 }
 void from_json(const json_t& j, OAITunerHostInfo& o) {
     if(j.contains("Id"sv))
@@ -14012,12 +14015,12 @@ void from_json(const json_t& j, OAITunerHostInfo& o) {
 
 
 void to_json(json_t& j, const OAITypeOptions& o) {
-        j["Type"sv] = o.Type;
-        j["MetadataFetchers"sv] = o.MetadataFetchers;
-        j["MetadataFetcherOrder"sv] = o.MetadataFetcherOrder;
-        j["ImageFetchers"sv] = o.ImageFetchers;
-        j["ImageFetcherOrder"sv] = o.ImageFetcherOrder;
-        j["ImageOptions"sv] = o.ImageOptions;
+       j["Type"sv] = o.Type;
+       j["MetadataFetchers"sv] = o.MetadataFetchers;
+       j["MetadataFetcherOrder"sv] = o.MetadataFetcherOrder;
+       j["ImageFetchers"sv] = o.ImageFetchers;
+       j["ImageFetcherOrder"sv] = o.ImageFetcherOrder;
+       j["ImageOptions"sv] = o.ImageOptions;
 }
 void from_json(const json_t& j, OAITypeOptions& o) {
     if(j.contains("Type"sv))
@@ -14132,8 +14135,8 @@ void from_json(const json_t& j, OAIUnratedItem& e) {
 
 
 void to_json(json_t& j, const OAIUpdateLibraryOptionsDto& o) {
-        j["Id"sv] = o.Id;
-        j["LibraryOptions"sv] = o.LibraryOptions;
+       j["Id"sv] = o.Id;
+       j["LibraryOptions"sv] = o.LibraryOptions;
 }
 void from_json(const json_t& j, OAIUpdateLibraryOptionsDto& o) {
     
@@ -14146,8 +14149,8 @@ void from_json(const json_t& j, OAIUpdateLibraryOptionsDto& o) {
 
 
 void to_json(json_t& j, const OAIUpdateMediaPathRequestDto& o) {
-        j["Name"sv] = o.Name;
-        j["PathInfo"sv] = o.PathInfo;
+       j["Name"sv] = o.Name;
+       j["PathInfo"sv] = o.PathInfo;
 }
 void from_json(const json_t& j, OAIUpdateMediaPathRequestDto& o) {
     
@@ -14160,10 +14163,10 @@ void from_json(const json_t& j, OAIUpdateMediaPathRequestDto& o) {
 
 
 void to_json(json_t& j, const OAIUpdatePlaylistDto& o) {
-        j["Name"sv] = o.Name;
-        j["Ids"sv] = o.Ids;
-        j["Users"sv] = o.Users;
-        j["IsPublic"sv] = o.IsPublic;
+       j["Name"sv] = o.Name;
+       j["Ids"sv] = o.Ids;
+       j["Users"sv] = o.Users;
+       j["IsPublic"sv] = o.IsPublic;
 }
 void from_json(const json_t& j, OAIUpdatePlaylistDto& o) {
     if(j.contains("Name"sv))
@@ -14180,7 +14183,7 @@ void from_json(const json_t& j, OAIUpdatePlaylistDto& o) {
 
 
 void to_json(json_t& j, const OAIUpdatePlaylistUserDto& o) {
-        j["CanEdit"sv] = o.CanEdit;
+       j["CanEdit"sv] = o.CanEdit;
 }
 void from_json(const json_t& j, OAIUpdatePlaylistUserDto& o) {
     if(j.contains("CanEdit"sv))
@@ -14191,17 +14194,17 @@ void from_json(const json_t& j, OAIUpdatePlaylistUserDto& o) {
 
 
 void to_json(json_t& j, const OAIUpdateUserItemDataDto& o) {
-        j["Rating"sv] = o.Rating;
-        j["PlayedPercentage"sv] = o.PlayedPercentage;
-        j["UnplayedItemCount"sv] = o.UnplayedItemCount;
-        j["PlaybackPositionTicks"sv] = o.PlaybackPositionTicks;
-        j["PlayCount"sv] = o.PlayCount;
-        j["IsFavorite"sv] = o.IsFavorite;
-        j["Likes"sv] = o.Likes;
-        j["LastPlayedDate"sv] = o.LastPlayedDate;
-        j["Played"sv] = o.Played;
-        j["Key"sv] = o.Key;
-        j["ItemId"sv] = o.ItemId;
+       j["Rating"sv] = o.Rating;
+       j["PlayedPercentage"sv] = o.PlayedPercentage;
+       j["UnplayedItemCount"sv] = o.UnplayedItemCount;
+       j["PlaybackPositionTicks"sv] = o.PlaybackPositionTicks;
+       j["PlayCount"sv] = o.PlayCount;
+       j["IsFavorite"sv] = o.IsFavorite;
+       j["Likes"sv] = o.Likes;
+       j["LastPlayedDate"sv] = o.LastPlayedDate;
+       j["Played"sv] = o.Played;
+       j["Key"sv] = o.Key;
+       j["ItemId"sv] = o.ItemId;
 }
 void from_json(const json_t& j, OAIUpdateUserItemDataDto& o) {
     if(j.contains("Rating"sv))
@@ -14232,10 +14235,10 @@ void from_json(const json_t& j, OAIUpdateUserItemDataDto& o) {
 
 
 void to_json(json_t& j, const OAIUpdateUserPassword& o) {
-        j["CurrentPassword"sv] = o.CurrentPassword;
-        j["CurrentPw"sv] = o.CurrentPw;
-        j["NewPw"sv] = o.NewPw;
-        j["ResetPassword"sv] = o.ResetPassword;
+       j["CurrentPassword"sv] = o.CurrentPassword;
+       j["CurrentPw"sv] = o.CurrentPw;
+       j["NewPw"sv] = o.NewPw;
+       j["ResetPassword"sv] = o.ResetPassword;
 }
 void from_json(const json_t& j, OAIUpdateUserPassword& o) {
     if(j.contains("CurrentPassword"sv))
@@ -14252,11 +14255,11 @@ void from_json(const json_t& j, OAIUpdateUserPassword& o) {
 
 
 void to_json(json_t& j, const OAIUploadSubtitleDto& o) {
-        j["Language"sv] = o.Language;
-        j["Format"sv] = o.Format;
-        j["IsForced"sv] = o.IsForced;
-        j["IsHearingImpaired"sv] = o.IsHearingImpaired;
-        j["Data"sv] = o.Data;
+       j["Language"sv] = o.Language;
+       j["Format"sv] = o.Format;
+       j["IsForced"sv] = o.IsForced;
+       j["IsHearingImpaired"sv] = o.IsHearingImpaired;
+       j["Data"sv] = o.Data;
 }
 void from_json(const json_t& j, OAIUploadSubtitleDto& o) {
     
@@ -14275,22 +14278,22 @@ void from_json(const json_t& j, OAIUploadSubtitleDto& o) {
 
 
 void to_json(json_t& j, const OAIUserConfiguration& o) {
-        j["AudioLanguagePreference"sv] = o.AudioLanguagePreference;
-        j["PlayDefaultAudioTrack"sv] = o.PlayDefaultAudioTrack;
-        j["SubtitleLanguagePreference"sv] = o.SubtitleLanguagePreference;
-        j["DisplayMissingEpisodes"sv] = o.DisplayMissingEpisodes;
-        j["GroupedFolders"sv] = o.GroupedFolders;
-        j["SubtitleMode"sv] = o.SubtitleMode;
-        j["DisplayCollectionsView"sv] = o.DisplayCollectionsView;
-        j["EnableLocalPassword"sv] = o.EnableLocalPassword;
-        j["OrderedViews"sv] = o.OrderedViews;
-        j["LatestItemsExcludes"sv] = o.LatestItemsExcludes;
-        j["MyMediaExcludes"sv] = o.MyMediaExcludes;
-        j["HidePlayedInLatest"sv] = o.HidePlayedInLatest;
-        j["RememberAudioSelections"sv] = o.RememberAudioSelections;
-        j["RememberSubtitleSelections"sv] = o.RememberSubtitleSelections;
-        j["EnableNextEpisodeAutoPlay"sv] = o.EnableNextEpisodeAutoPlay;
-        j["CastReceiverId"sv] = o.CastReceiverId;
+       j["AudioLanguagePreference"sv] = o.AudioLanguagePreference;
+       j["PlayDefaultAudioTrack"sv] = o.PlayDefaultAudioTrack;
+       j["SubtitleLanguagePreference"sv] = o.SubtitleLanguagePreference;
+       j["DisplayMissingEpisodes"sv] = o.DisplayMissingEpisodes;
+       j["GroupedFolders"sv] = o.GroupedFolders;
+       j["SubtitleMode"sv] = o.SubtitleMode;
+       j["DisplayCollectionsView"sv] = o.DisplayCollectionsView;
+       j["EnableLocalPassword"sv] = o.EnableLocalPassword;
+       j["OrderedViews"sv] = o.OrderedViews;
+       j["LatestItemsExcludes"sv] = o.LatestItemsExcludes;
+       j["MyMediaExcludes"sv] = o.MyMediaExcludes;
+       j["HidePlayedInLatest"sv] = o.HidePlayedInLatest;
+       j["RememberAudioSelections"sv] = o.RememberAudioSelections;
+       j["RememberSubtitleSelections"sv] = o.RememberSubtitleSelections;
+       j["EnableNextEpisodeAutoPlay"sv] = o.EnableNextEpisodeAutoPlay;
+       j["CastReceiverId"sv] = o.CastReceiverId;
 }
 void from_json(const json_t& j, OAIUserConfiguration& o) {
     if(j.contains("AudioLanguagePreference"sv))
@@ -14331,8 +14334,8 @@ void from_json(const json_t& j, OAIUserConfiguration& o) {
 
 
 void to_json(json_t& j, const OAIUserDataChangeInfo& o) {
-        j["UserId"sv] = o.UserId;
-        j["UserDataList"sv] = o.UserDataList;
+       j["UserId"sv] = o.UserId;
+       j["UserDataList"sv] = o.UserDataList;
 }
 void from_json(const json_t& j, OAIUserDataChangeInfo& o) {
     if(j.contains("UserId"sv))
@@ -14345,9 +14348,9 @@ void from_json(const json_t& j, OAIUserDataChangeInfo& o) {
 
 
 void to_json(json_t& j, const OAIUserDataChangedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIUserDataChangedMessage& o) {
     if(j.contains("Data"sv))
@@ -14362,9 +14365,9 @@ void from_json(const json_t& j, OAIUserDataChangedMessage& o) {
 
 
 void to_json(json_t& j, const OAIUserDeletedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIUserDeletedMessage& o) {
     
@@ -14379,20 +14382,20 @@ void from_json(const json_t& j, OAIUserDeletedMessage& o) {
 
 
 void to_json(json_t& j, const OAIUserDto& o) {
-        j["Name"sv] = o.Name;
-        j["ServerId"sv] = o.ServerId;
-        j["ServerName"sv] = o.ServerName;
-        j["Id"sv] = o.Id;
-        j["PrimaryImageTag"sv] = o.PrimaryImageTag;
-        j["HasPassword"sv] = o.HasPassword;
-        j["HasConfiguredPassword"sv] = o.HasConfiguredPassword;
-        j["HasConfiguredEasyPassword"sv] = o.HasConfiguredEasyPassword;
-        j["EnableAutoLogin"sv] = o.EnableAutoLogin;
-        j["LastLoginDate"sv] = o.LastLoginDate;
-        j["LastActivityDate"sv] = o.LastActivityDate;
-        j["Configuration"sv] = o.Configuration;
-        j["Policy"sv] = o.Policy;
-        j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
+       j["Name"sv] = o.Name;
+       j["ServerId"sv] = o.ServerId;
+       j["ServerName"sv] = o.ServerName;
+       j["Id"sv] = o.Id;
+       j["PrimaryImageTag"sv] = o.PrimaryImageTag;
+       j["HasPassword"sv] = o.HasPassword;
+       j["HasConfiguredPassword"sv] = o.HasConfiguredPassword;
+       // j["HasConfiguredEasyPassword"sv] = o.HasConfiguredEasyPassword;
+       j["EnableAutoLogin"sv] = o.EnableAutoLogin;
+       j["LastLoginDate"sv] = o.LastLoginDate;
+       j["LastActivityDate"sv] = o.LastActivityDate;
+       j["Configuration"sv] = o.Configuration;
+       j["Policy"sv] = o.Policy;
+       j["PrimaryImageAspectRatio"sv] = o.PrimaryImageAspectRatio;
 }
 void from_json(const json_t& j, OAIUserDto& o) {
     if(j.contains("Name"sv))
@@ -14409,8 +14412,8 @@ void from_json(const json_t& j, OAIUserDto& o) {
     j.at("HasPassword"sv).get_to(o.HasPassword);
     
     j.at("HasConfiguredPassword"sv).get_to(o.HasConfiguredPassword);
-    
-    j.at("HasConfiguredEasyPassword"sv).get_to(o.HasConfiguredEasyPassword);
+    // 
+    // j.at("HasConfiguredEasyPassword"sv).get_to(o.HasConfiguredEasyPassword);
     if(j.contains("EnableAutoLogin"sv))
     j.at("EnableAutoLogin"sv).get_to(o.EnableAutoLogin);
     if(j.contains("LastLoginDate"sv))
@@ -14429,17 +14432,17 @@ void from_json(const json_t& j, OAIUserDto& o) {
 
 
 void to_json(json_t& j, const OAIUserItemDataDto& o) {
-        j["Rating"sv] = o.Rating;
-        j["PlayedPercentage"sv] = o.PlayedPercentage;
-        j["UnplayedItemCount"sv] = o.UnplayedItemCount;
-        j["PlaybackPositionTicks"sv] = o.PlaybackPositionTicks;
-        j["PlayCount"sv] = o.PlayCount;
-        j["IsFavorite"sv] = o.IsFavorite;
-        j["Likes"sv] = o.Likes;
-        j["LastPlayedDate"sv] = o.LastPlayedDate;
-        j["Played"sv] = o.Played;
-        j["Key"sv] = o.Key;
-        j["ItemId"sv] = o.ItemId;
+       j["Rating"sv] = o.Rating;
+       j["PlayedPercentage"sv] = o.PlayedPercentage;
+       j["UnplayedItemCount"sv] = o.UnplayedItemCount;
+       j["PlaybackPositionTicks"sv] = o.PlaybackPositionTicks;
+       j["PlayCount"sv] = o.PlayCount;
+       j["IsFavorite"sv] = o.IsFavorite;
+       j["Likes"sv] = o.Likes;
+       j["LastPlayedDate"sv] = o.LastPlayedDate;
+       j["Played"sv] = o.Played;
+       j["Key"sv] = o.Key;
+       j["ItemId"sv] = o.ItemId;
 }
 void from_json(const json_t& j, OAIUserItemDataDto& o) {
     if(j.contains("Rating"sv))
@@ -14470,49 +14473,49 @@ void from_json(const json_t& j, OAIUserItemDataDto& o) {
 
 
 void to_json(json_t& j, const OAIUserPolicy& o) {
-        j["IsAdministrator"sv] = o.IsAdministrator;
-        j["IsHidden"sv] = o.IsHidden;
-        j["EnableCollectionManagement"sv] = o.EnableCollectionManagement;
-        j["EnableSubtitleManagement"sv] = o.EnableSubtitleManagement;
-        j["EnableLyricManagement"sv] = o.EnableLyricManagement;
-        j["IsDisabled"sv] = o.IsDisabled;
-        j["MaxParentalRating"sv] = o.MaxParentalRating;
-        j["BlockedTags"sv] = o.BlockedTags;
-        j["AllowedTags"sv] = o.AllowedTags;
-        j["EnableUserPreferenceAccess"sv] = o.EnableUserPreferenceAccess;
-        j["AccessSchedules"sv] = o.AccessSchedules;
-        j["BlockUnratedItems"sv] = o.BlockUnratedItems;
-        j["EnableRemoteControlOfOtherUsers"sv] = o.EnableRemoteControlOfOtherUsers;
-        j["EnableSharedDeviceControl"sv] = o.EnableSharedDeviceControl;
-        j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
-        j["EnableLiveTvManagement"sv] = o.EnableLiveTvManagement;
-        j["EnableLiveTvAccess"sv] = o.EnableLiveTvAccess;
-        j["EnableMediaPlayback"sv] = o.EnableMediaPlayback;
-        j["EnableAudioPlaybackTranscoding"sv] = o.EnableAudioPlaybackTranscoding;
-        j["EnableVideoPlaybackTranscoding"sv] = o.EnableVideoPlaybackTranscoding;
-        j["EnablePlaybackRemuxing"sv] = o.EnablePlaybackRemuxing;
-        j["ForceRemoteSourceTranscoding"sv] = o.ForceRemoteSourceTranscoding;
-        j["EnableContentDeletion"sv] = o.EnableContentDeletion;
-        j["EnableContentDeletionFromFolders"sv] = o.EnableContentDeletionFromFolders;
-        j["EnableContentDownloading"sv] = o.EnableContentDownloading;
-        j["EnableSyncTranscoding"sv] = o.EnableSyncTranscoding;
-        j["EnableMediaConversion"sv] = o.EnableMediaConversion;
-        j["EnabledDevices"sv] = o.EnabledDevices;
-        j["EnableAllDevices"sv] = o.EnableAllDevices;
-        j["EnabledChannels"sv] = o.EnabledChannels;
-        j["EnableAllChannels"sv] = o.EnableAllChannels;
-        j["EnabledFolders"sv] = o.EnabledFolders;
-        j["EnableAllFolders"sv] = o.EnableAllFolders;
-        j["InvalidLoginAttemptCount"sv] = o.InvalidLoginAttemptCount;
-        j["LoginAttemptsBeforeLockout"sv] = o.LoginAttemptsBeforeLockout;
-        j["MaxActiveSessions"sv] = o.MaxActiveSessions;
-        j["EnablePublicSharing"sv] = o.EnablePublicSharing;
-        j["BlockedMediaFolders"sv] = o.BlockedMediaFolders;
-        j["BlockedChannels"sv] = o.BlockedChannels;
-        j["RemoteClientBitrateLimit"sv] = o.RemoteClientBitrateLimit;
-        j["AuthenticationProviderId"sv] = o.AuthenticationProviderId;
-        j["PasswordResetProviderId"sv] = o.PasswordResetProviderId;
-        j["SyncPlayAccess"sv] = o.SyncPlayAccess;
+       j["IsAdministrator"sv] = o.IsAdministrator;
+       j["IsHidden"sv] = o.IsHidden;
+       j["EnableCollectionManagement"sv] = o.EnableCollectionManagement;
+       j["EnableSubtitleManagement"sv] = o.EnableSubtitleManagement;
+       j["EnableLyricManagement"sv] = o.EnableLyricManagement;
+       j["IsDisabled"sv] = o.IsDisabled;
+       j["MaxParentalRating"sv] = o.MaxParentalRating;
+       j["BlockedTags"sv] = o.BlockedTags;
+       j["AllowedTags"sv] = o.AllowedTags;
+       j["EnableUserPreferenceAccess"sv] = o.EnableUserPreferenceAccess;
+       j["AccessSchedules"sv] = o.AccessSchedules;
+       j["BlockUnratedItems"sv] = o.BlockUnratedItems;
+       j["EnableRemoteControlOfOtherUsers"sv] = o.EnableRemoteControlOfOtherUsers;
+       j["EnableSharedDeviceControl"sv] = o.EnableSharedDeviceControl;
+       j["EnableRemoteAccess"sv] = o.EnableRemoteAccess;
+       j["EnableLiveTvManagement"sv] = o.EnableLiveTvManagement;
+       j["EnableLiveTvAccess"sv] = o.EnableLiveTvAccess;
+       j["EnableMediaPlayback"sv] = o.EnableMediaPlayback;
+       j["EnableAudioPlaybackTranscoding"sv] = o.EnableAudioPlaybackTranscoding;
+       j["EnableVideoPlaybackTranscoding"sv] = o.EnableVideoPlaybackTranscoding;
+       j["EnablePlaybackRemuxing"sv] = o.EnablePlaybackRemuxing;
+       j["ForceRemoteSourceTranscoding"sv] = o.ForceRemoteSourceTranscoding;
+       j["EnableContentDeletion"sv] = o.EnableContentDeletion;
+       j["EnableContentDeletionFromFolders"sv] = o.EnableContentDeletionFromFolders;
+       j["EnableContentDownloading"sv] = o.EnableContentDownloading;
+       j["EnableSyncTranscoding"sv] = o.EnableSyncTranscoding;
+       j["EnableMediaConversion"sv] = o.EnableMediaConversion;
+       j["EnabledDevices"sv] = o.EnabledDevices;
+       j["EnableAllDevices"sv] = o.EnableAllDevices;
+       j["EnabledChannels"sv] = o.EnabledChannels;
+       j["EnableAllChannels"sv] = o.EnableAllChannels;
+       j["EnabledFolders"sv] = o.EnabledFolders;
+       j["EnableAllFolders"sv] = o.EnableAllFolders;
+       j["InvalidLoginAttemptCount"sv] = o.InvalidLoginAttemptCount;
+       j["LoginAttemptsBeforeLockout"sv] = o.LoginAttemptsBeforeLockout;
+       j["MaxActiveSessions"sv] = o.MaxActiveSessions;
+       j["EnablePublicSharing"sv] = o.EnablePublicSharing;
+       j["BlockedMediaFolders"sv] = o.BlockedMediaFolders;
+       j["BlockedChannels"sv] = o.BlockedChannels;
+       j["RemoteClientBitrateLimit"sv] = o.RemoteClientBitrateLimit;
+       j["AuthenticationProviderId"sv] = o.AuthenticationProviderId;
+       j["PasswordResetProviderId"sv] = o.PasswordResetProviderId;
+       j["SyncPlayAccess"sv] = o.SyncPlayAccess;
 }
 void from_json(const json_t& j, OAIUserPolicy& o) {
     
@@ -14607,9 +14610,9 @@ void from_json(const json_t& j, OAIUserPolicy& o) {
 
 
 void to_json(json_t& j, const OAIUserUpdatedMessage& o) {
-        j["Data"sv] = o.Data;
-        j["MessageId"sv] = o.MessageId;
-        j["MessageType"sv] = o.MessageType;
+       j["Data"sv] = o.Data;
+       j["MessageId"sv] = o.MessageId;
+       j["MessageType"sv] = o.MessageType;
 }
 void from_json(const json_t& j, OAIUserUpdatedMessage& o) {
     if(j.contains("Data"sv))
@@ -14624,8 +14627,8 @@ void from_json(const json_t& j, OAIUserUpdatedMessage& o) {
 
 
 void to_json(json_t& j, const OAIUtcTimeResponse& o) {
-        j["RequestReceptionTime"sv] = o.RequestReceptionTime;
-        j["ResponseTransmissionTime"sv] = o.ResponseTransmissionTime;
+       j["RequestReceptionTime"sv] = o.RequestReceptionTime;
+       j["ResponseTransmissionTime"sv] = o.ResponseTransmissionTime;
 }
 void from_json(const json_t& j, OAIUtcTimeResponse& o) {
     
@@ -14638,9 +14641,9 @@ void from_json(const json_t& j, OAIUtcTimeResponse& o) {
 
 
 void to_json(json_t& j, const OAIValidatePathDto& o) {
-        j["ValidateWritable"sv] = o.ValidateWritable;
-        j["Path"sv] = o.Path;
-        j["IsFile"sv] = o.IsFile;
+       j["ValidateWritable"sv] = o.ValidateWritable;
+       j["Path"sv] = o.Path;
+       j["IsFile"sv] = o.IsFile;
 }
 void from_json(const json_t& j, OAIValidatePathDto& o) {
     
@@ -14655,15 +14658,15 @@ void from_json(const json_t& j, OAIValidatePathDto& o) {
 
 
 void to_json(json_t& j, const OAIVersionInfo& o) {
-        j["version"sv] = o.version;
-        j["VersionNumber"sv] = o.VersionNumber;
-        j["changelog"sv] = o.changelog;
-        j["targetAbi"sv] = o.targetAbi;
-        j["sourceUrl"sv] = o.sourceUrl;
-        j["checksum"sv] = o.checksum;
-        j["timestamp"sv] = o.timestamp;
-        j["repositoryName"sv] = o.repositoryName;
-        j["repositoryUrl"sv] = o.repositoryUrl;
+       j["version"sv] = o.version;
+       j["VersionNumber"sv] = o.VersionNumber;
+       j["changelog"sv] = o.changelog;
+       j["targetAbi"sv] = o.targetAbi;
+       j["sourceUrl"sv] = o.sourceUrl;
+       j["checksum"sv] = o.checksum;
+       j["timestamp"sv] = o.timestamp;
+       j["repositoryName"sv] = o.repositoryName;
+       j["repositoryUrl"sv] = o.repositoryUrl;
 }
 void from_json(const json_t& j, OAIVersionInfo& o) {
     
@@ -14946,14 +14949,14 @@ void from_json(const json_t& j, OAIVideoType& e) {
 
 
 void to_json(json_t& j, const OAIVirtualFolderInfo& o) {
-        j["Name"sv] = o.Name;
-        j["Locations"sv] = o.Locations;
-        j["CollectionType"sv] = o.CollectionType;
-        j["LibraryOptions"sv] = o.LibraryOptions;
-        j["ItemId"sv] = o.ItemId;
-        j["PrimaryImageItemId"sv] = o.PrimaryImageItemId;
-        j["RefreshProgress"sv] = o.RefreshProgress;
-        j["RefreshStatus"sv] = o.RefreshStatus;
+       j["Name"sv] = o.Name;
+       j["Locations"sv] = o.Locations;
+       j["CollectionType"sv] = o.CollectionType;
+       j["LibraryOptions"sv] = o.LibraryOptions;
+       j["ItemId"sv] = o.ItemId;
+       j["PrimaryImageItemId"sv] = o.PrimaryImageItemId;
+       j["RefreshProgress"sv] = o.RefreshProgress;
+       j["RefreshStatus"sv] = o.RefreshStatus;
 }
 void from_json(const json_t& j, OAIVirtualFolderInfo& o) {
     if(j.contains("Name"sv))
@@ -14978,8 +14981,8 @@ void from_json(const json_t& j, OAIVirtualFolderInfo& o) {
 
 
 void to_json(json_t& j, const OAIWakeOnLanInfo& o) {
-        j["MacAddress"sv] = o.MacAddress;
-        j["Port"sv] = o.Port;
+       j["MacAddress"sv] = o.MacAddress;
+       j["Port"sv] = o.Port;
 }
 void from_json(const json_t& j, OAIWakeOnLanInfo& o) {
     if(j.contains("MacAddress"sv))
@@ -14989,6 +14992,7 @@ void from_json(const json_t& j, OAIWakeOnLanInfo& o) {
 }
 
 
+// oneOf
 void to_json(json_t& j, const OAIWebSocketMessage& o) {
 }
 void from_json(const json_t& j, OAIWebSocketMessage& o) {
@@ -14999,11 +15003,11 @@ void from_json(const json_t& j, OAIWebSocketMessage& o) {
 
 
 void to_json(json_t& j, const OAIXbmcMetadataOptions& o) {
-        j["UserId"sv] = o.UserId;
-        j["ReleaseDateFormat"sv] = o.ReleaseDateFormat;
-        j["SaveImagePathsInNfo"sv] = o.SaveImagePathsInNfo;
-        j["EnablePathSubstitution"sv] = o.EnablePathSubstitution;
-        j["EnableExtraThumbsDuplication"sv] = o.EnableExtraThumbsDuplication;
+       j["UserId"sv] = o.UserId;
+       j["ReleaseDateFormat"sv] = o.ReleaseDateFormat;
+       j["SaveImagePathsInNfo"sv] = o.SaveImagePathsInNfo;
+       j["EnablePathSubstitution"sv] = o.EnablePathSubstitution;
+       j["EnableExtraThumbsDuplication"sv] = o.EnableExtraThumbsDuplication;
 }
 void from_json(const json_t& j, OAIXbmcMetadataOptions& o) {
     if(j.contains("UserId"sv))
