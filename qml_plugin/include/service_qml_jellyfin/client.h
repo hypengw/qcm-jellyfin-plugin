@@ -6,8 +6,8 @@
 
 #include "asio_helper/helper.h"
 #include "core/strv_helper.h"
-#include "request/session.h"
-#include "request/request.h"
+#include "ncrequest/session.hpp"
+#include "ncrequest/request.hpp"
 #include "jellyfin/type.h"
 #include "service_qml_jellyfin/type.h"
 
@@ -26,7 +26,7 @@ class Client {
 public:
     using executor_type = asio::thread_pool::executor_type;
 
-    Client(rc<request::Session> session, executor_type ex, std::string device_id);
+    Client(rc<ncrequest::Session> session, executor_type ex, std::string device_id);
     ~Client();
     Client(const Client&)            = default;
     Client& operator=(const Client&) = default;
@@ -75,7 +75,7 @@ public:
     auto get_executor() -> executor_type&;
 
     auto base() const -> std::string_view;
-    auto make_req(std::string_view url, const UrlParams&) const -> request::Request;
+    auto make_req(std::string_view url, const UrlParams&) const -> ncrequest::Request;
     auto prop(std::string_view) const -> std::optional<std::any>;
     void set_prop(std::string_view, std::any);
 
@@ -86,9 +86,9 @@ public:
 
 private:
     auto format_auth() const -> std::string;
-    auto process_rsp(rc<request::Response>) const -> asio::awaitable<Result<std::vector<byte>>>;
-    auto get(const request::Request&) const -> asio::awaitable<Result<std::vector<byte>>>;
-    auto post(const request::Request&,
+    auto process_rsp(rc<ncrequest::Response>) const -> asio::awaitable<Result<std::vector<byte>>>;
+    auto get(const ncrequest::Request&) const -> asio::awaitable<Result<std::vector<byte>>>;
+    auto post(const ncrequest::Request&,
               std::string_view) const -> asio::awaitable<Result<std::vector<byte>>>;
 
     class Private;

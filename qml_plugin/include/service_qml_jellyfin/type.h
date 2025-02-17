@@ -22,7 +22,7 @@ concept ApiCP_Reader = requires(T t) {
 
 template<typename T>
 concept ApiCP_Header = requires(T t) {
-    { t.header() } -> std::convertible_to<request::Header>;
+    { t.header() } -> std::convertible_to<ncrequest::Header>;
 };
 
 

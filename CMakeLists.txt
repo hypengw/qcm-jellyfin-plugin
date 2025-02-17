@@ -474,6 +474,6 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC
     core
     json_helper
-    request
+    ncrequest::ncrequest
     error
 )

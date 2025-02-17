@@ -5,6 +5,7 @@
 #include <QUuid>
 #include <asio/bind_executor.hpp>
 #include "core/qstr_helper.h"
+#include "core/variant_helper.h"
 
 #include "qcm_interface/async.inl"
 #include "qcm_interface/global.h"
@@ -59,7 +60,7 @@ static auto session_check(ClientBase& cbase, helper::QWatcher<qcm::model::Sessio
     auto                          out = co_await c.perform(api);
 
     co_await asio::post(
-        asio::bind_executor(qcm::Global::instance()->qexecutor(), asio::use_awaitable));
+        asio::bind_executor(qcm::qexecutor(), asio::use_awaitable));
 
     auto user = session->user();
     auto base = c.base();
@@ -80,7 +81,7 @@ void save(ClientBase& cbase, const std::filesystem::path&) { auto c = *get_clien
 
 void load(ClientBase& cbase, const std::filesystem::path&) { auto c = *get_client(cbase); }
 
-bool make_request(ClientBase& cbase, request::Request& req, const QUrl& url,
+bool make_request(ClientBase& cbase, ncrequest::Request& req, const QUrl& url,
                   const qcm::Client::ReqInfo& info) {
     auto c = *get_client(cbase);
     std::visit(overloaded { [c, &url, &req](const qcm::Client::ReqInfoImg& info) {
