@@ -1,0 +1,18 @@
+[package]
+name = "qcm-service-jellyfin"
+version = "0.1.0"
+authors = ["hypengw <hypengwip@gmail.com>"]
+edition = "2021"
+
+[features]
+in_workspace = []
+
+[dependencies]
+qcm-core = { path = "../../core", optional = true }
+jellyfin-api = { path = "./jellyfin-api" }
+tokio = { version = "1.28", features = ["full"] }
+async-trait = "0.1"
+serde = { version = "1.0", features = ["derive"] }
+
+#[target.'cfg(not(feature = "in_workspace"))'.dependencies]
+#qcm-core = { git = "https://github.com/hypengw/QcmBackend", path = "core" }
