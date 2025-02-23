@@ -78,11 +78,37 @@ impl TranscodingInfo {
 /// Gets or sets the transcode reasons.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum TranscodeReasons {
+    ContainerNotSupported,
+    VideoCodecNotSupported,
+    AudioCodecNotSupported,
+    SubtitleCodecNotSupported,
+    AudioIsExternal,
+    SecondaryAudioNotSupported,
+    VideoProfileNotSupported,
+    VideoLevelNotSupported,
+    VideoResolutionNotSupported,
+    VideoBitDepthNotSupported,
+    VideoFramerateNotSupported,
+    RefFramesNotSupported,
+    AnamorphicVideoNotSupported,
+    InterlacedVideoNotSupported,
+    AudioChannelsNotSupported,
+    AudioProfileNotSupported,
+    AudioSampleRateNotSupported,
+    AudioBitDepthNotSupported,
+    ContainerBitrateExceedsLimit,
+    VideoBitrateNotSupported,
+    AudioBitrateNotSupported,
+    UnknownVideoStreamInfo,
+    UnknownAudioStreamInfo,
+    DirectPlayError,
+    VideoRangeTypeNotSupported,
+    VideoCodecTagNotSupported
 }
 
 impl Default for TranscodeReasons {
     fn default() -> TranscodeReasons {
-        Self::
+        TranscodeReasons::ContainerNotSupported
     }
 }
 
