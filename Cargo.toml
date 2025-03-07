@@ -1,18 +1,19 @@
 [package]
-name = "qcm-service-jellyfin"
+name = "qcm-plugin-jellyfin"
 version = "0.1.0"
 authors = ["hypengw <hypengwip@gmail.com>"]
 edition = "2021"
 
-[features]
-in_workspace = []
-
 [dependencies]
-qcm-core = { path = "../../core", optional = true }
-jellyfin-api = { path = "./jellyfin-api" }
-tokio = { version = "1.28", features = ["full"] }
-async-trait = "0.1"
-serde = { version = "1.0", features = ["derive"] }
+qcm-core = { git = "https://github.com/hypengw/QcmBackend.git" }
+log = "0.4"
+sea-orm = { version = "1" }
+serde_json = { version = "1.0" }
+chrono = { version = "0.4" }
 
-#[target.'cfg(not(feature = "in_workspace"))'.dependencies]
-#qcm-core = { git = "https://github.com/hypengw/QcmBackend", path = "core" }
+jellyfin-api = { path = "./jellyfin-api" }
+reqwest = { version = "0.12", features = ["json"] }
+async-trait = "0.1"
+anyhow = "1.0"
+tokio = { version = "1.28", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
