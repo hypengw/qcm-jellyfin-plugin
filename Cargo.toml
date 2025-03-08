@@ -10,9 +10,9 @@ log = "0.4"
 sea-orm = { version = "1" }
 serde_json = { version = "1.0" }
 chrono = { version = "0.4" }
+reqwest = { version = "0.12" }
 
 jellyfin-api = { path = "./jellyfin-api" }
-reqwest = { version = "0.12", features = ["json"] }
 async-trait = "0.1"
 anyhow = "1.0"
 tokio = { version = "1.28", features = ["full"] }

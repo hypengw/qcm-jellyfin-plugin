@@ -2,34 +2,51 @@ use jellyfin_api::{
     apis::configuration::Configuration, apis::user_api, models as jmodels,
     models::AuthenticateUserByName, models::AuthenticationResult,
 };
+use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HttpClient};
 use qcm_core::model::provider::{self, ActiveModel as ProviderModel};
 use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
 use qcm_core::{anyhow, Result};
-use reqwest::Client;
 use sea_orm::*;
 use std::sync::{Arc, RwLock};
 
 struct JellyfinProviderInner {
     id: Option<i64>,
+    name: String,
     config: Option<Configuration>,
     auth_info: Option<AuthenticationResult>,
 }
 
 pub struct JellyfinProvider {
-    client: Client,
+    client: HttpClient,
+    jar: Arc<CookieStoreRwLock>,
     inner: Arc<RwLock<JellyfinProviderInner>>,
 }
 
 impl JellyfinProvider {
-    pub fn new(id: Option<i64>) -> Self {
+    pub fn new(id: Option<i64>, name: &str) -> Self {
+        let jar = Arc::new(CookieStoreRwLock::default());
         Self {
-            client: Client::new(),
+            client: qcm_core::http::client_builder_with_jar(jar.clone())
+                .build()
+                .unwrap(),
+            jar: jar,
             inner: Arc::new(RwLock::new(JellyfinProviderInner {
                 id,
+                name: name.to_string(),
                 config: None,
                 auth_info: None,
             })),
         }
+    }
+
+    pub fn type_() -> &'static str {
+        return "jellyfin";
+    }
+}
+
+impl HasCookieJar for JellyfinProvider {
+    fn jar(&self) -> Arc<CookieStoreRwLock> {
+        self.jar.clone()
     }
 }
 
@@ -37,6 +54,12 @@ impl JellyfinProvider {
 impl Provider for JellyfinProvider {
     fn id(&self) -> Option<i64> {
         self.inner.read().unwrap().id
+    }
+    fn name(&self) -> String {
+        self.inner.read().unwrap().name.clone()
+    }
+    fn type_(&self) -> &str {
+        JellyfinProvider::type_()
     }
     async fn login(&self, ctx: &Context, info: AuthInfo) -> Result<()> {
         let config = Configuration {
@@ -73,6 +96,7 @@ impl Provider for JellyfinProvider {
                         None => NotSet,
                     },
                     name: Set("jellyfin".to_string()),
+                    type_: Set(self.type_().to_string()),
                     auth: Set(serde_json::to_string(&info).unwrap_or_default()),
                     cookie: Set(serde_json::to_string(&result).unwrap_or_default()),
                     edit_time: Set(chrono::Local::now().naive_local()),
