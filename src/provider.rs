@@ -39,7 +39,7 @@ impl JellyfinProvider {
         }
     }
 
-    pub fn type_() -> &'static str {
+    pub fn type_name() -> &'static str {
         return "jellyfin";
     }
 }
@@ -58,8 +58,8 @@ impl Provider for JellyfinProvider {
     fn name(&self) -> String {
         self.inner.read().unwrap().name.clone()
     }
-    fn type_(&self) -> &str {
-        JellyfinProvider::type_()
+    fn type_name(&self) -> &str {
+        JellyfinProvider::type_name()
     }
     async fn login(&self, ctx: &Context, info: AuthInfo) -> Result<()> {
         let config = Configuration {
@@ -96,7 +96,7 @@ impl Provider for JellyfinProvider {
                         None => NotSet,
                     },
                     name: Set("jellyfin".to_string()),
-                    type_: Set(self.type_().to_string()),
+                    type_: Set(self.type_name().to_string()),
                     auth: Set(serde_json::to_string(&info).unwrap_or_default()),
                     cookie: Set(serde_json::to_string(&result).unwrap_or_default()),
                     edit_time: Set(chrono::Local::now().naive_local()),
