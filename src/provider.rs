@@ -2,7 +2,8 @@ use jellyfin_api::{
     apis::configuration::Configuration, apis::user_api, models as jmodels,
     models::AuthenticateUserByName, models::AuthenticationResult,
 };
-use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HttpClient};
+use qcm_core::global::{APP_NAME, APP_VERSION};
+use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
 use qcm_core::model::provider::{self, ActiveModel as ProviderModel};
 use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
 use qcm_core::{anyhow, Result};
@@ -10,37 +11,71 @@ use sea_orm::*;
 use std::sync::{Arc, RwLock};
 
 struct JellyfinProviderInner {
+    client: HttpClient,
     id: Option<i64>,
     name: String,
     config: Option<Configuration>,
     auth_info: Option<AuthenticationResult>,
+    device_id: String,
 }
 
 pub struct JellyfinProvider {
-    client: HttpClient,
     jar: Arc<CookieStoreRwLock>,
     inner: Arc<RwLock<JellyfinProviderInner>>,
 }
 
 impl JellyfinProvider {
-    pub fn new(id: Option<i64>, name: &str) -> Self {
+    pub fn new(id: Option<i64>, name: &str, device_id: &str) -> Self {
         let jar = Arc::new(CookieStoreRwLock::default());
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            "Authorization",
+            HeaderValue::from_str(&Self::static_format_auth(device_id, None)).unwrap(),
+        );
         Self {
-            client: qcm_core::http::client_builder_with_jar(jar.clone())
-                .build()
-                .unwrap(),
-            jar: jar,
+            jar: jar.clone(),
             inner: Arc::new(RwLock::new(JellyfinProviderInner {
+                client: qcm_core::http::client_builder_with_jar(jar.clone())
+                    .default_headers(headers)
+                    .build()
+                    .unwrap(),
                 id,
                 name: name.to_string(),
                 config: None,
                 auth_info: None,
+                device_id: device_id.to_string(),
             })),
         }
     }
 
     pub fn type_name() -> &'static str {
         return "jellyfin";
+    }
+
+    pub fn static_format_auth(device_id: &str, token: Option<&str>) -> String {
+        let mut parts = vec![
+            format!("Client={}", APP_NAME),
+            format!("Version={}", APP_VERSION),
+            "Device=Linux".to_string(),
+            format!("DeviceId={}", device_id),
+        ];
+
+        if let Some(token) = token {
+            parts.push(format!("Token={}", token));
+        }
+
+        format!("MediaBrowser {}", parts.join(", "))
+    }
+
+    pub fn format_auth(&self) -> String {
+        let inner = self.inner.read().unwrap();
+        let token = inner.auth_info.as_ref().map(|s| s.access_token.clone());
+        let device_id = inner.device_id.clone();
+        Self::static_format_auth(&device_id, token.flatten().flatten().as_deref())
+    }
+
+    pub fn client(&self) -> HttpClient {
+        return self.inner.read().unwrap().client.clone();
     }
 }
 
@@ -61,11 +96,11 @@ impl Provider for JellyfinProvider {
     fn type_name(&self) -> &str {
         JellyfinProvider::type_name()
     }
-    async fn login(&self, ctx: &Context, info: AuthInfo) -> Result<()> {
+    async fn login(&self, ctx: &Context, info: &AuthInfo) -> Result<()> {
         let config = Configuration {
             base_path: info.server_url.clone(),
-            user_agent: Some("QcmBackend/1.0".to_string()),
-            client: self.client.clone(),
+            user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
+            client: self.client(),
             ..Default::default()
         };
 
@@ -84,10 +119,18 @@ impl Provider for JellyfinProvider {
             if let Some(user_api::AuthenticateUserByNameSuccess::Status200(result)) =
                 auth_result.entity
             {
+                let auth_line = self.format_auth();
                 {
                     let mut inner = self.inner.write().unwrap();
                     inner.auth_info = Some(result.clone());
                     inner.config = Some(config);
+
+                    let mut headers = HeaderMap::new();
+                    headers.insert("Authorization", HeaderValue::from_str(&auth_line).unwrap());
+                    inner.client = qcm_core::http::client_builder_with_jar(self.jar.clone())
+                        .default_headers(headers)
+                        .build()
+                        .unwrap();
                 }
 
                 let provider = ProviderModel {
@@ -121,8 +164,8 @@ impl Provider for JellyfinProvider {
         Err(anyhow!("Login failed"))
     }
 
-    async fn sync(&self, ctx: &Context, state: &dyn SyncState) -> Result<()> {
-        let inner = self.inner.read().unwrap();
+    async fn sync(&self, _ctx: &Context, _state: &dyn SyncState) -> Result<()> {
+        // let inner = self.inner.read().unwrap();
         // 获取用户的媒体库
         // let libraries = user_api::get_user_views(
         //     &config,
