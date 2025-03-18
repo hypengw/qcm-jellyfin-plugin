@@ -33,8 +33,8 @@ impl Plugin for JellyfinPlugin {
                     .unwrap()
                     .to_string(),
             ),
-            Arc::new(|name, device_id| -> Box<dyn Provider> {
-                Box::new(JellyfinProvider::new(None, name, device_id))
+            Arc::new(|id, name, device_id| -> Arc<dyn Provider> {
+                Arc::new(JellyfinProvider::new(id, name, device_id))
             }),
         );
         vec![p]

@@ -29,7 +29,7 @@ struct JellyfinProviderInner {
 
 pub struct JellyfinProvider {
     jar: Arc<CookieStoreRwLock>,
-    inner: Arc<RwLock<JellyfinProviderInner>>,
+    inner: RwLock<JellyfinProviderInner>,
 }
 
 impl JellyfinProvider {
@@ -42,7 +42,7 @@ impl JellyfinProvider {
         );
         Self {
             jar: jar.clone(),
-            inner: Arc::new(RwLock::new(JellyfinProviderInner {
+            inner: RwLock::new(JellyfinProviderInner {
                 client: qcm_core::http::client_builder_with_jar(jar.clone())
                     .default_headers(headers)
                     .build()
@@ -52,7 +52,7 @@ impl JellyfinProvider {
                 config: None,
                 data: CustomData::default(),
                 device_id: device_id.to_string(),
-            })),
+            }),
         }
     }
 
@@ -104,6 +104,44 @@ impl Provider for JellyfinProvider {
     fn type_name(&self) -> &str {
         JellyfinProvider::type_name()
     }
+
+    fn from_model(&self, model: &provider::Model) -> Result<()> {
+        let custom_data: CustomData = serde_json::from_str(&model.custom)
+            .map_err(|e| anyhow!("Failed to parse custom data: {}", e))?;
+
+        {
+            let mut inner = self.inner.write().unwrap();
+            inner.data = custom_data;
+        }
+        let auth_line = self.format_auth();
+        {
+            let mut inner = self.inner.write().unwrap();
+            let mut headers = HeaderMap::new();
+            headers.insert("Authorization", HeaderValue::from_str(&auth_line).unwrap());
+            inner.client = qcm_core::http::client_builder_with_jar(self.jar.clone())
+                .default_headers(headers)
+                .build()
+                .unwrap();
+        }
+
+        Ok(())
+    }
+
+    fn to_model(&self) -> ProviderModel {
+        let provider = ProviderModel {
+            provider_id: match self.id() {
+                Some(id) => Set(id),
+                None => NotSet,
+            },
+            name: Set(self.name()),
+            type_: Set(self.type_name().to_string()),
+            cookie: Set(String::new()),
+            custom: Set(serde_json::to_string(&self.inner.read().unwrap().data).unwrap_or_default()),
+            edit_time: Set(chrono::Local::now().naive_local()),
+        };
+        provider
+    }
+
     async fn login(&self, ctx: &Context, info: &AuthInfo) -> Result<()> {
         let config = Configuration {
             base_path: info.server_url.clone(),
@@ -143,32 +181,18 @@ impl Provider for JellyfinProvider {
                         .unwrap();
                 }
 
-                let provider = ProviderModel {
-                    provider_id: match self.id() {
-                        Some(id) => Set(id),
-                        None => NotSet,
-                    },
-                    name: Set(self.name()),
-                    type_: Set(self.type_name().to_string()),
-                    cookie: Set(String::new()),
-                    custom: Set(
-                        serde_json::to_string(&self.inner.read().unwrap().data).unwrap_or_default()
-                    ),
-                    edit_time: Set(chrono::Local::now().naive_local()),
-                };
-
-                provider::Entity::insert(provider.clone())
-                    .on_conflict(
-                        sea_query::OnConflict::column(provider::Column::ProviderId)
-                            .update_columns([
-                                provider::Column::Custom,
-                                provider::Column::Cookie,
-                                provider::Column::EditTime,
-                            ])
-                            .to_owned(),
-                    )
-                    .exec(&ctx.db)
-                    .await?;
+                //                provider::Entity::insert(provider.clone())
+                //                    .on_conflict(
+                //                        sea_query::OnConflict::column(provider::Column::ProviderId)
+                //                            .update_columns([
+                //                                provider::Column::Custom,
+                //                                provider::Column::Cookie,
+                //                                provider::Column::EditTime,
+                //                            ])
+                //                            .to_owned(),
+                //                    )
+                //                    .exec(&ctx.db)
+                //                    .await?;
 
                 return Ok(());
             }
