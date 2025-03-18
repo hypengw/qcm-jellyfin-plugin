@@ -8,14 +8,22 @@ use qcm_core::model::provider::{self, ActiveModel as ProviderModel};
 use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
 use qcm_core::{anyhow, Result};
 use sea_orm::*;
+use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
+
+#[derive(Default, Clone, Debug, Serialize, Deserialize)]
+struct CustomData {
+    pub auth_info: AuthInfo,
+    pub token: Option<String>,
+}
 
 struct JellyfinProviderInner {
     client: HttpClient,
     id: Option<i64>,
     name: String,
     config: Option<Configuration>,
-    auth_info: Option<AuthenticationResult>,
+    data: CustomData,
+    // auth_info: Option<AuthenticationResult>,
     device_id: String,
 }
 
@@ -42,7 +50,7 @@ impl JellyfinProvider {
                 id,
                 name: name.to_string(),
                 config: None,
-                auth_info: None,
+                data: CustomData::default(),
                 device_id: device_id.to_string(),
             })),
         }
@@ -69,9 +77,9 @@ impl JellyfinProvider {
 
     pub fn format_auth(&self) -> String {
         let inner = self.inner.read().unwrap();
-        let token = inner.auth_info.as_ref().map(|s| s.access_token.clone());
+        let token = inner.data.token.clone();
         let device_id = inner.device_id.clone();
-        Self::static_format_auth(&device_id, token.flatten().flatten().as_deref())
+        Self::static_format_auth(&device_id, token.as_deref())
     }
 
     pub fn client(&self) -> HttpClient {
@@ -122,8 +130,10 @@ impl Provider for JellyfinProvider {
                 let auth_line = self.format_auth();
                 {
                     let mut inner = self.inner.write().unwrap();
-                    inner.auth_info = Some(result.clone());
+                    // inner.data.auth_info = Some(result.clone());
                     inner.config = Some(config);
+                    inner.data.auth_info = info.clone();
+                    inner.data.token = result.access_token.flatten().clone();
 
                     let mut headers = HeaderMap::new();
                     headers.insert("Authorization", HeaderValue::from_str(&auth_line).unwrap());
@@ -138,10 +148,12 @@ impl Provider for JellyfinProvider {
                         Some(id) => Set(id),
                         None => NotSet,
                     },
-                    name: Set("jellyfin".to_string()),
+                    name: Set(self.name()),
                     type_: Set(self.type_name().to_string()),
-                    auth: Set(serde_json::to_string(&info).unwrap_or_default()),
-                    cookie: Set(serde_json::to_string(&result).unwrap_or_default()),
+                    cookie: Set(String::new()),
+                    custom: Set(
+                        serde_json::to_string(&self.inner.read().unwrap().data).unwrap_or_default()
+                    ),
                     edit_time: Set(chrono::Local::now().naive_local()),
                 };
 
@@ -149,7 +161,7 @@ impl Provider for JellyfinProvider {
                     .on_conflict(
                         sea_query::OnConflict::column(provider::Column::ProviderId)
                             .update_columns([
-                                provider::Column::Auth,
+                                provider::Column::Custom,
                                 provider::Column::Cookie,
                                 provider::Column::EditTime,
                             ])
