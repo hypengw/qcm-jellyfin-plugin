@@ -1,10 +1,15 @@
+use crate::default::JFDefault;
+use chrono::NaiveDateTime;
+use jellyfin_api::apis::items_api;
 use jellyfin_api::{
     apis::configuration::Configuration, apis::user_api, models as jmodels,
     models::AuthenticateUserByName, models::AuthenticationResult,
 };
 use qcm_core::global::{APP_NAME, APP_VERSION};
 use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
+use qcm_core::model::album::ActiveModel as AlbumModel;
 use qcm_core::model::provider::{self, ActiveModel as ProviderModel};
+use qcm_core::model::{album, library};
 use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
 use qcm_core::{anyhow, Result};
 use sea_orm::*;
@@ -85,6 +90,52 @@ impl JellyfinProvider {
     pub fn client(&self) -> HttpClient {
         return self.inner.read().unwrap().client.clone();
     }
+
+    async fn sync_albums(&self, library_id: i32, state: &dyn SyncState) -> Result<()> {
+        let inner = self.inner.read().unwrap();
+        let config = inner.config.as_ref().ok_or(anyhow!("Not configured"))?;
+
+        let items = items_api::get_items(
+            config,
+            items_api::GetItemsParams {
+                parent_id: None,
+                include_item_types: Some(vec![jmodels::BaseItemKind::MusicAlbum]),
+                recursive: Some(true),
+                ..JFDefault::jf_default()
+            },
+        )
+        .await?;
+
+        if let Some(items_api::GetItemsSuccess::Status200(result)) = items.entity {
+            if let Some(items) = result.items {
+                for item in items {
+                    if let Some(id) = item.id {
+                        let album = AlbumModel {
+                            id: NotSet,
+                            item_id: Set(id.to_string()),
+                            library_id: Set(library_id),
+                            name: Set(item.name.flatten().unwrap_or_default()),
+                            pic_url: Set(String::new()), // TODO: implement image url
+                            publish_time: Set(item
+                                .premiere_date
+                                .flatten()
+                                .and_then(|d| d.parse().ok())
+                                .unwrap_or_else(|| chrono::Local::now().naive_local())),
+                            track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
+                            description: Set(item.overview.flatten().unwrap_or_default()),
+                            company: Set(String::new()), // Jellyfin doesn't provide this info
+                            type_: Set("album".to_string()),
+                            edit_time: Set(chrono::Local::now().naive_local()),
+                        };
+
+                        // state.save_album(album).await?;
+                    }
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 impl HasCookieJar for JellyfinProvider {
@@ -142,7 +193,7 @@ impl Provider for JellyfinProvider {
         provider
     }
 
-    async fn login(&self, ctx: &Context, info: &AuthInfo) -> Result<()> {
+    async fn login(&self, _ctx: &Context, info: &AuthInfo) -> Result<()> {
         let config = Configuration {
             base_path: info.server_url.clone(),
             user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
@@ -181,41 +232,19 @@ impl Provider for JellyfinProvider {
                         .unwrap();
                 }
 
-                //                provider::Entity::insert(provider.clone())
-                //                    .on_conflict(
-                //                        sea_query::OnConflict::column(provider::Column::ProviderId)
-                //                            .update_columns([
-                //                                provider::Column::Custom,
-                //                                provider::Column::Cookie,
-                //                                provider::Column::EditTime,
-                //                            ])
-                //                            .to_owned(),
-                //                    )
-                //                    .exec(&ctx.db)
-                //                    .await?;
-
                 return Ok(());
             }
         }
         Err(anyhow!("Login failed"))
     }
 
-    async fn sync(&self, _ctx: &Context, _state: &dyn SyncState) -> Result<()> {
-        // let inner = self.inner.read().unwrap();
-        // 获取用户的媒体库
-        // let libraries = user_api::get_user_views(
-        //     &config,
-        //     &auth_info.user.as_ref().unwrap().id,
-        // ).await?;
+    async fn sync(&self, ctx: &Context, state: &dyn SyncState) -> Result<()> {
+        let libraries = ctx.find_libraries_by_provider(self.id().unwrap()).await?;
 
-        // // 遍历媒体库并同步数据
-        // for library in libraries.items.unwrap_or_default() {
-        //     state.update_progress(format!(
-        //         "正在同步媒体库: {}",
-        //         library.name.unwrap_or_default()
-        //     ));
-        //     // TODO: 实现具体的媒体库同步逻辑
-        // }
+        for lib in libraries {
+            self.sync_albums(lib.library_id, state).await?;
+        }
+
         Ok(())
     }
 }
