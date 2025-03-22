@@ -1,9 +1,9 @@
 use crate::default::JFDefault;
 use chrono::NaiveDateTime;
-use jellyfin_api::apis::items_api;
 use jellyfin_api::{
-    apis::configuration::Configuration, apis::user_api, models as jmodels,
-    models::AuthenticateUserByName, models::AuthenticationResult,
+    apis::configuration::Configuration, apis::items_api, apis::library_structure_api,
+    apis::user_api, models as jmodels, models::AuthenticateUserByName,
+    models::AuthenticationResult,
 };
 use qcm_core::global::{APP_NAME, APP_VERSION};
 use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
@@ -89,6 +89,43 @@ impl JellyfinProvider {
 
     pub fn client(&self) -> HttpClient {
         return self.inner.read().unwrap().client.clone();
+    }
+
+    async fn sync_libraries(&self, ctx: &Context) -> Result<()> {
+        let config = {
+            let inner = self.inner.read().unwrap();
+            inner.config.clone().ok_or(anyhow!("Not configured"))?
+        };
+
+        let libraries = library_structure_api::get_virtual_folders(&config).await?;
+
+        match libraries.entity {
+            Some(library_structure_api::GetVirtualFoldersSuccess::Status200(items)) => {
+                let items = items.iter().filter_map(|item| match &item.item_id {
+                    Some(Some(id)) => Some(library::ActiveModel {
+                        library_id: NotSet,
+                        name: Set(item.name.clone().flatten().unwrap_or_default()),
+                        provider_id: Set(self.id().unwrap()),
+                        native_id: Set(id.to_string()),
+                        edit_time: Set(chrono::Local::now().naive_local()),
+                    }),
+                    _ => None,
+                });
+                library::Entity::insert_many(items)
+                    .on_conflict(
+                        sea_query::OnConflict::columns([
+                            library::Column::ProviderId,
+                            library::Column::NativeId,
+                        ])
+                        .update_columns([library::Column::Name, library::Column::EditTime])
+                        .to_owned(),
+                    )
+                    .exec(&ctx.db)
+                    .await?;
+                Ok(())
+            }
+            _ => Ok(()),
+        }
     }
 
     async fn sync_albums(&self, library_id: i32, state: &dyn SyncState) -> Result<()> {
@@ -238,13 +275,13 @@ impl Provider for JellyfinProvider {
         Err(anyhow!("Login failed"))
     }
 
-    async fn sync(&self, ctx: &Context, state: &dyn SyncState) -> Result<()> {
-        let libraries = ctx.find_libraries_by_provider(self.id().unwrap()).await?;
+    async fn sync(&self, ctx: &Context) -> Result<()> {
+        self.sync_libraries(ctx).await?;
 
-        for lib in libraries {
-            self.sync_albums(lib.library_id, state).await?;
-        }
-
+        // let libraries = ctx.find_libraries_by_provider(self.id().unwrap()).await?;
+        // for lib in libraries {
+        //     self.sync_albums(lib.library_id, state).await?;
+        // }
         Ok(())
     }
 }
