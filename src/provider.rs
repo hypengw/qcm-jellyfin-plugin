@@ -1,10 +1,11 @@
 use crate::default::JFDefault;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, Utc};
 use jellyfin_api::{
     apis::configuration::Configuration, apis::items_api, apis::library_structure_api,
     apis::user_api, models as jmodels, models::AuthenticateUserByName,
     models::AuthenticationResult,
 };
+use qcm_core::db::values::StringVec;
 use qcm_core::global::{APP_NAME, APP_VERSION};
 use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
 use qcm_core::model::{
@@ -143,13 +144,14 @@ impl JellyfinProvider {
                 parent_id: None,
                 include_item_types: Some(vec![jmodels::BaseItemKind::MusicAlbum]),
                 recursive: Some(true),
+                fields: Some(vec![jmodels::ItemFields::Genres]),
                 ..JFDefault::jf_default()
             },
         )
         .await?;
 
         if let Some(items_api::GetItemsSuccess::Status200(result)) = items.entity {
-            let now = chrono::Local::now().naive_local();
+            let now = chrono::Utc::now();
             let albums = result
                 .items
                 .unwrap_or_default()
@@ -160,7 +162,11 @@ impl JellyfinProvider {
                         item_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
-                        pic_url: Set(String::new()), // TODO: implement image url
+                        pic_id: Set(item
+                            .image_tags
+                            .flatten()
+                            .and_then(|m| m.get("Primary").cloned())
+                            .unwrap_or_default()),
                         publish_time: Set(item
                             .premiere_date
                             .flatten()
@@ -170,6 +176,11 @@ impl JellyfinProvider {
                         description: Set(item.overview.flatten().unwrap_or_default()),
                         company: Set(String::new()),
                         type_: Set("album".to_string()),
+                        genres: Set(item
+                            .genres
+                            .flatten()
+                            .map(|v| StringVec(v))
+                            .unwrap_or_default()),
                         edit_time: Set(now),
                     })
                 });
@@ -182,8 +193,11 @@ impl JellyfinProvider {
                     ])
                     .update_columns([
                         album::Column::Name,
-                        album::Column::Description,
+                        album::Column::PicId,
+                        album::Column::PublishTime,
                         album::Column::TrackCount,
+                        album::Column::Description,
+                        album::Column::Genres,
                         album::Column::EditTime,
                     ])
                     .to_owned(),
