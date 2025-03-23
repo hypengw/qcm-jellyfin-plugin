@@ -7,9 +7,12 @@ use jellyfin_api::{
 };
 use qcm_core::global::{APP_NAME, APP_VERSION};
 use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
-use qcm_core::model::album::ActiveModel as AlbumModel;
-use qcm_core::model::provider::{self, ActiveModel as ProviderModel};
-use qcm_core::model::{album, library};
+use qcm_core::model::{
+    album,
+    album::ActiveModel as AlbumModel,
+    library,
+    provider::{self, ActiveModel as ProviderModel},
+};
 use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
 use qcm_core::{anyhow, Result};
 use sea_orm::*;
@@ -124,16 +127,18 @@ impl JellyfinProvider {
                     .await?;
                 Ok(())
             }
-            _ => Ok(()),
+            _ => Err(anyhow!("[jellyfin] no folder found")),
         }
     }
 
-    async fn sync_albums(&self, library_id: i32, state: &dyn SyncState) -> Result<()> {
-        let inner = self.inner.read().unwrap();
-        let config = inner.config.as_ref().ok_or(anyhow!("Not configured"))?;
+    async fn sync_albums(&self, library_id: i64, ctx: &Context) -> Result<()> {
+        let config = {
+            let inner = self.inner.read().unwrap();
+            inner.config.clone().ok_or(anyhow!("Not configured"))?
+        };
 
         let items = items_api::get_items(
-            config,
+            &config,
             items_api::GetItemsParams {
                 parent_id: None,
                 include_item_types: Some(vec![jmodels::BaseItemKind::MusicAlbum]),
@@ -144,31 +149,47 @@ impl JellyfinProvider {
         .await?;
 
         if let Some(items_api::GetItemsSuccess::Status200(result)) = items.entity {
-            if let Some(items) = result.items {
-                for item in items {
-                    if let Some(id) = item.id {
-                        let album = AlbumModel {
-                            id: NotSet,
-                            item_id: Set(id.to_string()),
-                            library_id: Set(library_id),
-                            name: Set(item.name.flatten().unwrap_or_default()),
-                            pic_url: Set(String::new()), // TODO: implement image url
-                            publish_time: Set(item
-                                .premiere_date
-                                .flatten()
-                                .and_then(|d| d.parse().ok())
-                                .unwrap_or_else(|| chrono::Local::now().naive_local())),
-                            track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
-                            description: Set(item.overview.flatten().unwrap_or_default()),
-                            company: Set(String::new()), // Jellyfin doesn't provide this info
-                            type_: Set("album".to_string()),
-                            edit_time: Set(chrono::Local::now().naive_local()),
-                        };
+            let now = chrono::Local::now().naive_local();
+            let albums = result
+                .items
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|item| {
+                    item.id.map(|id| AlbumModel {
+                        id: NotSet,
+                        item_id: Set(id.to_string()),
+                        library_id: Set(library_id),
+                        name: Set(item.name.flatten().unwrap_or_default()),
+                        pic_url: Set(String::new()), // TODO: implement image url
+                        publish_time: Set(item
+                            .premiere_date
+                            .flatten()
+                            .and_then(|d| d.parse().ok())
+                            .unwrap_or(now)),
+                        track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
+                        description: Set(item.overview.flatten().unwrap_or_default()),
+                        company: Set(String::new()),
+                        type_: Set("album".to_string()),
+                        edit_time: Set(now),
+                    })
+                });
 
-                        // state.save_album(album).await?;
-                    }
-                }
-            }
+            album::Entity::insert_many(albums)
+                .on_conflict(
+                    sea_query::OnConflict::columns([
+                        album::Column::LibraryId,
+                        album::Column::ItemId,
+                    ])
+                    .update_columns([
+                        album::Column::Name,
+                        album::Column::Description,
+                        album::Column::TrackCount,
+                        album::Column::EditTime,
+                    ])
+                    .to_owned(),
+                )
+                .exec(&ctx.db)
+                .await?;
         }
 
         Ok(())
@@ -185,6 +206,10 @@ impl HasCookieJar for JellyfinProvider {
 impl Provider for JellyfinProvider {
     fn id(&self) -> Option<i64> {
         self.inner.read().unwrap().id
+    }
+    fn set_id(&self, id: Option<i64>) {
+        let mut inner = self.inner.write().unwrap();
+        inner.id = id;
     }
     fn name(&self) -> String {
         self.inner.read().unwrap().name.clone()
@@ -206,16 +231,25 @@ impl Provider for JellyfinProvider {
             let mut inner = self.inner.write().unwrap();
             let mut headers = HeaderMap::new();
             headers.insert("Authorization", HeaderValue::from_str(&auth_line).unwrap());
+            log::warn!("auth: {}", &auth_line);
             inner.client = qcm_core::http::client_builder_with_jar(self.jar.clone())
                 .default_headers(headers)
                 .build()
                 .unwrap();
+            let config = Configuration {
+                base_path: model.base_url.clone(),
+                user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
+                client: inner.client.clone(),
+                ..Default::default()
+            };
+            inner.config = Some(config);
         }
 
         Ok(())
     }
 
     fn to_model(&self) -> ProviderModel {
+        let inner = self.inner.read().unwrap();
         let provider = ProviderModel {
             provider_id: match self.id() {
                 Some(id) => Set(id),
@@ -223,15 +257,16 @@ impl Provider for JellyfinProvider {
             },
             name: Set(self.name()),
             type_: Set(self.type_name().to_string()),
+            base_url: Set(inner.config.clone().map_or(String::new(), |c| c.base_path)),
             cookie: Set(String::new()),
-            custom: Set(serde_json::to_string(&self.inner.read().unwrap().data).unwrap_or_default()),
+            custom: Set(serde_json::to_string(&inner.data).unwrap_or_default()),
             edit_time: Set(chrono::Local::now().naive_local()),
         };
         provider
     }
 
     async fn login(&self, _ctx: &Context, info: &AuthInfo) -> Result<()> {
-        let config = Configuration {
+        let mut config = Configuration {
             base_path: info.server_url.clone(),
             user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
             client: self.client(),
@@ -253,22 +288,23 @@ impl Provider for JellyfinProvider {
             if let Some(user_api::AuthenticateUserByNameSuccess::Status200(result)) =
                 auth_result.entity
             {
+                {
+                    let mut inner = self.inner.write().unwrap();
+                    inner.data.auth_info = info.clone();
+                    inner.data.token = result.access_token.flatten().clone();
+                }
                 let auth_line = self.format_auth();
                 {
                     let mut inner = self.inner.write().unwrap();
-                    // inner.data.auth_info = Some(result.clone());
-                    inner.config = Some(config);
-                    inner.data.auth_info = info.clone();
-                    inner.data.token = result.access_token.flatten().clone();
-
                     let mut headers = HeaderMap::new();
                     headers.insert("Authorization", HeaderValue::from_str(&auth_line).unwrap());
                     inner.client = qcm_core::http::client_builder_with_jar(self.jar.clone())
                         .default_headers(headers)
                         .build()
                         .unwrap();
+                    config.client = inner.client.clone();
+                    inner.config = Some(config);
                 }
-
                 return Ok(());
             }
         }
@@ -278,10 +314,13 @@ impl Provider for JellyfinProvider {
     async fn sync(&self, ctx: &Context) -> Result<()> {
         self.sync_libraries(ctx).await?;
 
-        // let libraries = ctx.find_libraries_by_provider(self.id().unwrap()).await?;
-        // for lib in libraries {
-        //     self.sync_albums(lib.library_id, state).await?;
-        // }
+        let libraries = library::Entity::find()
+            .filter(library::Column::ProviderId.eq(self.id().unwrap()))
+            .all(&ctx.db)
+            .await?;
+        for lib in libraries {
+            self.sync_albums(lib.library_id, ctx).await?;
+        }
         Ok(())
     }
 }
