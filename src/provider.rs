@@ -20,6 +20,7 @@ use qcm_core::{error::SyncError, model as sqlm};
 use reqwest::Response;
 use sea_orm::{sea_query::IntoIndexColumn, *};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::{
     ops::Not,
     sync::{Arc, RwLock},
@@ -178,15 +179,22 @@ impl JellyfinProvider {
 
         if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
-            let len = result.items.as_ref().map_or(0, |l| l.len());
-            if len == 0 {
-                return Ok(());
-            }
+
+            let mut album_artists: BTreeMap<uuid::Uuid, uuid::Uuid> = BTreeMap::new();
+            // First sync albums
             let albums = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
+                    if let (Some(id), Some(artists)) = (item.id, item.artist_items.flatten()) {
+                        for a in artists {
+                            if let Some(a_id) = a.id {
+                                album_artists.insert(id, a_id);
+                            }
+                        }
+                    }
+
                     item.id.map(|id| sqlm::album::ActiveModel {
                         id: NotSet,
                         item_id: Set(id.to_string()),
@@ -215,13 +223,14 @@ impl JellyfinProvider {
                 });
 
             let conflict = [sqlm::album::Column::LibraryId, sqlm::album::Column::ItemId];
+            let exclude = [sqlm::album::Column::Id];
 
             sqlm::album::Entity::insert_many(albums)
                 .on_conflict(
                     sea_query::OnConflict::columns(conflict)
                         .update_columns(
                             sqlm::album::Column::iter()
-                                .filter(|e| !conflict.contains(e))
+                                .filter(|e| !conflict.contains(e) && !exclude.contains(e))
                                 .collect::<Vec<_>>(),
                         )
                         .to_owned(),
@@ -229,6 +238,58 @@ impl JellyfinProvider {
                 .on_empty_do_nothing()
                 .exec(&ctx.db)
                 .await?;
+
+            if !album_artists.is_empty() {
+                let conflict = [
+                    sqlm::rel_album_artist::Column::LibraryId,
+                    sqlm::rel_album_artist::Column::AlbumId,
+                    sqlm::rel_album_artist::Column::ArtistId,
+                ];
+                use sea_query::Expr;
+
+                let relations = sea_query::Query::select()
+                    .expr(Expr::col((
+                        sqlm::album::Entity,
+                        sqlm::album::Column::LibraryId,
+                    )))
+                    .expr(Expr::col((sqlm::album::Entity, sqlm::album::Column::Id)))
+                    .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
+                    .expr(Expr::value(now))
+                    .from(sqlm::album::Entity)
+                    .inner_join(
+                        sqlm::artist::Entity,
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::LibraryId))
+                            .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
+                    )
+                    .and_where(
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
+                            .is_in(album_artists.iter().map(|(a, _)| a.to_string())),
+                    )
+                    .and_where(
+                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::ItemId))
+                            .is_in(album_artists.iter().map(|(_, a)| a.to_string())),
+                    )
+                    .to_owned();
+
+                let stmt = sea_query::Query::insert()
+                    .into_table(sqlm::rel_album_artist::Entity)
+                    .columns([
+                        sqlm::rel_album_artist::Column::LibraryId,
+                        sqlm::rel_album_artist::Column::AlbumId,
+                        sqlm::rel_album_artist::Column::ArtistId,
+                        sqlm::rel_album_artist::Column::EditTime,
+                    ])
+                    .select_from(relations)
+                    .unwrap()
+                    .on_conflict(
+                        sea_query::OnConflict::columns(conflict)
+                            .update_column(sqlm::rel_album_artist::Column::EditTime)
+                            .to_owned(),
+                    )
+                    .to_owned();
+                let builder = ctx.db.get_database_backend();
+                ctx.db.execute(builder.build(&stmt)).await?;
+            }
         }
 
         Ok(())
@@ -270,8 +331,8 @@ impl JellyfinProvider {
                         //     .flatten()
                         //     .and_then(|m| m.get("Primary").cloned())
                         //     .unwrap_or_default()),
-                        music_count: NotSet,
-                        album_count: NotSet,
+                        music_count: Set(0),
+                        album_count: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
                         edit_time: Set(now),
                     })
@@ -282,6 +343,7 @@ impl JellyfinProvider {
                 sqlm::artist::Column::ItemId,
             ];
             let exclude = [
+                sqlm::artist::Column::Id,
                 sqlm::artist::Column::MusicCount,
                 sqlm::artist::Column::AlbumCount,
             ];
@@ -427,9 +489,9 @@ impl Provider for JellyfinProvider {
             .all(&ctx.db)
             .await?;
         for lib in libraries {
-            self.sync_albums(lib.library_id, &lib.native_id, ctx)
-                .await?;
             self.sync_artists(lib.library_id, &lib.native_id, ctx)
+                .await?;
+            self.sync_albums(lib.library_id, &lib.native_id, ctx)
                 .await?;
         }
         Ok(())
