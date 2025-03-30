@@ -1,7 +1,31 @@
-use jellyfin_api::apis::items_api::GetItemsParams;
+use jellyfin_api::apis::{image_api::GetItemImageParams, items_api::GetItemsParams};
 
 pub trait JFDefault {
     fn jf_default() -> Self;
+}
+
+impl JFDefault for GetItemImageParams {
+    fn jf_default() -> Self {
+        Self {
+            item_id: String::new(),
+            image_type: String::new(),
+            max_width: None,
+            max_height: None,
+            width: None,
+            height: None,
+            quality: None,
+            fill_width: None,
+            fill_height: None,
+            tag: None,
+            format: None,
+            percent_played: None,
+            unplayed_count: None,
+            blur: None,
+            background_color: None,
+            foreground_layer: None,
+            image_index: None,
+        }
+    }
 }
 
 impl JFDefault for GetItemsParams {

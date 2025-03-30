@@ -1,21 +1,30 @@
 use crate::default::JFDefault;
 use chrono::{DateTime, Utc};
 use jellyfin_api::{
-    apis::configuration::Configuration, apis::items_api, apis::library_structure_api,
-    apis::user_api, models as jmodels, models::AuthenticateUserByName,
-    models::AuthenticationResult,
+    apis::{
+        self as japis, configuration::Configuration, image_api::GetItemImageParams, items_api,
+        library_structure_api, user_api,
+    },
+    models::{self as jmodels, AuthenticateUserByName, AuthenticationResult},
 };
-use qcm_core::db::values::StringVec;
-use qcm_core::global::{APP_NAME, APP_VERSION};
-use qcm_core::http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient};
-use qcm_core::model::{
-    album,
-    album::ActiveModel as AlbumModel,
-    library,
-    provider::{self, ActiveModel as ProviderModel},
+use qcm_core::{
+    anyhow,
+    db::values::StringVec,
+    error::ConnectError,
+    global::{APP_NAME, APP_VERSION},
+    http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
+    provider::{AuthInfo, AuthMethod, Context, Provider, SyncState},
+    Error as AnyError, Result,
 };
-use qcm_core::provider::{AuthInfo, AuthMethod, Context, Provider, SyncState};
-use qcm_core::{anyhow, Result};
+use qcm_core::{
+    error::SyncError,
+    model::{
+        album::{self, ActiveModel as AlbumModel},
+        library,
+        provider::{self, ActiveModel as ProviderModel},
+    },
+};
+use reqwest::Response;
 use sea_orm::*;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
@@ -24,6 +33,7 @@ use std::sync::{Arc, RwLock};
 struct CustomData {
     pub auth_info: AuthInfo,
     pub token: Option<String>,
+    // auth_info: Option<AuthenticationResult>,
 }
 
 struct JellyfinProviderInner {
@@ -32,7 +42,6 @@ struct JellyfinProviderInner {
     name: String,
     config: Option<Configuration>,
     data: CustomData,
-    // auth_info: Option<AuthenticationResult>,
     device_id: String,
 }
 
@@ -95,12 +104,23 @@ impl JellyfinProvider {
         return self.inner.read().unwrap().client.clone();
     }
 
-    async fn sync_libraries(&self, ctx: &Context) -> Result<()> {
-        let config = {
-            let inner = self.inner.read().unwrap();
-            inner.config.clone().ok_or(anyhow!("Not configured"))?
-        };
+    pub fn base_url(&self) -> Option<String> {
+        return self
+            .inner
+            .read()
+            .unwrap()
+            .config
+            .as_ref()
+            .map(|c| c.base_path.clone());
+    }
 
+    pub fn config(&self) -> Option<Configuration> {
+        let inner = self.inner.read().unwrap();
+        return inner.config.clone();
+    }
+
+    async fn sync_libraries(&self, ctx: &Context) -> Result<()> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
         let libraries = library_structure_api::get_virtual_folders(&config).await?;
 
         match libraries.entity {
@@ -132,11 +152,8 @@ impl JellyfinProvider {
         }
     }
 
-    async fn sync_albums(&self, library_id: i64, ctx: &Context) -> Result<()> {
-        let config = {
-            let inner = self.inner.read().unwrap();
-            inner.config.clone().ok_or(anyhow!("Not configured"))?
-        };
+    async fn sync_albums(&self, library_id: i64, ctx: &Context) -> Result<(), SyncError> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
 
         let items = items_api::get_items(
             &config,
@@ -148,7 +165,8 @@ impl JellyfinProvider {
                 ..JFDefault::jf_default()
             },
         )
-        .await?;
+        .await
+        .map_err(AnyError::from)?;
 
         if let Some(items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
@@ -336,5 +354,26 @@ impl Provider for JellyfinProvider {
             self.sync_albums(lib.library_id, ctx).await?;
         }
         Ok(())
+    }
+
+    async fn image(
+        &self,
+        _ctx: &Context,
+        item_id: &str,
+        _image_id: &str,
+    ) -> Result<Response, ConnectError> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
+
+        let rsp = {
+            let req = self
+                .client()
+                .get(format!(
+                    "{0}/Items/{1}/Images/Primary",
+                    config.base_path, item_id
+                ))
+                .build()?;
+            self.client().execute(req).await?
+        };
+        Ok(rsp)
     }
 }
