@@ -1,4 +1,6 @@
-use jellyfin_api::apis::{image_api::GetItemImageParams, items_api::GetItemsParams};
+use jellyfin_api::apis::{
+    artists_api::GetArtistsParams, image_api::GetItemImageParams, items_api::GetItemsParams,
+};
 
 pub trait JFDefault {
     fn jf_default() -> Self;
@@ -117,6 +119,45 @@ impl JFDefault for GetItemsParams {
             genre_ids: None,
             enable_total_record_count: None,
             enable_images: None,
+        }
+    }
+}
+
+impl JFDefault for GetArtistsParams {
+    fn jf_default() -> Self {
+        Self {
+            min_community_rating: None,
+            start_index: None,
+            limit: None,
+            search_term: None,
+            parent_id: None,
+            fields: None,
+            exclude_item_types: None,
+            include_item_types: None,
+            filters: None,
+            is_favorite: None,
+            media_types: None,
+            genres: None,
+            genre_ids: None,
+            official_ratings: None,
+            tags: None,
+            years: None,
+            enable_user_data: None,
+            image_type_limit: None,
+            enable_image_types: None,
+            person: None,
+            person_ids: None,
+            person_types: None,
+            studios: None,
+            studio_ids: None,
+            user_id: None,
+            name_starts_with_or_greater: None,
+            name_starts_with: None,
+            name_less_than: None,
+            sort_by: None,
+            sort_order: None,
+            enable_images: None,
+            enable_total_record_count: None,
         }
     }
 }

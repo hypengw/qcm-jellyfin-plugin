@@ -2,7 +2,7 @@ use crate::default::JFDefault;
 use chrono::{DateTime, Utc};
 use jellyfin_api::{
     apis::{
-        self as japis, configuration::Configuration, image_api::GetItemImageParams, items_api,
+        self as japis, configuration::Configuration, image_api::GetItemImageParams,
         library_structure_api, user_api,
     },
     models::{self as jmodels, AuthenticateUserByName, AuthenticationResult},
@@ -16,18 +16,14 @@ use qcm_core::{
     provider::{AuthInfo, AuthMethod, Context, Provider, SyncState},
     Error as AnyError, Result,
 };
-use qcm_core::{
-    error::SyncError,
-    model::{
-        album::{self, ActiveModel as AlbumModel},
-        library,
-        provider::{self, ActiveModel as ProviderModel},
-    },
-};
+use qcm_core::{error::SyncError, model as sqlm};
 use reqwest::Response;
-use sea_orm::*;
+use sea_orm::{sea_query::IntoIndexColumn, *};
 use serde::{Deserialize, Serialize};
-use std::sync::{Arc, RwLock};
+use std::{
+    ops::Not,
+    sync::{Arc, RwLock},
+};
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 struct CustomData {
@@ -126,7 +122,7 @@ impl JellyfinProvider {
         match libraries.entity {
             Some(library_structure_api::GetVirtualFoldersSuccess::Status200(items)) => {
                 let items = items.iter().filter_map(|item| match &item.item_id {
-                    Some(Some(id)) => Some(library::ActiveModel {
+                    Some(Some(id)) => Some(sqlm::library::ActiveModel {
                         library_id: NotSet,
                         name: Set(item.name.clone().flatten().unwrap_or_default()),
                         provider_id: Set(self.id().unwrap()),
@@ -135,13 +131,16 @@ impl JellyfinProvider {
                     }),
                     _ => None,
                 });
-                library::Entity::insert_many(items)
+                sqlm::library::Entity::insert_many(items)
                     .on_conflict(
                         sea_query::OnConflict::columns([
-                            library::Column::ProviderId,
-                            library::Column::NativeId,
+                            sqlm::library::Column::ProviderId,
+                            sqlm::library::Column::NativeId,
                         ])
-                        .update_columns([library::Column::Name, library::Column::EditTime])
+                        .update_columns([
+                            sqlm::library::Column::Name,
+                            sqlm::library::Column::EditTime,
+                        ])
                         .to_owned(),
                     )
                     .exec(&ctx.db)
@@ -152,39 +151,52 @@ impl JellyfinProvider {
         }
     }
 
-    async fn sync_albums(&self, library_id: i64, ctx: &Context) -> Result<(), SyncError> {
+    async fn sync_albums(
+        &self,
+        library_id: i64,
+        parent_id: &str,
+        ctx: &Context,
+    ) -> Result<(), SyncError> {
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
-        let items = items_api::get_items(
+        let items = japis::items_api::get_items(
             &config,
-            items_api::GetItemsParams {
-                parent_id: None,
+            japis::items_api::GetItemsParams {
+                parent_id: Some(parent_id.to_string()),
                 include_item_types: Some(vec![jmodels::BaseItemKind::MusicAlbum]),
                 recursive: Some(true),
-                fields: Some(vec![jmodels::ItemFields::Genres]),
+                fields: Some(vec![
+                    jmodels::ItemFields::Genres,
+                    jmodels::ItemFields::ChildCount,
+                    jmodels::ItemFields::Overview,
+                ]),
                 ..JFDefault::jf_default()
             },
         )
         .await
         .map_err(AnyError::from)?;
 
-        if let Some(items_api::GetItemsSuccess::Status200(result)) = items.entity {
+        if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
+            let len = result.items.as_ref().map_or(0, |l| l.len());
+            if len == 0 {
+                return Ok(());
+            }
             let albums = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    item.id.map(|id| AlbumModel {
+                    item.id.map(|id| sqlm::album::ActiveModel {
                         id: NotSet,
                         item_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
-                        pic_id: Set(item
-                            .image_tags
-                            .flatten()
-                            .and_then(|m| m.get("Primary").cloned())
-                            .unwrap_or_default()),
+                        // pic_id: Set(item
+                        //     .image_tags
+                        //     .flatten()
+                        //     .and_then(|m| m.get("Primary").cloned())
+                        //     .unwrap_or_default()),
                         publish_time: Set(item
                             .premiere_date
                             .flatten()
@@ -193,33 +205,97 @@ impl JellyfinProvider {
                         track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
                         description: Set(item.overview.flatten().unwrap_or_default()),
                         company: Set(String::new()),
-                        type_: Set("album".to_string()),
-                        genres: Set(item
-                            .genres
-                            .flatten()
-                            .map(|v| StringVec(v))
-                            .unwrap_or_default()),
+                        // genres: Set(item
+                        //     .genres
+                        //     .flatten()
+                        //     .map(|v| StringVec(v))
+                        //     .unwrap_or_default()),
                         edit_time: Set(now),
                     })
                 });
 
-            album::Entity::insert_many(albums)
+            let conflict = [sqlm::album::Column::LibraryId, sqlm::album::Column::ItemId];
+
+            sqlm::album::Entity::insert_many(albums)
                 .on_conflict(
-                    sea_query::OnConflict::columns([
-                        album::Column::LibraryId,
-                        album::Column::ItemId,
-                    ])
-                    .update_columns([
-                        album::Column::Name,
-                        album::Column::PicId,
-                        album::Column::PublishTime,
-                        album::Column::TrackCount,
-                        album::Column::Description,
-                        album::Column::Genres,
-                        album::Column::EditTime,
-                    ])
-                    .to_owned(),
+                    sea_query::OnConflict::columns(conflict)
+                        .update_columns(
+                            sqlm::album::Column::iter()
+                                .filter(|e| !conflict.contains(e))
+                                .collect::<Vec<_>>(),
+                        )
+                        .to_owned(),
                 )
+                .on_empty_do_nothing()
+                .exec(&ctx.db)
+                .await?;
+        }
+
+        Ok(())
+    }
+
+    async fn sync_artists(
+        &self,
+        library_id: i64,
+        parent_id: &str,
+        ctx: &Context,
+    ) -> Result<(), SyncError> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
+
+        let items = japis::artists_api::get_artists(
+            &config,
+            japis::artists_api::GetArtistsParams {
+                parent_id: Some(parent_id.to_string()),
+                fields: Some(vec![jmodels::ItemFields::Overview]),
+                ..JFDefault::jf_default()
+            },
+        )
+        .await
+        .map_err(AnyError::from)?;
+
+        if let Some(japis::artists_api::GetArtistsSuccess::Status200(result)) = items.entity {
+            let now = chrono::Utc::now();
+            let artists = result
+                .items
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|item| {
+                    item.id.map(|id| sqlm::artist::ActiveModel {
+                        id: NotSet,
+                        item_id: Set(id.to_string()),
+                        library_id: Set(library_id),
+                        name: Set(item.name.flatten().unwrap_or_default()),
+                        // pic_id: Set(item
+                        //     .image_tags
+                        //     .flatten()
+                        //     .and_then(|m| m.get("Primary").cloned())
+                        //     .unwrap_or_default()),
+                        music_count: NotSet,
+                        album_count: NotSet,
+                        description: Set(item.overview.flatten().unwrap_or_default()),
+                        edit_time: Set(now),
+                    })
+                });
+
+            let conflict = [
+                sqlm::artist::Column::LibraryId,
+                sqlm::artist::Column::ItemId,
+            ];
+            let exclude = [
+                sqlm::artist::Column::MusicCount,
+                sqlm::artist::Column::AlbumCount,
+            ];
+            sqlm::artist::Entity::insert_many(artists)
+                .on_conflict(
+                    sea_query::OnConflict::columns(conflict)
+                        .update_columns(
+                            sqlm::artist::Column::iter()
+                                .filter(|e| !conflict.contains(e) && !exclude.contains(e))
+                                .collect::<Vec<_>>(),
+                        )
+                        .to_owned(),
+                )
+                .on_empty_do_nothing()
                 .exec(&ctx.db)
                 .await?;
         }
@@ -250,7 +326,7 @@ impl Provider for JellyfinProvider {
         JellyfinProvider::type_name()
     }
 
-    fn from_model(&self, model: &provider::Model) -> Result<()> {
+    fn from_model(&self, model: &sqlm::provider::Model) -> Result<()> {
         let custom_data: CustomData = serde_json::from_str(&model.custom)
             .map_err(|e| anyhow!("Failed to parse custom data: {}", e))?;
 
@@ -280,9 +356,9 @@ impl Provider for JellyfinProvider {
         Ok(())
     }
 
-    fn to_model(&self) -> ProviderModel {
+    fn to_model(&self) -> sqlm::provider::ActiveModel {
         let inner = self.inner.read().unwrap();
-        let provider = ProviderModel {
+        let provider = sqlm::provider::ActiveModel {
             provider_id: match self.id() {
                 Some(id) => Set(id),
                 None => NotSet,
@@ -346,12 +422,15 @@ impl Provider for JellyfinProvider {
     async fn sync(&self, ctx: &Context) -> Result<()> {
         self.sync_libraries(ctx).await?;
 
-        let libraries = library::Entity::find()
-            .filter(library::Column::ProviderId.eq(self.id().unwrap()))
+        let libraries = sqlm::library::Entity::find()
+            .filter(sqlm::library::Column::ProviderId.eq(self.id().unwrap()))
             .all(&ctx.db)
             .await?;
         for lib in libraries {
-            self.sync_albums(lib.library_id, ctx).await?;
+            self.sync_albums(lib.library_id, &lib.native_id, ctx)
+                .await?;
+            self.sync_artists(lib.library_id, &lib.native_id, ctx)
+                .await?;
         }
         Ok(())
     }
