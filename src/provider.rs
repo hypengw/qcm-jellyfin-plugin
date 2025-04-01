@@ -180,7 +180,7 @@ impl JellyfinProvider {
         if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
 
-            let mut album_artists: BTreeMap<uuid::Uuid, uuid::Uuid> = BTreeMap::new();
+            let mut album_artists: Vec<(String, String)> = Vec::new();
             // First sync albums
             let albums = result
                 .items
@@ -190,7 +190,7 @@ impl JellyfinProvider {
                     if let (Some(id), Some(artists)) = (item.id, item.artist_items.flatten()) {
                         for a in artists {
                             if let Some(a_id) = a.id {
-                                album_artists.insert(id, a_id);
+                                album_artists.push((id.to_string(), a_id.to_string()));
                             }
                         }
                     }
@@ -245,7 +245,22 @@ impl JellyfinProvider {
                     sqlm::rel_album_artist::Column::AlbumId,
                     sqlm::rel_album_artist::Column::ArtistId,
                 ];
-                use sea_query::Expr;
+                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
+
+                let with_clause = WithClause::new()
+                    .cte(
+                        CommonTableExpression::new()
+                            .query(
+                                Query::select()
+                                    .column(Asterisk)
+                                    .from_values(album_artists, Alias::new("input"))
+                                    .to_owned(),
+                            )
+                            .columns([Alias::new("album_item_id"), Alias::new("artist_item_id")])
+                            .table_name(Alias::new("item_id_map"))
+                            .to_owned(),
+                    )
+                    .to_owned();
 
                 let relations = sea_query::Query::select()
                     .expr(Expr::col((
@@ -257,17 +272,18 @@ impl JellyfinProvider {
                     .expr(Expr::value(now))
                     .from(sqlm::album::Entity)
                     .inner_join(
+                        Alias::new("item_id_map"),
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
+                            .equals((Alias::new("item_id_map"), Alias::new("album_item_id"))),
+                    )
+                    .inner_join(
                         sqlm::artist::Entity,
                         Expr::col((sqlm::album::Entity, sqlm::album::Column::LibraryId))
                             .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
                     )
                     .and_where(
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
-                            .is_in(album_artists.iter().map(|(a, _)| a.to_string())),
-                    )
-                    .and_where(
                         Expr::col((sqlm::artist::Entity, sqlm::artist::Column::ItemId))
-                            .is_in(album_artists.iter().map(|(_, a)| a.to_string())),
+                            .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
                     )
                     .to_owned();
 
@@ -286,6 +302,8 @@ impl JellyfinProvider {
                             .update_column(sqlm::rel_album_artist::Column::EditTime)
                             .to_owned(),
                     )
+                    .to_owned()
+                    .with(with_clause)
                     .to_owned();
                 let builder = ctx.db.get_database_backend();
                 ctx.db.execute(builder.build(&stmt)).await?;
