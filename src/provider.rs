@@ -418,6 +418,7 @@ impl JellyfinProvider {
             let now = chrono::Utc::now();
 
             let mut song_album_maps: Vec<(String, String)> = Vec::new();
+            let mut song_artist_maps: Vec<(String, String)> = Vec::new();
 
             let songs = result
                 .items
@@ -429,6 +430,15 @@ impl JellyfinProvider {
                         (item.id.as_ref(), item.album_id.as_ref())
                     {
                         song_album_maps.push((id.to_string(), album_id.to_string()));
+                    }
+                    if let (Some(id), Some(Some(artist_items))) =
+                        (item.id.as_ref(), item.artist_items.as_ref())
+                    {
+                        for ar in artist_items {
+                            if let Some(ar_id) = ar.id {
+                                song_artist_maps.push((id.to_string(), ar_id.to_string()));
+                            }
+                        }
                     }
 
                     item.id.map(|id| sqlm::song::ActiveModel {
@@ -541,6 +551,74 @@ impl JellyfinProvider {
                     builder.build(&stmt).to_string()
                 );
                 txn.execute(Statement::from_string(builder, raw)).await?;
+            }
+
+            if !song_artist_maps.is_empty() {
+                let conflict = [
+                    sqlm::rel_song_artist::Column::LibraryId,
+                    sqlm::rel_song_artist::Column::SongId,
+                    sqlm::rel_song_artist::Column::ArtistId,
+                ];
+                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
+
+                let with_clause = WithClause::new()
+                    .cte(
+                        CommonTableExpression::new()
+                            .query(
+                                Query::select()
+                                    .column(Asterisk)
+                                    .from_values(song_artist_maps, Alias::new("input"))
+                                    .to_owned(),
+                            )
+                            .columns([Alias::new("song_item_id"), Alias::new("artist_item_id")])
+                            .table_name(Alias::new("item_id_map"))
+                            .to_owned(),
+                    )
+                    .to_owned();
+
+                let relations = sea_query::Query::select()
+                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId)))
+                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
+                    .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
+                    .expr(Expr::value(now))
+                    .from(sqlm::song::Entity)
+                    .inner_join(
+                        Alias::new("item_id_map"),
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::ItemId))
+                            .equals((Alias::new("item_id_map"), Alias::new("song_item_id"))),
+                    )
+                    .inner_join(
+                        sqlm::artist::Entity,
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId))
+                            .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
+                    )
+                    .and_where(
+                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::ItemId))
+                            .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
+                    )
+                    .to_owned();
+
+                let stmt = sea_query::Query::insert()
+                    .into_table(sqlm::rel_song_artist::Entity)
+                    .columns([
+                        sqlm::rel_song_artist::Column::LibraryId,
+                        sqlm::rel_song_artist::Column::SongId,
+                        sqlm::rel_song_artist::Column::ArtistId,
+                        sqlm::rel_song_artist::Column::EditTime,
+                    ])
+                    .select_from(relations)
+                    .unwrap()
+                    .on_conflict(
+                        sea_query::OnConflict::columns(conflict)
+                            .update_column(sqlm::rel_song_artist::Column::EditTime)
+                            .to_owned(),
+                    )
+                    .to_owned()
+                    .with(with_clause)
+                    .to_owned();
+
+                let builder = txn.get_database_backend();
+                txn.execute(builder.build(&stmt)).await?;
             }
 
             txn.commit().await?;
