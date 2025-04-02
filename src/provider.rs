@@ -350,11 +350,6 @@ impl JellyfinProvider {
                         item_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
-                        // pic_id: Set(item
-                        //     .image_tags
-                        //     .flatten()
-                        //     .and_then(|m| m.get("Primary").cloned())
-                        //     .unwrap_or_default()),
                         music_count: Set(0),
                         album_count: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
@@ -421,16 +416,26 @@ impl JellyfinProvider {
 
         if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
+
+            let mut song_album_maps: Vec<(String, String)> = Vec::new();
+
             let songs = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
+                    // Collect song-album mapping
+                    if let (Some(id), Some(Some(album_id))) =
+                        (item.id.as_ref(), item.album_id.as_ref())
+                    {
+                        song_album_maps.push((id.to_string(), album_id.to_string()));
+                    }
+
                     item.id.map(|id| sqlm::song::ActiveModel {
                         id: NotSet,
                         item_id: Set(id.to_string()),
                         library_id: Set(library_id),
-                        album_id: Set(None), // We'll need to update this later
+                        album_id: Set(None),
                         name: Set(item.name.flatten().unwrap_or_default()),
                         can_play: Set(true),
                         track_number: Set(item.index_number.flatten().unwrap_or_default()),
@@ -468,6 +473,74 @@ impl JellyfinProvider {
                     .on_empty_do_nothing()
                     .exec(&txn)
                     .await?;
+            }
+
+            if !song_album_maps.is_empty() {
+                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
+                let al_item_id_map = Alias::new("item_id_map");
+
+                let relations = sea_query::Query::select()
+                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
+                    .expr(Expr::col((sqlm::album::Entity, sqlm::album::Column::Id)))
+                    .from(sqlm::song::Entity)
+                    .inner_join(
+                        al_item_id_map.clone(),
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::ItemId))
+                            .equals((al_item_id_map.clone(), Alias::new("song_item_id"))),
+                    )
+                    .inner_join(
+                        sqlm::album::Entity,
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
+                            .equals((al_item_id_map.clone(), Alias::new("album_item_id"))),
+                    )
+                    .and_where(
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId))
+                            .eq(library_id),
+                    )
+                    .to_owned();
+
+                let with_clause = WithClause::new()
+                    .cte(
+                        CommonTableExpression::new()
+                            .query(
+                                Query::select()
+                                    .column(Asterisk)
+                                    .from_values(song_album_maps, Alias::new("input"))
+                                    .to_owned(),
+                            )
+                            .columns([Alias::new("song_item_id"), Alias::new("album_item_id")])
+                            .table_name(al_item_id_map.clone())
+                            .to_owned(),
+                    )
+                    .cte(
+                        CommonTableExpression::new()
+                            .query(relations)
+                            .columns([Alias::new("id"), Alias::new("album_id")])
+                            .table_name(Alias::new("res"))
+                            .to_owned(),
+                    )
+                    .to_owned();
+
+                let builder = txn.get_database_backend();
+                let stmt = sea_query::Query::update()
+                    .table(sqlm::song::Entity)
+                    .value(
+                        sqlm::song::Column::AlbumId,
+                        Expr::col((Alias::new("res"), Alias::new("album_id"))),
+                    )
+                    .to_owned()
+                    .with(with_clause)
+                    .to_owned();
+
+                let raw = format!(
+                    "
+                {}
+                FROM res
+                WHERE res.id = song.id
+                ",
+                    builder.build(&stmt).to_string()
+                );
+                txn.execute(Statement::from_string(builder, raw)).await?;
             }
 
             txn.commit().await?;
