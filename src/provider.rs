@@ -9,10 +9,11 @@ use jellyfin_api::{
 };
 use qcm_core::{
     anyhow,
-    db::IteratorConstChunks,
+    db::{columns_contains, IteratorConstChunks},
     error::ConnectError,
     global::{APP_NAME, APP_VERSION},
     http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
+    model::type_enum::ImageType,
     provider::{AuthInfo, AuthMethod, Context, Provider, SyncState},
     Error as AnyError, Result,
 };
@@ -197,7 +198,7 @@ impl JellyfinProvider {
 
                     item.id.map(|id| sqlm::album::ActiveModel {
                         id: NotSet,
-                        item_id: Set(id.to_string()),
+                        native_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
                         // pic_id: Set(item
@@ -222,7 +223,10 @@ impl JellyfinProvider {
                     })
                 });
 
-            let conflict = [sqlm::album::Column::LibraryId, sqlm::album::Column::ItemId];
+            let conflict = [
+                sqlm::album::Column::LibraryId,
+                sqlm::album::Column::NativeId,
+            ];
             let exclude = [sqlm::album::Column::Id];
 
             let txn = ctx.db.begin().await?;
@@ -233,7 +237,10 @@ impl JellyfinProvider {
                         sea_query::OnConflict::columns(conflict)
                             .update_columns(
                                 sqlm::album::Column::iter()
-                                    .filter(|e| !conflict.contains(e) && !exclude.contains(e))
+                                    .filter(|e| {
+                                        !columns_contains(&conflict, e)
+                                            && !columns_contains(&exclude, e)
+                                    })
                                     .collect::<Vec<_>>(),
                             )
                             .to_owned(),
@@ -277,7 +284,7 @@ impl JellyfinProvider {
                     .from(sqlm::album::Entity)
                     .inner_join(
                         Alias::new("item_id_map"),
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("album_item_id"))),
                     )
                     .inner_join(
@@ -286,7 +293,7 @@ impl JellyfinProvider {
                             .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
                     )
                     .and_where(
-                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::ItemId))
+                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
                     )
                     .to_owned();
@@ -347,7 +354,7 @@ impl JellyfinProvider {
                 .filter_map(|item| {
                     item.id.map(|id| sqlm::artist::ActiveModel {
                         id: NotSet,
-                        item_id: Set(id.to_string()),
+                        native_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
                         music_count: Set(0),
@@ -359,7 +366,7 @@ impl JellyfinProvider {
 
             let conflict = [
                 sqlm::artist::Column::LibraryId,
-                sqlm::artist::Column::ItemId,
+                sqlm::artist::Column::NativeId,
             ];
             let exclude = [
                 sqlm::artist::Column::Id,
@@ -375,7 +382,10 @@ impl JellyfinProvider {
                         sea_query::OnConflict::columns(conflict)
                             .update_columns(
                                 sqlm::artist::Column::iter()
-                                    .filter(|e| !conflict.contains(e) && !exclude.contains(e))
+                                    .filter(|e| {
+                                        !columns_contains(&conflict, e)
+                                            && !columns_contains(&exclude, e)
+                                    })
                                     .collect::<Vec<_>>(),
                             )
                             .to_owned(),
@@ -443,16 +453,15 @@ impl JellyfinProvider {
 
                     item.id.map(|id| sqlm::song::ActiveModel {
                         id: NotSet,
-                        item_id: Set(id.to_string()),
+                        native_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         album_id: Set(None),
                         name: Set(item.name.flatten().unwrap_or_default()),
                         can_play: Set(true),
                         track_number: Set(item.index_number.flatten().unwrap_or_default()),
                         disc_number: Set(item.parent_index_number.flatten().unwrap_or_default()),
-                        duration: Set(
-                            item.run_time_ticks.flatten().unwrap_or_default() as f64 / 1000.0
-                        ),
+                        // it's 1e7
+                        duration: Set(item.run_time_ticks.flatten().unwrap_or_default() / 10),
                         edit_time: Set(now),
                         popularity: Set(0.0),
                         publish_time: Set(item
@@ -464,7 +473,7 @@ impl JellyfinProvider {
                     })
                 });
 
-            let conflict = [sqlm::song::Column::LibraryId, sqlm::song::Column::ItemId];
+            let conflict = [sqlm::song::Column::LibraryId, sqlm::song::Column::NativeId];
             let exclude = [sqlm::song::Column::Id];
 
             let txn = ctx.db.begin().await?;
@@ -475,7 +484,10 @@ impl JellyfinProvider {
                         sea_query::OnConflict::columns(conflict)
                             .update_columns(
                                 sqlm::song::Column::iter()
-                                    .filter(|e| !conflict.contains(e) && !exclude.contains(e))
+                                    .filter(|e| {
+                                        !columns_contains(&conflict, e)
+                                            && !columns_contains(&exclude, e)
+                                    })
                                     .collect::<Vec<_>>(),
                             )
                             .to_owned(),
@@ -495,12 +507,12 @@ impl JellyfinProvider {
                     .from(sqlm::song::Entity)
                     .inner_join(
                         al_item_id_map.clone(),
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::ItemId))
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::NativeId))
                             .equals((al_item_id_map.clone(), Alias::new("song_item_id"))),
                     )
                     .inner_join(
                         sqlm::album::Entity,
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::ItemId))
+                        Expr::col((sqlm::album::Entity, sqlm::album::Column::NativeId))
                             .equals((al_item_id_map.clone(), Alias::new("album_item_id"))),
                     )
                     .and_where(
@@ -577,14 +589,17 @@ impl JellyfinProvider {
                     .to_owned();
 
                 let relations = sea_query::Query::select()
-                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId)))
+                    .expr(Expr::col((
+                        sqlm::song::Entity,
+                        sqlm::song::Column::LibraryId,
+                    )))
                     .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
                     .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
                     .expr(Expr::value(now))
                     .from(sqlm::song::Entity)
                     .inner_join(
                         Alias::new("item_id_map"),
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::ItemId))
+                        Expr::col((sqlm::song::Entity, sqlm::song::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("song_item_id"))),
                     )
                     .inner_join(
@@ -593,7 +608,7 @@ impl JellyfinProvider {
                             .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
                     )
                     .and_where(
-                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::ItemId))
+                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
                     )
                     .to_owned();
@@ -766,7 +781,7 @@ impl Provider for JellyfinProvider {
         &self,
         _ctx: &Context,
         item_id: &str,
-        _image_id: &str,
+        image_type: ImageType,
     ) -> Result<Response, ConnectError> {
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
@@ -774,11 +789,33 @@ impl Provider for JellyfinProvider {
             let req = self
                 .client()
                 .get(format!(
-                    "{0}/Items/{1}/Images/Primary",
-                    config.base_path, item_id
+                    "{0}/Items/{1}/Images/{2}",
+                    config.base_path,
+                    item_id,
+                    image_type.to_string()
                 ))
                 .build()?;
             self.client().execute(req).await?
+        };
+        Ok(rsp)
+    }
+
+    async fn audio(
+        &self,
+        _ctx: &Context,
+        item_id: &str,
+        headers: Option<qcm_core::http::HeaderMap>,
+    ) -> Result<Response, ConnectError> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
+
+        let rsp = {
+            let mut req = self
+                .client()
+                .get(format!("{0}/Audio/{1}/stream", config.base_path, item_id));
+            if let Some(headers) = headers {
+                req = req.headers(headers);
+            }
+            self.client().execute(req.build()?).await?
         };
         Ok(rsp)
     }
