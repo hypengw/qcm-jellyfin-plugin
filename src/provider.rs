@@ -21,7 +21,7 @@ use qcm_core::{error::SyncError, model as sqlm};
 use reqwest::Response;
 use sea_orm::{sea_query::IntoIndexColumn, *};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, str::FromStr};
 use std::{
     ops::Not,
     sync::{Arc, RwLock},
@@ -784,6 +784,7 @@ impl Provider for JellyfinProvider {
         image_type: ImageType,
     ) -> Result<Response, ConnectError> {
         let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let item_id = uuid::Uuid::from_str(item_id)?;
 
         let rsp = {
             let req = self
@@ -807,15 +808,22 @@ impl Provider for JellyfinProvider {
         headers: Option<qcm_core::http::HeaderMap>,
     ) -> Result<Response, ConnectError> {
         let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let item_id = uuid::Uuid::from_str(item_id)?;
 
         let rsp = {
             let mut req = self
                 .client()
-                .get(format!("{0}/Audio/{1}/stream", config.base_path, item_id));
-            if let Some(headers) = headers {
+                .get(format!(
+                    "{0}/Audio/{1}/stream",
+                    config.base_path,
+                    item_id
+                ))
+                .query(&[("static", "true")]);
+            if let Some(headers) = headers.clone() {
                 req = req.headers(headers);
             }
-            self.client().execute(req.build()?).await?
+            let req = req.build()?;
+            self.client().execute(req).await?
         };
         Ok(rsp)
     }
