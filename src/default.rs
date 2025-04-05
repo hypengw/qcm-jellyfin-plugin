@@ -1,5 +1,6 @@
 use jellyfin_api::apis::{
     artists_api::GetArtistsParams, image_api::GetItemImageParams, items_api::GetItemsParams,
+    playlists_api::GetPlaylistItemsParams,
 };
 
 pub trait JFDefault {
@@ -158,6 +159,22 @@ impl JFDefault for GetArtistsParams {
             sort_order: None,
             enable_images: None,
             enable_total_record_count: None,
+        }
+    }
+}
+
+impl JFDefault for GetPlaylistItemsParams {
+    fn jf_default() -> Self {
+        Self {
+            playlist_id: String::new(),
+            user_id: None,
+            start_index: None,
+            limit: None,
+            fields: None,
+            enable_images: None,
+            enable_user_data: None,
+            image_type_limit: None,
+            enable_image_types: None,
         }
     }
 }

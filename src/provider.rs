@@ -19,13 +19,17 @@ use qcm_core::{
 };
 use qcm_core::{error::SyncError, model as sqlm};
 use reqwest::Response;
-use sea_orm::{sea_query::IntoIndexColumn, *};
+use sea_orm::{
+    sea_query::{IntoIden, IntoIndexColumn},
+    *,
+};
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, str::FromStr};
 use std::{
     ops::Not,
     sync::{Arc, RwLock},
 };
+use strum::IntoEnumIterator;
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 struct CustomData {
@@ -133,20 +137,16 @@ impl JellyfinProvider {
                     }),
                     _ => None,
                 });
-                sqlm::library::Entity::insert_many(items)
-                    .on_conflict(
-                        sea_query::OnConflict::columns([
-                            sqlm::library::Column::ProviderId,
-                            sqlm::library::Column::NativeId,
-                        ])
-                        .update_columns([
-                            sqlm::library::Column::Name,
-                            sqlm::library::Column::EditTime,
-                        ])
-                        .to_owned(),
-                    )
-                    .exec(&ctx.db)
-                    .await?;
+
+                let txn = ctx.db.begin().await?;
+                let conflict = [
+                    sqlm::library::Column::ProviderId,
+                    sqlm::library::Column::NativeId,
+                ];
+                let exclude = [sqlm::library::Column::LibraryId];
+                db_insert(&txn, items, &conflict, &exclude).await?;
+
+                txn.commit().await?;
                 Ok(())
             }
             _ => Err(anyhow!("[jellyfin] no folder found")),
@@ -231,28 +231,20 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
 
-            for iter in albums.const_chunks::<50>() {
-                sqlm::album::Entity::insert_many(iter)
-                    .on_conflict(
-                        sea_query::OnConflict::columns(conflict)
-                            .update_columns(
-                                sqlm::album::Column::iter()
-                                    .filter(|e| {
-                                        !columns_contains(&conflict, e)
-                                            && !columns_contains(&exclude, e)
-                                    })
-                                    .collect::<Vec<_>>(),
-                            )
-                            .to_owned(),
-                    )
-                    .on_empty_do_nothing()
-                    .exec(&txn)
-                    .await?;
+            let mut chunks = albums.const_chunks::<50>();
+            for iter in &mut chunks {
+                db_insert(&txn, iter, &conflict, &exclude).await?;
             }
+            db_insert(
+                &txn,
+                chunks.into_remainder().unwrap().into_iter(),
+                &conflict,
+                &exclude,
+            )
+            .await?;
 
             if !album_artists.is_empty() {
                 let conflict = [
-                    sqlm::rel_album_artist::Column::LibraryId,
                     sqlm::rel_album_artist::Column::AlbumId,
                     sqlm::rel_album_artist::Column::ArtistId,
                 ];
@@ -376,24 +368,18 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
 
-            for iter in artists.const_chunks::<50>() {
-                sqlm::artist::Entity::insert_many(iter)
-                    .on_conflict(
-                        sea_query::OnConflict::columns(conflict)
-                            .update_columns(
-                                sqlm::artist::Column::iter()
-                                    .filter(|e| {
-                                        !columns_contains(&conflict, e)
-                                            && !columns_contains(&exclude, e)
-                                    })
-                                    .collect::<Vec<_>>(),
-                            )
-                            .to_owned(),
-                    )
-                    .on_empty_do_nothing()
-                    .exec(&txn)
-                    .await?;
+            let mut chunks = artists.const_chunks::<50>();
+            for iter in &mut chunks {
+                db_insert(&txn, iter, &conflict, &exclude).await?;
             }
+            db_insert(
+                &txn,
+                chunks.into_remainder().unwrap().into_iter(),
+                &conflict,
+                &exclude,
+            )
+            .await?;
+
             txn.commit().await?;
         }
 
@@ -478,24 +464,17 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
 
-            for iter in songs.const_chunks::<50>() {
-                sqlm::song::Entity::insert_many(iter)
-                    .on_conflict(
-                        sea_query::OnConflict::columns(conflict)
-                            .update_columns(
-                                sqlm::song::Column::iter()
-                                    .filter(|e| {
-                                        !columns_contains(&conflict, e)
-                                            && !columns_contains(&exclude, e)
-                                    })
-                                    .collect::<Vec<_>>(),
-                            )
-                            .to_owned(),
-                    )
-                    .on_empty_do_nothing()
-                    .exec(&txn)
-                    .await?;
+            let mut chunks = songs.const_chunks::<50>();
+            for iter in &mut chunks {
+                db_insert(&txn, iter, &conflict, &exclude).await?;
             }
+            db_insert(
+                &txn,
+                chunks.into_remainder().unwrap().into_iter(),
+                &conflict,
+                &exclude,
+            )
+            .await?;
 
             if !song_album_maps.is_empty() {
                 use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
@@ -567,7 +546,6 @@ impl JellyfinProvider {
 
             if !song_artist_maps.is_empty() {
                 let conflict = [
-                    sqlm::rel_song_artist::Column::LibraryId,
                     sqlm::rel_song_artist::Column::SongId,
                     sqlm::rel_song_artist::Column::ArtistId,
                 ];
@@ -635,6 +613,179 @@ impl JellyfinProvider {
                 let builder = txn.get_database_backend();
                 txn.execute(builder.build(&stmt)).await?;
             }
+
+            txn.commit().await?;
+        }
+
+        Ok(())
+    }
+
+    async fn sync_mixes(&self, provider_id: i64, ctx: &Context) -> Result<(), SyncError> {
+        let config = self.config().ok_or(ConnectError::NotAuth)?;
+
+        let items = japis::items_api::get_items(
+            &config,
+            japis::items_api::GetItemsParams {
+                parent_id: None,
+                include_item_types: Some(vec![jmodels::BaseItemKind::Playlist]),
+                recursive: Some(true),
+                fields: Some(vec![
+                    jmodels::ItemFields::Overview,
+                    jmodels::ItemFields::Tags,
+                ]),
+                ..JFDefault::jf_default()
+            },
+        )
+        .await
+        .map_err(AnyError::from)?;
+
+        if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
+            let now = chrono::Utc::now();
+            // let mut mix_song_maps: Vec<(String, String)> = Vec::new();
+
+            let mixes = result
+                .items
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|item| {
+                    // Collect mix-song mapping if item has child items
+                    // if let (Some(id), Some(child_count)) =
+                    //     (item.id.as_ref(), item.child_count.flatten())
+                    // {
+                    //     if child_count > 0 {
+                    //         // if let Ok(child_items) = japis::playlists_api::get_playlist_items(
+                    //         //     &config,
+                    //         //     japis::playlists_api::GetPlaylistItemsParams {
+                    //         //         playlist_id: id.to_string(),
+                    //         //         ..JFDefault::jf_default()
+                    //         //     },
+                    //         // )
+                    //         // .await
+                    //         {
+                    //             if let Some(
+                    //                 japis::playlists_api::GetPlaylistItemsSuccess::Status200(
+                    //                     child_result,
+                    //                 ),
+                    //             ) = child_items.entity
+                    //             {
+                    //                 for child in child_result.items.unwrap_or_default() {
+                    //                     if let Some(child_id) = child.id {
+                    //                         mix_song_maps
+                    //                             .push((id.to_string(), child_id.to_string()));
+                    //                     }
+                    //                 }
+                    //             }
+                    //         }
+                    //     }
+                    // }
+
+                    item.id.map(|id| sqlm::mix::ActiveModel {
+                        id: NotSet,
+                        native_id: Set(id.to_string()),
+                        provider_id: Set(provider_id),
+                        name: Set(item.name.flatten().unwrap_or_default()),
+                        track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
+                        special_type: Set(0),
+                        description: Set(item.overview.flatten().unwrap_or_default()),
+                        tags: Set(item.tags.flatten().unwrap_or_default().into()),
+                        create_time: Set(item
+                            .date_created
+                            .flatten()
+                            .and_then(|d| d.parse().ok())
+                            .unwrap_or(now)),
+                        update_time: Set(item
+                            .date_last_media_added
+                            .flatten()
+                            .and_then(|d| d.parse().ok())
+                            .unwrap_or(now)),
+                        edit_time: Set(now),
+                    })
+                });
+
+            let conflict = [sqlm::mix::Column::ProviderId, sqlm::mix::Column::NativeId];
+            let exclude = [sqlm::mix::Column::Id];
+
+            let txn = ctx.db.begin().await?;
+
+            let mut chunks = mixes.const_chunks::<50>();
+            for iter in &mut chunks {
+                db_insert(&txn, iter, &conflict, &exclude).await?;
+            }
+            db_insert(
+                &txn,
+                chunks.into_remainder().unwrap().into_iter(),
+                &conflict,
+                &exclude,
+            )
+            .await?;
+
+            // Handle mix-song relationships
+            // if !mix_song_maps.is_empty() {
+            //     use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
+
+            //     let with_clause = WithClause::new()
+            //         .cte(
+            //             CommonTableExpression::new()
+            //                 .query(
+            //                     Query::select()
+            //                         .column(Asterisk)
+            //                         .from_values(mix_song_maps, Alias::new("input"))
+            //                         .to_owned(),
+            //                 )
+            //                 .columns([Alias::new("mix_item_id"), Alias::new("song_item_id")])
+            //                 .table_name(Alias::new("item_id_map"))
+            //                 .to_owned(),
+            //         )
+            //         .to_owned();
+
+            //     let relations = sea_query::Query::select()
+            //         .expr(Expr::col((sqlm::mix::Entity, sqlm::mix::Column::LibraryId)))
+            //         .expr(Expr::col((sqlm::mix::Entity, sqlm::mix::Column::Id)))
+            //         .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
+            //         .expr(Expr::value(now))
+            //         .from(sqlm::mix::Entity)
+            //         .inner_join(
+            //             Alias::new("item_id_map"),
+            //             Expr::col((sqlm::mix::Entity, sqlm::mix::Column::NativeId))
+            //                 .equals((Alias::new("item_id_map"), Alias::new("mix_item_id"))),
+            //         )
+            //         .inner_join(
+            //             sqlm::song::Entity,
+            //             Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId))
+            //                 .equals((sqlm::mix::Entity, sqlm::mix::Column::LibraryId)),
+            //         )
+            //         .and_where(
+            //             Expr::col((sqlm::song::Entity, sqlm::song::Column::NativeId))
+            //                 .equals((Alias::new("item_id_map"), Alias::new("song_item_id"))),
+            //         )
+            //         .to_owned();
+
+            //     let stmt = sea_query::Query::insert()
+            //         .into_table(sqlm::rel_mix_song::Entity)
+            //         .columns([
+            //             sqlm::rel_mix_song::Column::LibraryId,
+            //             sqlm::rel_mix_song::Column::MixId,
+            //             sqlm::rel_mix_song::Column::SongId,
+            //             sqlm::rel_mix_song::Column::EditTime,
+            //         ])
+            //         .select_from(relations)
+            //         .unwrap()
+            //         .on_conflict(
+            //             sea_query::OnConflict::columns([
+            //                 sqlm::rel_mix_song::Column::LibraryId,
+            //                 sqlm::rel_mix_song::Column::MixId,
+            //                 sqlm::rel_mix_song::Column::SongId,
+            //             ])
+            //             .update_column(sqlm::rel_mix_song::Column::EditTime)
+            //             .to_owned(),
+            //         )
+            //         .to_owned()
+            //         .with(with_clause)
+            //         .to_owned();
+
+            //     let builder = txn.get_database_backend();
+            //     txn.execute(builder.build(&stmt)).await?;
+            // }
 
             txn.commit().await?;
         }
@@ -765,14 +916,16 @@ impl Provider for JellyfinProvider {
             .filter(sqlm::library::Column::ProviderId.eq(self.id().unwrap()))
             .all(&ctx.db)
             .await?;
-        for lib in libraries {
+
+        for lib in &libraries {
             self.sync_artists(lib.library_id, &lib.native_id, ctx)
                 .await?;
             self.sync_albums(lib.library_id, &lib.native_id, ctx)
                 .await?;
             self.sync_songs(lib.library_id, &lib.native_id, ctx).await?;
-
-            // TODO: drop by time
+        }
+        if let Some(lib) = libraries.iter().next() {
+            self.sync_mixes(lib.provider_id, ctx).await?;
         }
         Ok(())
     }
@@ -813,11 +966,7 @@ impl Provider for JellyfinProvider {
         let rsp = {
             let mut req = self
                 .client()
-                .get(format!(
-                    "{0}/Audio/{1}/stream",
-                    config.base_path,
-                    item_id
-                ))
+                .get(format!("{0}/Audio/{1}/stream", config.base_path, item_id))
                 .query(&[("static", "true")]);
             if let Some(headers) = headers.clone() {
                 req = req.headers(headers);
@@ -827,4 +976,33 @@ impl Provider for JellyfinProvider {
         };
         Ok(rsp)
     }
+}
+
+async fn db_insert<Et, Col, A, I>(
+    txn: &DatabaseTransaction,
+    iter: I,
+    conflict: &[Col],
+    exclude: &[Col],
+) -> Result<TryInsertResult<InsertResult<A>>, sea_orm::DbErr>
+where
+    Et: EntityTrait,
+    Col: IntoIden + Copy + IntoEnumIterator,
+    A: ActiveModelTrait<Entity = Et>,
+    I: IntoIterator<Item = A>,
+{
+    Et::insert_many(iter)
+        .on_conflict(
+            sea_query::OnConflict::columns(conflict.iter().map(|c| c.clone()))
+                .update_columns(
+                    Col::iter()
+                        .filter(|e| {
+                            !columns_contains(&conflict, e) && !columns_contains(&exclude, e)
+                        })
+                        .collect::<Vec<_>>(),
+                )
+                .to_owned(),
+        )
+        .on_empty_do_nothing()
+        .exec(txn)
+        .await
 }
