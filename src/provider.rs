@@ -11,8 +11,7 @@ use qcm_core::{
     anyhow,
     db::{columns_contains, IteratorConstChunks},
     error::ConnectError,
-    event::Event as CoreEvent,
-    event::{SyncEventAct, SyncEventMsg},
+    event::{Event as CoreEvent, SyncCommit},
     global::{APP_NAME, APP_VERSION},
     http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
     model::type_enum::ImageType,
@@ -199,12 +198,10 @@ impl JellyfinProvider {
                         }
                     }
 
-                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
                         id: self_id,
-                        album: 1,
-                        action: SyncEventAct::Add,
-                        ..Default::default()
-                    }));
+                        commit: SyncCommit::AddAlbum(1),
+                    });
 
                     item.id.map(|id| sqlm::album::ActiveModel {
                         id: NotSet,
@@ -352,12 +349,10 @@ impl JellyfinProvider {
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
                         id: self_id,
-                        artist: 1,
-                        action: SyncEventAct::Add,
-                        ..Default::default()
-                    }));
+                        commit: SyncCommit::AddArtist(1),
+                    });
                     item.id.map(|id| sqlm::artist::ActiveModel {
                         id: NotSet,
                         native_id: Set(id.to_string()),
@@ -448,12 +443,10 @@ impl JellyfinProvider {
                         }
                     }
 
-                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
                         id: self_id,
-                        song: 1,
-                        action: SyncEventAct::Add,
-                        ..Default::default()
-                    }));
+                        commit: SyncCommit::AddSong(1),
+                    });
 
                     item.id.map(|id| sqlm::song::ActiveModel {
                         id: NotSet,
