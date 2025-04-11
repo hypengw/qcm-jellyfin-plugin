@@ -11,10 +11,12 @@ use qcm_core::{
     anyhow,
     db::{columns_contains, IteratorConstChunks},
     error::ConnectError,
+    event::Event as CoreEvent,
+    event::{SyncEventAct, SyncEventMsg},
     global::{APP_NAME, APP_VERSION},
     http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
     model::type_enum::ImageType,
-    provider::{AuthInfo, AuthMethod, Context, Provider, SyncState},
+    provider::{AuthInfo, AuthMethod, Context, Provider},
     Error as AnyError, Result,
 };
 use qcm_core::{error::SyncError, model as sqlm};
@@ -133,7 +135,7 @@ impl JellyfinProvider {
                         name: Set(item.name.clone().flatten().unwrap_or_default()),
                         provider_id: Set(self.id().unwrap()),
                         native_id: Set(id.to_string()),
-                        edit_time: Set(chrono::Local::now().naive_local()),
+                        edit_time: Set(chrono::Local::now().to_utc()),
                     }),
                     _ => None,
                 });
@@ -159,6 +161,7 @@ impl JellyfinProvider {
         parent_id: &str,
         ctx: &Context,
     ) -> Result<(), SyncError> {
+        let self_id = self.id().unwrap_or(-1);
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
         let items = japis::items_api::get_items(
@@ -195,6 +198,13 @@ impl JellyfinProvider {
                             }
                         }
                     }
+
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                        id: self_id,
+                        album: 1,
+                        action: SyncEventAct::Add,
+                        ..Default::default()
+                    }));
 
                     item.id.map(|id| sqlm::album::ActiveModel {
                         id: NotSet,
@@ -235,13 +245,10 @@ impl JellyfinProvider {
             for iter in &mut chunks {
                 db_insert(&txn, iter, &conflict, &exclude).await?;
             }
-            db_insert(
-                &txn,
-                chunks.into_remainder().unwrap().into_iter(),
-                &conflict,
-                &exclude,
-            )
-            .await?;
+
+            if let Some(rm) = chunks.into_remainder() {
+                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
+            }
 
             if !album_artists.is_empty() {
                 let conflict = [
@@ -324,6 +331,7 @@ impl JellyfinProvider {
         parent_id: &str,
         ctx: &Context,
     ) -> Result<(), SyncError> {
+        let self_id = self.id().unwrap_or(-1);
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
         let items = japis::artists_api::get_artists(
@@ -344,6 +352,12 @@ impl JellyfinProvider {
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                        id: self_id,
+                        artist: 1,
+                        action: SyncEventAct::Add,
+                        ..Default::default()
+                    }));
                     item.id.map(|id| sqlm::artist::ActiveModel {
                         id: NotSet,
                         native_id: Set(id.to_string()),
@@ -372,13 +386,9 @@ impl JellyfinProvider {
             for iter in &mut chunks {
                 db_insert(&txn, iter, &conflict, &exclude).await?;
             }
-            db_insert(
-                &txn,
-                chunks.into_remainder().unwrap().into_iter(),
-                &conflict,
-                &exclude,
-            )
-            .await?;
+            if let Some(rm) = chunks.into_remainder() {
+                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
+            }
 
             txn.commit().await?;
         }
@@ -392,6 +402,7 @@ impl JellyfinProvider {
         parent_id: &str,
         ctx: &Context,
     ) -> Result<(), SyncError> {
+        let self_id = self.id().unwrap_or(-1);
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
         let items = japis::items_api::get_items(
@@ -437,6 +448,13 @@ impl JellyfinProvider {
                         }
                     }
 
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit(SyncEventMsg {
+                        id: self_id,
+                        song: 1,
+                        action: SyncEventAct::Add,
+                        ..Default::default()
+                    }));
+
                     item.id.map(|id| sqlm::song::ActiveModel {
                         id: NotSet,
                         native_id: Set(id.to_string()),
@@ -468,13 +486,10 @@ impl JellyfinProvider {
             for iter in &mut chunks {
                 db_insert(&txn, iter, &conflict, &exclude).await?;
             }
-            db_insert(
-                &txn,
-                chunks.into_remainder().unwrap().into_iter(),
-                &conflict,
-                &exclude,
-            )
-            .await?;
+
+            if let Some(rm) = chunks.into_remainder() {
+                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
+            }
 
             if !song_album_maps.is_empty() {
                 use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
@@ -621,6 +636,7 @@ impl JellyfinProvider {
     }
 
     async fn sync_mixes(&self, provider_id: i64, ctx: &Context) -> Result<(), SyncError> {
+        let self_id = self.id().unwrap_or(-1);
         let config = self.config().ok_or(ConnectError::NotAuth)?;
 
         let items = japis::items_api::get_items(
