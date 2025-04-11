@@ -129,13 +129,18 @@ impl JellyfinProvider {
         match libraries.entity {
             Some(library_structure_api::GetVirtualFoldersSuccess::Status200(items)) => {
                 let items = items.iter().filter_map(|item| match &item.item_id {
-                    Some(Some(id)) => Some(sqlm::library::ActiveModel {
-                        library_id: NotSet,
-                        name: Set(item.name.clone().flatten().unwrap_or_default()),
-                        provider_id: Set(self.id().unwrap()),
-                        native_id: Set(id.to_string()),
-                        edit_time: Set(chrono::Local::now().to_utc()),
-                    }),
+                    Some(Some(id)) => match item.collection_type.flatten() {
+                        Some(t) if t == jmodels::CollectionTypeOptions::Music => {
+                            Some(sqlm::library::ActiveModel {
+                                library_id: NotSet,
+                                name: Set(item.name.clone().flatten().unwrap_or_default()),
+                                provider_id: Set(self.id().unwrap()),
+                                native_id: Set(id.to_string()),
+                                edit_time: Set(chrono::Local::now().to_utc()),
+                            })
+                        }
+                        _ => None,
+                    },
                     _ => None,
                 });
 
