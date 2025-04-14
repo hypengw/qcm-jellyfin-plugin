@@ -1,4 +1,5 @@
 use crate::default::JFDefault;
+use crate::error::FromJellyfinError;
 use chrono::{DateTime, Utc};
 use jellyfin_api::{
     apis::{
@@ -10,15 +11,15 @@ use jellyfin_api::{
 use qcm_core::{
     anyhow,
     db::{columns_contains, IteratorConstChunks},
-    error::ConnectError,
+    error::ProviderError,
     event::{Event as CoreEvent, SyncCommit},
     global::{APP_NAME, APP_VERSION},
     http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
+    model as sqlm,
     model::type_enum::ImageType,
-    provider::{AuthInfo, AuthMethod, Context, Provider},
+    provider::{AuthInfo, AuthMethod, AuthResult, Context, Provider},
     Error as AnyError, Result,
 };
-use qcm_core::{error::SyncError, model as sqlm};
 use reqwest::Response;
 use sea_orm::{
     sea_query::{IntoIden, IntoIndexColumn},
@@ -123,7 +124,7 @@ impl JellyfinProvider {
     }
 
     async fn sync_libraries(&self, ctx: &Context) -> Result<()> {
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
         let libraries = library_structure_api::get_virtual_folders(&config).await?;
 
         match libraries.entity {
@@ -164,9 +165,9 @@ impl JellyfinProvider {
         library_id: i64,
         parent_id: &str,
         ctx: &Context,
-    ) -> Result<(), SyncError> {
+    ) -> Result<(), ProviderError> {
         let self_id = self.id().unwrap_or(-1);
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
 
         let items = japis::items_api::get_items(
             &config,
@@ -332,9 +333,9 @@ impl JellyfinProvider {
         library_id: i64,
         parent_id: &str,
         ctx: &Context,
-    ) -> Result<(), SyncError> {
+    ) -> Result<(), ProviderError> {
         let self_id = self.id().unwrap_or(-1);
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
 
         let items = japis::artists_api::get_artists(
             &config,
@@ -401,9 +402,9 @@ impl JellyfinProvider {
         library_id: i64,
         parent_id: &str,
         ctx: &Context,
-    ) -> Result<(), SyncError> {
+    ) -> Result<(), ProviderError> {
         let self_id = self.id().unwrap_or(-1);
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
 
         let items = japis::items_api::get_items(
             &config,
@@ -633,9 +634,9 @@ impl JellyfinProvider {
         Ok(())
     }
 
-    async fn sync_mixes(&self, provider_id: i64, ctx: &Context) -> Result<(), SyncError> {
+    async fn sync_mixes(&self, provider_id: i64, ctx: &Context) -> Result<(), ProviderError> {
         let self_id = self.id().unwrap_or(-1);
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
 
         let items = japis::items_api::get_items(
             &config,
@@ -877,7 +878,15 @@ impl Provider for JellyfinProvider {
         provider
     }
 
-    async fn login(&self, _ctx: &Context, info: &AuthInfo) -> Result<()> {
+    async fn check(&self, _ctx: &Context) -> Result<(), ProviderError> {
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
+        japis::system_api::get_endpoint_info(&config)
+            .await
+            .map_err(ProviderError::from_err)
+            .map(|_| ())
+    }
+
+    async fn auth(&self, _ctx: &Context, info: &AuthInfo) -> Result<AuthResult, ProviderError> {
         let mut config = Configuration {
             base_path: info.server_url.clone(),
             user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
@@ -895,7 +904,8 @@ impl Provider for JellyfinProvider {
                     },
                 },
             )
-            .await?;
+            .await
+            .map_err(ProviderError::from_err)?;
 
             if let Some(user_api::AuthenticateUserByNameSuccess::Status200(result)) =
                 auth_result.entity
@@ -917,13 +927,13 @@ impl Provider for JellyfinProvider {
                     config.client = inner.client.clone();
                     inner.config = Some(config);
                 }
-                return Ok(());
+                return Ok(AuthResult::Ok);
             }
         }
-        Err(anyhow!("Login failed"))
+        Ok(AuthResult::Failed)
     }
 
-    async fn sync(&self, ctx: &Context) -> Result<()> {
+    async fn sync(&self, ctx: &Context) -> Result<(), ProviderError> {
         self.sync_libraries(ctx).await?;
 
         let libraries = sqlm::library::Entity::find()
@@ -949,8 +959,8 @@ impl Provider for JellyfinProvider {
         _ctx: &Context,
         item_id: &str,
         image_type: ImageType,
-    ) -> Result<Response, ConnectError> {
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+    ) -> Result<Response, ProviderError> {
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
         let item_id = uuid::Uuid::from_str(item_id)?;
 
         let rsp = {
@@ -973,8 +983,8 @@ impl Provider for JellyfinProvider {
         _ctx: &Context,
         item_id: &str,
         headers: Option<qcm_core::http::HeaderMap>,
-    ) -> Result<Response, ConnectError> {
-        let config = self.config().ok_or(ConnectError::NotAuth)?;
+    ) -> Result<Response, ProviderError> {
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
         let item_id = uuid::Uuid::from_str(item_id)?;
 
         let rsp = {

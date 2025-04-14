@@ -1,5 +1,5 @@
-use qcm_core::plugin::Plugin;
 use qcm_core::provider::{Provider, ProviderMeta};
+use qcm_core::{plugin::Plugin, Result};
 use rust_embed::Embed;
 use std::sync::Arc;
 
@@ -33,8 +33,8 @@ impl Plugin for JellyfinPlugin {
                     .unwrap()
                     .to_string(),
             ),
-            Arc::new(|id, name, device_id| -> Arc<dyn Provider> {
-                Arc::new(JellyfinProvider::new(id, name, device_id))
+            Arc::new(|id, name, device_id| -> Result<Arc<dyn Provider>> {
+                Ok(Arc::new(JellyfinProvider::new(id, name, device_id)))
             }),
         );
         vec![p]
