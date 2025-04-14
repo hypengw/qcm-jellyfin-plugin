@@ -15,9 +15,11 @@ use qcm_core::{
     event::{Event as CoreEvent, SyncCommit},
     global::{APP_NAME, APP_VERSION},
     http::{CookieStoreRwLock, HasCookieJar, HeaderMap, HeaderValue, HttpClient},
-    model as sqlm,
-    model::type_enum::ImageType,
-    provider::{AuthInfo, AuthMethod, AuthResult, Context, Provider},
+    model::{self as sqlm, type_enum::ImageType},
+    provider::{
+        AuthInfo, AuthMethod, AuthResult, Context, HasCommonData, Provider, ProviderCommon,
+        ProviderCommonData,
+    },
     Error as AnyError, Result,
 };
 use reqwest::Response;
@@ -26,7 +28,7 @@ use sea_orm::{
     *,
 };
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeMap, str::FromStr};
+use std::{any::type_name, collections::BTreeMap, str::FromStr};
 use std::{
     ops::Not,
     sync::{Arc, RwLock},
@@ -35,22 +37,17 @@ use strum::IntoEnumIterator;
 
 #[derive(Default, Clone, Debug, Serialize, Deserialize)]
 struct CustomData {
-    pub auth_info: AuthInfo,
-    pub token: Option<String>,
-    // auth_info: Option<AuthenticationResult>,
+    token: Option<String>,
 }
 
 struct JellyfinProviderInner {
     client: HttpClient,
-    id: Option<i64>,
-    name: String,
     config: Option<Configuration>,
-    data: CustomData,
-    device_id: String,
 }
 
 pub struct JellyfinProvider {
     jar: Arc<CookieStoreRwLock>,
+    common: ProviderCommonData,
     inner: RwLock<JellyfinProviderInner>,
 }
 
@@ -64,16 +61,13 @@ impl JellyfinProvider {
         );
         Self {
             jar: jar.clone(),
+            common: ProviderCommonData::new(id, name, device_id, JellyfinProvider::type_name()),
             inner: RwLock::new(JellyfinProviderInner {
                 client: qcm_core::http::client_builder_with_jar(jar.clone())
                     .default_headers(headers)
                     .build()
                     .unwrap(),
-                id,
-                name: name.to_string(),
                 config: None,
-                data: CustomData::default(),
-                device_id: device_id.to_string(),
             }),
         }
     }
@@ -97,25 +91,13 @@ impl JellyfinProvider {
         format!("MediaBrowser {}", parts.join(", "))
     }
 
-    pub fn format_auth(&self) -> String {
-        let inner = self.inner.read().unwrap();
-        let token = inner.data.token.clone();
-        let device_id = inner.device_id.clone();
+    pub fn format_auth(&self, token: Option<&str>) -> String {
+        let device_id = &self.common.device_id;
         Self::static_format_auth(&device_id, token.as_deref())
     }
 
     pub fn client(&self) -> HttpClient {
         return self.inner.read().unwrap().client.clone();
-    }
-
-    pub fn base_url(&self) -> Option<String> {
-        return self
-            .inner
-            .read()
-            .unwrap()
-            .config
-            .as_ref()
-            .map(|c| c.base_path.clone());
     }
 
     pub fn config(&self) -> Option<Configuration> {
@@ -815,31 +797,31 @@ impl HasCookieJar for JellyfinProvider {
     }
 }
 
+impl HasCommonData for JellyfinProvider {
+    fn common<'a>(&'a self) -> &'a ProviderCommonData {
+        return &self.common;
+    }
+}
+
 #[async_trait::async_trait]
 impl Provider for JellyfinProvider {
-    fn id(&self) -> Option<i64> {
-        self.inner.read().unwrap().id
-    }
-    fn set_id(&self, id: Option<i64>) {
-        let mut inner = self.inner.write().unwrap();
-        inner.id = id;
-    }
-    fn name(&self) -> String {
-        self.inner.read().unwrap().name.clone()
-    }
-    fn type_name(&self) -> &str {
-        JellyfinProvider::type_name()
+    fn save(&self) -> String {
+        let custom_data = CustomData {
+            token: self
+                .inner
+                .read()
+                .unwrap()
+                .config
+                .as_ref()
+                .and_then(|c| c.bearer_access_token.clone()),
+        };
+        serde_json::to_string(&custom_data).unwrap()
     }
 
-    fn from_model(&self, model: &sqlm::provider::Model) -> Result<()> {
-        let custom_data: CustomData = serde_json::from_str(&model.custom)
-            .map_err(|e| anyhow!("Failed to parse custom data: {}", e))?;
-
-        {
-            let mut inner = self.inner.write().unwrap();
-            inner.data = custom_data;
-        }
-        let auth_line = self.format_auth();
+    fn load(&self, data: &str) {
+        let custom_data: CustomData = serde_json::from_str(&data).unwrap_or_default();
+        let auth_line = self.format_auth(custom_data.token.as_deref());
+        let base_url = self.base_url();
         {
             let mut inner = self.inner.write().unwrap();
             let mut headers = HeaderMap::new();
@@ -850,32 +832,13 @@ impl Provider for JellyfinProvider {
                 .build()
                 .unwrap();
             let config = Configuration {
-                base_path: model.base_url.clone(),
+                base_path: base_url,
                 user_agent: Some(format!("{}/{}", APP_NAME, APP_VERSION)),
                 client: inner.client.clone(),
                 ..Default::default()
             };
             inner.config = Some(config);
         }
-
-        Ok(())
-    }
-
-    fn to_model(&self) -> sqlm::provider::ActiveModel {
-        let inner = self.inner.read().unwrap();
-        let provider = sqlm::provider::ActiveModel {
-            provider_id: match self.id() {
-                Some(id) => Set(id),
-                None => NotSet,
-            },
-            name: Set(self.name()),
-            type_: Set(self.type_name().to_string()),
-            base_url: Set(inner.config.clone().map_or(String::new(), |c| c.base_path)),
-            cookie: Set(String::new()),
-            custom: Set(serde_json::to_string(&inner.data).unwrap_or_default()),
-            edit_time: Set(chrono::Local::now().naive_local()),
-        };
-        provider
     }
 
     async fn check(&self, _ctx: &Context) -> Result<(), ProviderError> {
@@ -910,12 +873,10 @@ impl Provider for JellyfinProvider {
             if let Some(user_api::AuthenticateUserByNameSuccess::Status200(result)) =
                 auth_result.entity
             {
-                {
-                    let mut inner = self.inner.write().unwrap();
-                    inner.data.auth_info = info.clone();
-                    inner.data.token = result.access_token.flatten().clone();
-                }
-                let auth_line = self.format_auth();
+                self.load_auth_info(&info.server_url, Some(info.method.clone()));
+                let token = result.access_token.flatten().clone();
+                let auth_line = self.format_auth(token.as_deref());
+                config.bearer_access_token = token;
                 {
                     let mut inner = self.inner.write().unwrap();
                     let mut headers = HeaderMap::new();
@@ -930,7 +891,7 @@ impl Provider for JellyfinProvider {
                 return Ok(AuthResult::Ok);
             }
         }
-        Ok(AuthResult::Failed)
+        Ok(AuthResult::Failed(String::new()))
     }
 
     async fn sync(&self, ctx: &Context) -> Result<(), ProviderError> {

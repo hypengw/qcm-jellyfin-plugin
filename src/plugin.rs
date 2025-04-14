@@ -1,4 +1,4 @@
-use qcm_core::provider::{Provider, ProviderMeta};
+use qcm_core::provider::{AuthMethod, Provider, ProviderMeta};
 use qcm_core::{plugin::Plugin, Result};
 use rust_embed::Embed;
 use std::sync::Arc;
@@ -28,6 +28,7 @@ impl Plugin for JellyfinPlugin {
     fn provider_metas(&self) -> Vec<ProviderMeta> {
         let p = ProviderMeta::new(
             JellyfinProvider::type_name(),
+            &[0],
             Arc::new(
                 std::str::from_utf8(Asset::get("jellyfin.svg").unwrap().data.as_ref())
                     .unwrap()
