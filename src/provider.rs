@@ -891,7 +891,9 @@ impl Provider for JellyfinProvider {
                 return Ok(AuthResult::Ok);
             }
         }
-        Ok(AuthResult::Failed(String::new()))
+        Ok(AuthResult::Failed {
+            message: String::new(),
+        })
     }
 
     async fn sync(&self, ctx: &Context) -> Result<(), ProviderError> {
