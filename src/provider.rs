@@ -10,7 +10,7 @@ use jellyfin_api::{
 };
 use qcm_core::{
     anyhow,
-    db::{columns_contains, IteratorConstChunks},
+    db::{sync::sync_song_album_ids, DbChunkOper, DbOper, IteratorConstChunks},
     error::ProviderError,
     event::{Event as CoreEvent, SyncCommit},
     global::{APP_NAME, APP_VERSION},
@@ -133,7 +133,7 @@ impl JellyfinProvider {
                     sqlm::library::Column::NativeId,
                 ];
                 let exclude = [sqlm::library::Column::LibraryId];
-                db_insert(&txn, items, &conflict, &exclude).await?;
+                DbOper::insert(&txn, items, &conflict, &exclude).await?;
 
                 txn.commit().await?;
                 Ok(())
@@ -226,14 +226,7 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
 
-            let mut chunks = albums.const_chunks::<50>();
-            for iter in &mut chunks {
-                db_insert(&txn, iter, &conflict, &exclude).await?;
-            }
-
-            if let Some(rm) = chunks.into_remainder() {
-                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
-            }
+            DbChunkOper::<50>::insert(&txn, albums, &conflict, &exclude).await?;
 
             if !album_artists.is_empty() {
                 let conflict = [
@@ -364,15 +357,7 @@ impl JellyfinProvider {
             ];
 
             let txn = ctx.db.begin().await?;
-
-            let mut chunks = artists.const_chunks::<50>();
-            for iter in &mut chunks {
-                db_insert(&txn, iter, &conflict, &exclude).await?;
-            }
-            if let Some(rm) = chunks.into_remainder() {
-                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
-            }
-
+            DbChunkOper::<50>::insert(&txn, artists, &conflict, &exclude).await?;
             txn.commit().await?;
         }
 
@@ -462,82 +447,10 @@ impl JellyfinProvider {
             let exclude = [sqlm::song::Column::Id];
 
             let txn = ctx.db.begin().await?;
-
-            let mut chunks = songs.const_chunks::<50>();
-            for iter in &mut chunks {
-                db_insert(&txn, iter, &conflict, &exclude).await?;
-            }
-
-            if let Some(rm) = chunks.into_remainder() {
-                db_insert(&txn, rm.into_iter(), &conflict, &exclude).await?;
-            }
+            DbChunkOper::<50>::insert(&txn, songs, &conflict, &exclude).await?;
 
             if !song_album_maps.is_empty() {
-                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
-                let al_item_id_map = Alias::new("item_id_map");
-
-                let relations = sea_query::Query::select()
-                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
-                    .expr(Expr::col((sqlm::album::Entity, sqlm::album::Column::Id)))
-                    .from(sqlm::song::Entity)
-                    .inner_join(
-                        al_item_id_map.clone(),
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::NativeId))
-                            .equals((al_item_id_map.clone(), Alias::new("song_item_id"))),
-                    )
-                    .inner_join(
-                        sqlm::album::Entity,
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::NativeId))
-                            .equals((al_item_id_map.clone(), Alias::new("album_item_id"))),
-                    )
-                    .and_where(
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId))
-                            .eq(library_id),
-                    )
-                    .to_owned();
-
-                let with_clause = WithClause::new()
-                    .cte(
-                        CommonTableExpression::new()
-                            .query(
-                                Query::select()
-                                    .column(Asterisk)
-                                    .from_values(song_album_maps, Alias::new("input"))
-                                    .to_owned(),
-                            )
-                            .columns([Alias::new("song_item_id"), Alias::new("album_item_id")])
-                            .table_name(al_item_id_map.clone())
-                            .to_owned(),
-                    )
-                    .cte(
-                        CommonTableExpression::new()
-                            .query(relations)
-                            .columns([Alias::new("id"), Alias::new("album_id")])
-                            .table_name(Alias::new("res"))
-                            .to_owned(),
-                    )
-                    .to_owned();
-
-                let builder = txn.get_database_backend();
-                let stmt = sea_query::Query::update()
-                    .table(sqlm::song::Entity)
-                    .value(
-                        sqlm::song::Column::AlbumId,
-                        Expr::col((Alias::new("res"), Alias::new("album_id"))),
-                    )
-                    .to_owned()
-                    .with(with_clause)
-                    .to_owned();
-
-                let raw = format!(
-                    "
-                {}
-                FROM res
-                WHERE res.id = song.id
-                ",
-                    builder.build(&stmt).to_string()
-                );
-                txn.execute(Statement::from_string(builder, raw)).await?;
+                sync_song_album_ids(&txn, library_id, song_album_maps).await?;
             }
 
             if !song_artist_maps.is_empty() {
@@ -704,17 +617,7 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
 
-            let mut chunks = mixes.const_chunks::<50>();
-            for iter in &mut chunks {
-                db_insert(&txn, iter, &conflict, &exclude).await?;
-            }
-            db_insert(
-                &txn,
-                chunks.into_remainder().unwrap().into_iter(),
-                &conflict,
-                &exclude,
-            )
-            .await?;
+            DbChunkOper::<50>::insert(&txn, mixes, &conflict, &exclude).await?;
 
             // Handle mix-song relationships
             // if !mix_song_maps.is_empty() {
@@ -921,6 +824,7 @@ impl Provider for JellyfinProvider {
         &self,
         _ctx: &Context,
         item_id: &str,
+        _image_id: Option<&str>,
         image_type: ImageType,
     ) -> Result<Response, ProviderError> {
         let config = self.config().ok_or(ProviderError::NotAuth)?;
@@ -963,33 +867,4 @@ impl Provider for JellyfinProvider {
         };
         Ok(rsp)
     }
-}
-
-async fn db_insert<Et, Col, A, I>(
-    txn: &DatabaseTransaction,
-    iter: I,
-    conflict: &[Col],
-    exclude: &[Col],
-) -> Result<TryInsertResult<InsertResult<A>>, sea_orm::DbErr>
-where
-    Et: EntityTrait,
-    Col: IntoIden + Copy + IntoEnumIterator,
-    A: ActiveModelTrait<Entity = Et>,
-    I: IntoIterator<Item = A>,
-{
-    Et::insert_many(iter)
-        .on_conflict(
-            sea_query::OnConflict::columns(conflict.iter().map(|c| c.clone()))
-                .update_columns(
-                    Col::iter()
-                        .filter(|e| {
-                            !columns_contains(&conflict, e) && !columns_contains(&exclude, e)
-                        })
-                        .collect::<Vec<_>>(),
-                )
-                .to_owned(),
-        )
-        .on_empty_do_nothing()
-        .exec(txn)
-        .await
 }
