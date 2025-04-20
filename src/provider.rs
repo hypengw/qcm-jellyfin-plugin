@@ -251,10 +251,6 @@ impl JellyfinProvider {
                     .to_owned();
 
                 let relations = sea_query::Query::select()
-                    .expr(Expr::col((
-                        sqlm::album::Entity,
-                        sqlm::album::Column::LibraryId,
-                    )))
                     .expr(Expr::col((sqlm::album::Entity, sqlm::album::Column::Id)))
                     .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
                     .expr(Expr::value(now))
@@ -266,10 +262,6 @@ impl JellyfinProvider {
                     )
                     .inner_join(
                         sqlm::artist::Entity,
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::LibraryId))
-                            .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
-                    )
-                    .and_where(
                         Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
                     )
@@ -278,7 +270,6 @@ impl JellyfinProvider {
                 let stmt = sea_query::Query::insert()
                     .into_table(sqlm::rel_album_artist::Entity)
                     .columns([
-                        sqlm::rel_album_artist::Column::LibraryId,
                         sqlm::rel_album_artist::Column::AlbumId,
                         sqlm::rel_album_artist::Column::ArtistId,
                         sqlm::rel_album_artist::Column::EditTime,
@@ -476,10 +467,6 @@ impl JellyfinProvider {
                     .to_owned();
 
                 let relations = sea_query::Query::select()
-                    .expr(Expr::col((
-                        sqlm::song::Entity,
-                        sqlm::song::Column::LibraryId,
-                    )))
                     .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
                     .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
                     .expr(Expr::value(now))
@@ -491,10 +478,6 @@ impl JellyfinProvider {
                     )
                     .inner_join(
                         sqlm::artist::Entity,
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::LibraryId))
-                            .equals((sqlm::artist::Entity, sqlm::artist::Column::LibraryId)),
-                    )
-                    .and_where(
                         Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
                             .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
                     )
@@ -503,7 +486,6 @@ impl JellyfinProvider {
                 let stmt = sea_query::Query::insert()
                     .into_table(sqlm::rel_song_artist::Entity)
                     .columns([
-                        sqlm::rel_song_artist::Column::LibraryId,
                         sqlm::rel_song_artist::Column::SongId,
                         sqlm::rel_song_artist::Column::ArtistId,
                         sqlm::rel_song_artist::Column::EditTime,
@@ -800,6 +782,8 @@ impl Provider for JellyfinProvider {
     }
 
     async fn sync(&self, ctx: &Context) -> Result<(), ProviderError> {
+        let now = chrono::Utc::now();
+
         self.sync_libraries(ctx).await?;
 
         let libraries = sqlm::library::Entity::find()
@@ -816,6 +800,12 @@ impl Provider for JellyfinProvider {
         }
         if let Some(lib) = libraries.iter().next() {
             self.sync_mixes(lib.provider_id, ctx).await?;
+        }
+
+        if let Some(id) = self.id() {
+            let txn = ctx.db.begin().await?;
+            qcm_core::db::sync::sync_drop_before(&txn, id, now).await?;
+            txn.commit().await?;
         }
         Ok(())
     }
