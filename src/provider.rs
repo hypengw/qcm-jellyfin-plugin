@@ -742,7 +742,7 @@ impl Provider for JellyfinProvider {
             ..Default::default()
         };
 
-        if let AuthMethod::Username { username, pw } = &info.method {
+        if let Some(AuthMethod::Username { username, pw }) = &info.method {
             let auth_result = user_api::authenticate_user_by_name(
                 &config,
                 user_api::AuthenticateUserByNameParams {
@@ -758,7 +758,7 @@ impl Provider for JellyfinProvider {
             if let Some(user_api::AuthenticateUserByNameSuccess::Status200(result)) =
                 auth_result.entity
             {
-                self.load_auth_info(&info.server_url, Some(info.method.clone()));
+                self.load_auth_info(&info.server_url, info.method.clone());
                 let token = result.access_token.flatten().clone();
                 let auth_line = self.format_auth(token.as_deref());
                 config.bearer_access_token = token;
