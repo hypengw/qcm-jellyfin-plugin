@@ -196,11 +196,12 @@ impl JellyfinProvider {
                         native_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
-                        // pic_id: Set(item
-                        //     .image_tags
-                        //     .flatten()
-                        //     .and_then(|m| m.get("Primary").cloned())
-                        //     .unwrap_or_default()),
+                        sort_name: Set(item.sort_name.flatten()),
+                        added_time: Set(item
+                            .date_created
+                            .flatten()
+                            .and_then(|d| d.parse().ok())
+                            .unwrap_or(now)),
                         publish_time: Set(item
                             .premiere_date
                             .flatten()
@@ -330,6 +331,7 @@ impl JellyfinProvider {
                         native_id: Set(id.to_string()),
                         library_id: Set(library_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
+                        sort_name: Set(item.sort_name.flatten()),
                         music_count: Set(0),
                         album_count: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
@@ -418,6 +420,7 @@ impl JellyfinProvider {
                         library_id: Set(library_id),
                         album_id: Set(None),
                         name: Set(item.name.flatten().unwrap_or_default()),
+                        sort_name: Set(item.sort_name.flatten()),
                         can_play: Set(true),
                         track_number: Set(item.index_number.flatten().unwrap_or_default()),
                         disc_number: Set(item.parent_index_number.flatten().unwrap_or_default()),
@@ -576,6 +579,7 @@ impl JellyfinProvider {
                         native_id: Set(id.to_string()),
                         provider_id: Set(provider_id),
                         name: Set(item.name.flatten().unwrap_or_default()),
+                        sort_name: Set(item.sort_name.flatten()),
                         track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
                         special_type: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
