@@ -20,6 +20,7 @@ use qcm_core::{
         AuthInfo, AuthMethod, AuthResult, Context, HasCommonData, Provider, ProviderCommon,
         ProviderCommonData,
     },
+    subtitle::{Subtitle, SubtitleItem},
     Error as AnyError, Result,
 };
 use reqwest::Response;
@@ -860,5 +861,34 @@ impl Provider for JellyfinProvider {
             self.client().execute(req).await?
         };
         Ok(rsp)
+    }
+    async fn subtitle(&self, item_id: &str) -> Result<Subtitle, ProviderError> {
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
+
+        let items = japis::lyrics_api::get_lyrics(
+            &config,
+            japis::lyrics_api::GetLyricsParams {
+                item_id: item_id.to_string(),
+            },
+        )
+        .await
+        .map_err(AnyError::from)?;
+
+        if let Some(japis::lyrics_api::GetLyricsSuccess::Status200(result)) = items.entity {
+            if let Some(lines) = result.lyrics {
+                let mut out = Subtitle::default();
+                out.items = lines
+                    .into_iter()
+                    .map(|l| SubtitleItem {
+                        start: l.start.flatten().map(|t| t / 10_i64.pow(4)),
+                        end: None,
+                        text: l.text,
+                    })
+                    .collect();
+                return Ok(out);
+            }
+        }
+
+        Err(ProviderError::NotFound)
     }
 }
