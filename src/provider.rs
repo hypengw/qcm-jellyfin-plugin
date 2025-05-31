@@ -179,7 +179,7 @@ impl JellyfinProvider {
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    if let (Some(id), Some(artists)) = (item.id, item.artist_items.flatten()) {
+                    if let (Some(id), Some(artists)) = (item.id, item.album_artists.flatten()) {
                         for a in artists {
                             if let Some(a_id) = a.id {
                                 album_artists.push((id.to_string(), a_id.to_string()));
@@ -230,66 +230,70 @@ impl JellyfinProvider {
 
             DbChunkOper::<50>::insert(&txn, albums, &conflict, &exclude).await?;
 
-            if !album_artists.is_empty() {
-                let conflict = [
-                    sqlm::rel_album_artist::Column::AlbumId,
-                    sqlm::rel_album_artist::Column::ArtistId,
-                ];
-                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
+            qcm_core::db::sync::sync_album_artist_ids(&txn, library_id, album_artists).await?;
 
-                let with_clause = WithClause::new()
-                    .cte(
-                        CommonTableExpression::new()
-                            .query(
-                                Query::select()
-                                    .column(Asterisk)
-                                    .from_values(album_artists, Alias::new("input"))
-                                    .to_owned(),
-                            )
-                            .columns([Alias::new("album_item_id"), Alias::new("artist_item_id")])
-                            .table_name(Alias::new("item_id_map"))
-                            .to_owned(),
-                    )
-                    .to_owned();
+            txn.commit().await?;
+        }
 
-                let relations = sea_query::Query::select()
-                    .expr(Expr::col((sqlm::album::Entity, sqlm::album::Column::Id)))
-                    .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
-                    .expr(Expr::value(now))
-                    .from(sqlm::album::Entity)
-                    .inner_join(
-                        Alias::new("item_id_map"),
-                        Expr::col((sqlm::album::Entity, sqlm::album::Column::NativeId))
-                            .equals((Alias::new("item_id_map"), Alias::new("album_item_id"))),
-                    )
-                    .inner_join(
-                        sqlm::artist::Entity,
-                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
-                            .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
-                    )
-                    .to_owned();
+        Ok(())
+    }
 
-                let stmt = sea_query::Query::insert()
-                    .into_table(sqlm::rel_album_artist::Entity)
-                    .columns([
-                        sqlm::rel_album_artist::Column::AlbumId,
-                        sqlm::rel_album_artist::Column::ArtistId,
-                        sqlm::rel_album_artist::Column::EditTime,
-                    ])
-                    .select_from(relations)
-                    .unwrap()
-                    .on_conflict(
-                        sea_query::OnConflict::columns(conflict)
-                            .update_column(sqlm::rel_album_artist::Column::EditTime)
-                            .to_owned(),
-                    )
-                    .to_owned()
-                    .with(with_clause)
-                    .to_owned();
-                let builder = txn.get_database_backend();
-                txn.execute(builder.build(&stmt)).await?;
-            }
+    async fn sync_album_artists(
+        &self,
+        library_id: i64,
+        parent_id: &str,
+        ctx: &Context,
+    ) -> Result<(), ProviderError> {
+        let self_id = self.id().unwrap_or(-1);
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
 
+        let items = japis::artists_api::get_album_artists(
+            &config,
+            japis::artists_api::GetAlbumArtistsParams {
+                parent_id: Some(parent_id.to_string()),
+                fields: Some(vec![jmodels::ItemFields::Overview]),
+                ..JFDefault::jf_default()
+            },
+        )
+        .await
+        .map_err(AnyError::from)?;
+
+        if let Some(japis::artists_api::GetAlbumArtistsSuccess::Status200(result)) = items.entity {
+            let now = chrono::Utc::now();
+            let artists = result
+                .items
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|item| {
+                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
+                        id: self_id,
+                        commit: SyncCommit::AddArtist(1),
+                    });
+                    item.id.map(|id| sqlm::artist::ActiveModel {
+                        id: NotSet,
+                        native_id: Set(id.to_string()),
+                        library_id: Set(library_id),
+                        name: Set(item.name.flatten().unwrap_or_default()),
+                        sort_name: Set(item.sort_name.flatten()),
+                        music_count: Set(0),
+                        album_count: Set(0),
+                        description: Set(item.overview.flatten().unwrap_or_default()),
+                        edit_time: Set(now),
+                    })
+                });
+
+            let conflict = [
+                sqlm::artist::Column::LibraryId,
+                sqlm::artist::Column::NativeId,
+            ];
+            let exclude = [
+                sqlm::artist::Column::Id,
+                sqlm::artist::Column::MusicCount,
+                sqlm::artist::Column::AlbumCount,
+            ];
+
+            let txn = ctx.db.begin().await?;
+            DbChunkOper::<50>::insert(&txn, artists, &conflict, &exclude).await?;
             txn.commit().await?;
         }
 
@@ -448,66 +452,7 @@ impl JellyfinProvider {
                 sync_song_album_ids(&txn, library_id, song_album_maps).await?;
             }
 
-            if !song_artist_maps.is_empty() {
-                let conflict = [
-                    sqlm::rel_song_artist::Column::SongId,
-                    sqlm::rel_song_artist::Column::ArtistId,
-                ];
-                use sea_query::{Alias, Asterisk, CommonTableExpression, Expr, Query, WithClause};
-
-                let with_clause = WithClause::new()
-                    .cte(
-                        CommonTableExpression::new()
-                            .query(
-                                Query::select()
-                                    .column(Asterisk)
-                                    .from_values(song_artist_maps, Alias::new("input"))
-                                    .to_owned(),
-                            )
-                            .columns([Alias::new("song_item_id"), Alias::new("artist_item_id")])
-                            .table_name(Alias::new("item_id_map"))
-                            .to_owned(),
-                    )
-                    .to_owned();
-
-                let relations = sea_query::Query::select()
-                    .expr(Expr::col((sqlm::song::Entity, sqlm::song::Column::Id)))
-                    .expr(Expr::col((sqlm::artist::Entity, sqlm::artist::Column::Id)))
-                    .expr(Expr::value(now))
-                    .from(sqlm::song::Entity)
-                    .inner_join(
-                        Alias::new("item_id_map"),
-                        Expr::col((sqlm::song::Entity, sqlm::song::Column::NativeId))
-                            .equals((Alias::new("item_id_map"), Alias::new("song_item_id"))),
-                    )
-                    .inner_join(
-                        sqlm::artist::Entity,
-                        Expr::col((sqlm::artist::Entity, sqlm::artist::Column::NativeId))
-                            .equals((Alias::new("item_id_map"), Alias::new("artist_item_id"))),
-                    )
-                    .to_owned();
-
-                let stmt = sea_query::Query::insert()
-                    .into_table(sqlm::rel_song_artist::Entity)
-                    .columns([
-                        sqlm::rel_song_artist::Column::SongId,
-                        sqlm::rel_song_artist::Column::ArtistId,
-                        sqlm::rel_song_artist::Column::EditTime,
-                    ])
-                    .select_from(relations)
-                    .unwrap()
-                    .on_conflict(
-                        sea_query::OnConflict::columns(conflict)
-                            .update_column(sqlm::rel_song_artist::Column::EditTime)
-                            .to_owned(),
-                    )
-                    .to_owned()
-                    .with(with_clause)
-                    .to_owned();
-
-                let builder = txn.get_database_backend();
-                txn.execute(builder.build(&stmt)).await?;
-            }
+            qcm_core::db::sync::sync_song_artist_ids(&txn, library_id, song_artist_maps).await?;
 
             txn.commit().await?;
         }
@@ -797,6 +742,8 @@ impl Provider for JellyfinProvider {
             .await?;
 
         for lib in &libraries {
+            self.sync_album_artists(lib.library_id, &lib.native_id, ctx)
+                .await?;
             self.sync_artists(lib.library_id, &lib.native_id, ctx)
                 .await?;
             self.sync_albums(lib.library_id, &lib.native_id, ctx)
