@@ -168,6 +168,7 @@ impl JellyfinProvider {
                     jmodels::ItemFields::Genres,
                     jmodels::ItemFields::ChildCount,
                     jmodels::ItemFields::Overview,
+                    jmodels::ItemFields::DateCreated,
                 ]),
                 ..JFDefault::jf_default()
             },
