@@ -10,7 +10,7 @@ use jellyfin_api::{
 };
 use qcm_core::{
     anyhow,
-    db::{sync::sync_song_album_ids, DbChunkOper, DbOper, IteratorConstChunks},
+    db::{sync::sync_song_album_ids, values::Timestamp, DbChunkOper, DbOper, IteratorConstChunks},
     error::ProviderError,
     event::{Event as CoreEvent, SyncCommit},
     global::{APP_NAME, APP_VERSION},
@@ -25,6 +25,7 @@ use qcm_core::{
 };
 use reqwest::Response;
 use sea_orm::{
+    prelude::DateTimeUtc,
     sea_query::{IntoIden, IntoIndexColumn},
     *,
 };
@@ -201,18 +202,12 @@ impl JellyfinProvider {
                         let mut item_common = SyncItemCommon::default();
 
                         if let Some(user_data) = item.user_data.flatten() {
-                            let m = sqlm::dynamic::ActiveModel {
-                                id: NotSet,
-                                library_id: Set(library_id),
-                                item_id: NotSet,
-                                item_type: Set(sqlm::type_enum::ItemType::Album),
-                                is_external: NotSet,
-                                is_favorite: Set(user_data.is_favorite.unwrap_or(false)),
-                                edit_time: Set(now),
-                                last_position: NotSet,
-                                play_count: Set(user_data.play_count.unwrap_or(0) as i64),
-                            };
-                            item_common.dynamic = Some(m);
+                            item_common.dynamic = Some(userdata_to_dynamic(
+                                library_id,
+                                sqlm::type_enum::ItemType::Album,
+                                &user_data,
+                                now.into(),
+                            ));
                         }
 
                         item_commons.push(item_common);
@@ -227,25 +222,27 @@ impl JellyfinProvider {
                             library_id: Set(library_id),
                             name: Set(item.name.flatten().unwrap_or_default()),
                             sort_name: Set(item.sort_name.flatten()),
-                            added_time: Set(item
+                            duration: Set(item.run_time_ticks.flatten().unwrap_or_default() / 10),
+                            added_at: Set(item
                                 .date_created
                                 .flatten()
                                 .and_then(|d| d.parse().ok())
-                                .unwrap_or(now)),
+                                .map(|t: DateTimeUtc| t.into())),
                             publish_time: Set(item
                                 .premiere_date
                                 .flatten()
-                                .and_then(|d| d.parse().ok())
-                                .unwrap_or(now)),
+                                .and_then(|d| d.try_into().ok())),
                             track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
-                            description: Set(item.overview.flatten().unwrap_or_default()),
-                            company: Set(String::new()),
+                            description: Set(item.overview.flatten()),
+                            company: Set(None),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
                             // genres: Set(item
                             //     .genres
                             //     .flatten()
                             //     .map(|v| StringVec(v))
                             //     .unwrap_or_default()),
-                            edit_time: Set(now),
+                            ..Default::default()
                         }
                     })
                 });
@@ -319,7 +316,8 @@ impl JellyfinProvider {
                         music_count: Set(0),
                         album_count: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
-                        edit_time: Set(now),
+                        last_sync_at: Set(now.into()),
+                        ..Default::default()
                     })
                 });
 
@@ -381,7 +379,9 @@ impl JellyfinProvider {
                         music_count: Set(0),
                         album_count: Set(0),
                         description: Set(item.overview.flatten().unwrap_or_default()),
-                        edit_time: Set(now),
+                        update_at: Set(now.into()),
+                        last_sync_at: Set(now.into()),
+                        ..Default::default()
                     })
                 });
 
@@ -465,18 +465,12 @@ impl JellyfinProvider {
 
                         let mut item_common = SyncItemCommon::default();
                         if let Some(user_data) = item.user_data.flatten() {
-                            let m = sqlm::dynamic::ActiveModel {
-                                id: NotSet,
-                                library_id: Set(library_id),
-                                item_id: NotSet,
-                                item_type: Set(sqlm::type_enum::ItemType::Song),
-                                is_external: NotSet,
-                                is_favorite: Set(user_data.is_favorite.unwrap_or(false)),
-                                edit_time: Set(now),
-                                last_position: NotSet,
-                                play_count: Set(user_data.play_count.unwrap_or(0) as i64),
-                            };
-                            item_common.dynamic = Some(m);
+                            item_common.dynamic = Some(userdata_to_dynamic(
+                                library_id,
+                                sqlm::type_enum::ItemType::Song,
+                                &user_data,
+                                now.into(),
+                            ));
                         }
                         item_commons.push(item_common);
 
@@ -495,14 +489,16 @@ impl JellyfinProvider {
                                 .unwrap_or_default()),
                             // it's 1e7
                             duration: Set(item.run_time_ticks.flatten().unwrap_or_default() / 10),
-                            edit_time: Set(now),
                             popularity: Set(0.0),
                             publish_time: Set(item
                                 .premiere_date
                                 .flatten()
-                                .and_then(|d| d.parse().ok())
-                                .unwrap_or(now)),
+                                .and_then(|d| d.try_into().ok())),
                             tags: Set(item.tags.flatten().unwrap_or_default().into()),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
+                            added_at: NotSet,
+                            create_at: NotSet,
                         }
                     })
                 });
@@ -563,6 +559,7 @@ impl JellyfinProvider {
             let now = chrono::Utc::now();
             // let mut mix_song_maps: Vec<(String, String)> = Vec::new();
 
+            /*
             let mixes = result
                 .items
                 .unwrap_or_default()
@@ -599,37 +596,39 @@ impl JellyfinProvider {
                     //     }
                     // }
 
-                    item.id.map(|id| sqlm::mix::ActiveModel {
-                        id: NotSet,
-                        native_id: Set(id.to_string()),
-                        provider_id: Set(provider_id),
-                        name: Set(item.name.flatten().unwrap_or_default()),
-                        sort_name: Set(item.sort_name.flatten()),
-                        track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
-                        special_type: Set(0),
-                        description: Set(item.overview.flatten().unwrap_or_default()),
-                        tags: Set(item.tags.flatten().unwrap_or_default().into()),
-                        create_time: Set(item
-                            .date_created
-                            .flatten()
-                            .and_then(|d| d.parse().ok())
-                            .unwrap_or(now)),
-                        update_time: Set(item
-                            .date_last_media_added
-                            .flatten()
-                            .and_then(|d| d.parse().ok())
-                            .unwrap_or(now)),
-                        edit_time: Set(now),
-                    })
+                    // item.id.map(|id| sqlm::mix::ActiveModel {
+                    //     id: NotSet,
+                    //     native_id: Set(id.to_string()),
+                    //     provider_id: Set(provider_id),
+                    //     name: Set(item.name.flatten().unwrap_or_default()),
+                    //     sort_name: Set(item.sort_name.flatten()),
+                    //     track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
+                    //     special_type: Set(0),
+                    //     description: Set(item.overview.flatten().unwrap_or_default()),
+                    //     tags: Set(item.tags.flatten().unwrap_or_default().into()),
+                    //     create_time: Set(item
+                    //         .date_created
+                    //         .flatten()
+                    //         .and_then(|d| d.parse().ok())
+                    //         .unwrap_or(now)),
+                    //     update_time: Set(item
+                    //         .date_last_media_added
+                    //         .flatten()
+                    //         .and_then(|d| d.parse().ok())
+                    //         .unwrap_or(now)),
+                    //     edit_time: Set(now),
+                    // })
+                    None
                 });
+            */
 
-            let conflict = [sqlm::mix::Column::ProviderId, sqlm::mix::Column::NativeId];
-            let exclude = [sqlm::mix::Column::Id];
+            // let conflict = [sqlm::mix::Column::ProviderId, sqlm::mix::Column::NativeId];
+            // let exclude = [sqlm::mix::Column::Id];
 
-            let txn = ctx.db.begin().await?;
+            // let txn = ctx.db.begin().await?;
 
-            DbChunkOper::<50>::insert(&txn, mixes, &conflict, &exclude).await?;
-            txn.commit().await?;
+            // DbChunkOper::<50>::insert(&txn, mixes, &conflict, &exclude).await?;
+            // txn.commit().await?;
         }
 
         Ok(())
@@ -893,5 +892,31 @@ impl Provider for JellyfinProvider {
         }
 
         Err(ProviderError::NotFound)
+    }
+}
+
+fn userdata_to_dynamic(
+    library_id: i64,
+    item_type: sqlm::type_enum::ItemType,
+    user_data: &jmodels::UserItemDataDto,
+    update_at: Timestamp,
+) -> sqlm::dynamic::ActiveModel {
+    sqlm::dynamic::ActiveModel {
+        id: NotSet,
+        library_id: Set(library_id),
+        item_id: NotSet,
+        item_type: Set(item_type),
+        favorite_at: Set(user_data.is_favorite.map(|_| Timestamp::new())),
+        is_external: NotSet,
+        last_position: NotSet,
+        last_played_at: NotSet,
+        remote_last_played_at: Set(user_data
+            .last_played_date
+            .clone()
+            .flatten()
+            .and_then(|d| d.try_into().ok())),
+        play_count: NotSet,
+        remote_play_count: Set(user_data.play_count.unwrap_or(0) as i64),
+        update_at: Set(update_at),
     }
 }
