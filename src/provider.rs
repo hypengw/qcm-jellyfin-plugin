@@ -166,7 +166,7 @@ impl JellyfinProvider {
                 include_item_types: Some(vec![jmodels::BaseItemKind::MusicAlbum]),
                 recursive: Some(true),
                 fields: Some(vec![
-                    jmodels::ItemFields::Genres,
+                    // jmodels::ItemFields::Genres,
                     jmodels::ItemFields::ChildCount,
                     jmodels::ItemFields::Overview,
                     jmodels::ItemFields::DateCreated,
@@ -182,10 +182,10 @@ impl JellyfinProvider {
 
             let mut album_artists: Vec<(String, String)> = Vec::new();
 
-            let mut item_commons = Vec::new();
+            let mut dynamics = Vec::new();
+            let mut albums = Vec::new();
 
-            // First sync albums
-            let albums = result
+            let items = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
@@ -199,27 +199,19 @@ impl JellyfinProvider {
                             }
                         }
 
-                        let mut item_common = SyncItemCommon::default();
-
-                        if let Some(user_data) = item.user_data.flatten() {
-                            item_common.dynamic = Some(userdata_to_dynamic(
-                                library_id,
-                                sqlm::type_enum::ItemType::Album,
-                                &user_data,
-                                now.into(),
-                            ));
-                        }
-
-                        item_commons.push(item_common);
+                        dynamics.push(
+                            item.user_data
+                                .flatten()
+                                .map(|u| userdata_to_dynamic(&u, now.into())),
+                        );
 
                         let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
                             id: self_id,
                             commit: SyncCommit::AddAlbum(1),
                         });
-                        sqlm::album::ActiveModel {
+
+                        let album = sqlm::album::ActiveModel {
                             id: NotSet,
-                            native_id: Set(id.to_string()),
-                            library_id: Set(library_id),
                             name: Set(item.name.flatten().unwrap_or_default()),
                             sort_name: Set(item.sort_name.flatten()),
                             duration: Set(item.run_time_ticks.flatten().unwrap_or_default() / 10),
@@ -235,13 +227,24 @@ impl JellyfinProvider {
                             track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
                             description: Set(item.overview.flatten()),
                             company: Set(None),
-                            update_at: Set(now.into()),
-                            last_sync_at: Set(now.into()),
+                            disc_count: Set(1),
                             // genres: Set(item
                             //     .genres
                             //     .flatten()
                             //     .map(|v| StringVec(v))
                             //     .unwrap_or_default()),
+                            ..Default::default()
+                        };
+                        albums.push(album);
+
+                        sqlm::item::ActiveModel {
+                            id: NotSet,
+                            native_id: Set(id.to_string()),
+                            library_id: Set(Some(library_id)),
+                            provider_id: Set(self_id),
+                            r#type: Set(sqlm::type_enum::ItemType::Album),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
                             ..Default::default()
                         }
                     })
@@ -249,27 +252,31 @@ impl JellyfinProvider {
 
             let txn = ctx.db.begin().await?;
             {
-                let conflict = [
-                    sqlm::album::Column::LibraryId,
-                    sqlm::album::Column::NativeId,
-                ];
-                let exclude = [sqlm::album::Column::Id];
-                let ids =
-                    DbChunkOper::<50>::insert_return_key(&txn, albums, &conflict, &exclude).await?;
+                let ids = qcm_core::db::sync::allocate_items(&txn, items).await?;
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    albums.into_iter().zip(ids.clone()).map(|(mut a, id)| {
+                        a.id = Set(id);
+                        a
+                    }),
+                    &[sqlm::album::Column::Id],
+                    &[],
+                )
+                .await?;
                 qcm_core::db::sync::sync_album_artist_ids(&txn, library_id, album_artists).await?;
-
-                for (el, id) in item_commons.iter_mut().zip(ids) {
-                    if let Some(dy) = el.dynamic.as_mut() {
-                        dy.item_id = Set(id);
-                    }
-                }
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    dynamics.into_iter().zip(ids).filter_map(|(a, id)| {
+                        a.map(|mut a| {
+                            a.id = Set(id);
+                            a
+                        })
+                    }),
+                    &[sqlm::dynamic::Column::Id],
+                    &[],
+                )
+                .await?;
             }
-            qcm_core::db::sync::sync_dynamic_items(
-                &txn,
-                item_commons.into_iter().filter_map(|el| el.dynamic),
-            )
-            .await?;
-
             txn.commit().await?;
         }
 
@@ -298,41 +305,56 @@ impl JellyfinProvider {
 
         if let Some(japis::artists_api::GetAlbumArtistsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
-            let artists = result
+            let mut artists = Vec::new();
+            let items = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
-                        id: self_id,
-                        commit: SyncCommit::AddArtist(1),
-                    });
-                    item.id.map(|id| sqlm::artist::ActiveModel {
-                        id: NotSet,
-                        native_id: Set(id.to_string()),
-                        library_id: Set(library_id),
-                        name: Set(item.name.flatten().unwrap_or_default()),
-                        sort_name: Set(item.sort_name.flatten()),
-                        music_count: Set(0),
-                        album_count: Set(0),
-                        description: Set(item.overview.flatten().unwrap_or_default()),
-                        last_sync_at: Set(now.into()),
-                        ..Default::default()
+                    item.id.map(|id| {
+                        let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
+                            id: self_id,
+                            commit: SyncCommit::AddArtist(1),
+                        });
+                        let artist = sqlm::artist::ActiveModel {
+                            id: NotSet,
+                            name: Set(item.name.flatten().unwrap_or_default()),
+                            sort_name: Set(item.sort_name.flatten()),
+                            music_count: Set(0),
+                            album_count: Set(0),
+                            description: Set(item.overview.flatten().unwrap_or_default()),
+                            ..Default::default()
+                        };
+                        artists.push(artist);
+                        sqlm::item::ActiveModel {
+                            id: NotSet,
+                            native_id: Set(id.to_string()),
+                            library_id: Set(Some(library_id)),
+                            provider_id: Set(self_id),
+                            r#type: Set(sqlm::type_enum::ItemType::Artist),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
+                            ..Default::default()
+                        }
                     })
                 });
 
-            let conflict = [
-                sqlm::artist::Column::LibraryId,
-                sqlm::artist::Column::NativeId,
-            ];
-            let exclude = [
-                sqlm::artist::Column::Id,
-                sqlm::artist::Column::MusicCount,
-                sqlm::artist::Column::AlbumCount,
-            ];
-
             let txn = ctx.db.begin().await?;
-            DbChunkOper::<50>::insert(&txn, artists, &conflict, &exclude).await?;
+            let ids = qcm_core::db::sync::allocate_items(&txn, items).await?;
+
+            DbChunkOper::<50>::insert(
+                &txn,
+                artists.into_iter().zip(ids.clone()).map(|(mut a, id)| {
+                    a.id = Set(id);
+                    a
+                }),
+                &[sqlm::artist::Column::Id],
+                &[
+                    sqlm::artist::Column::MusicCount,
+                    sqlm::artist::Column::AlbumCount,
+                ],
+            )
+            .await?;
             txn.commit().await?;
         }
 
@@ -361,42 +383,57 @@ impl JellyfinProvider {
 
         if let Some(japis::artists_api::GetArtistsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
-            let artists = result
+            let mut artists = Vec::new();
+            let items = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
-                        id: self_id,
-                        commit: SyncCommit::AddArtist(1),
-                    });
-                    item.id.map(|id| sqlm::artist::ActiveModel {
-                        id: NotSet,
-                        native_id: Set(id.to_string()),
-                        library_id: Set(library_id),
-                        name: Set(item.name.flatten().unwrap_or_default()),
-                        sort_name: Set(item.sort_name.flatten()),
-                        music_count: Set(0),
-                        album_count: Set(0),
-                        description: Set(item.overview.flatten().unwrap_or_default()),
-                        update_at: Set(now.into()),
-                        last_sync_at: Set(now.into()),
-                        ..Default::default()
+                    item.id.map(|id| {
+                        let _ = ctx.ev_sender.try_send(CoreEvent::SyncCommit {
+                            id: self_id,
+                            commit: SyncCommit::AddArtist(1),
+                        });
+                        let artist = sqlm::artist::ActiveModel {
+                            id: NotSet,
+                            name: Set(item.name.flatten().unwrap_or_default()),
+                            sort_name: Set(item.sort_name.flatten()),
+                            music_count: Set(0),
+                            album_count: Set(0),
+                            description: Set(item.overview.flatten().unwrap_or_default()),
+                            ..Default::default()
+                        };
+
+                        artists.push(artist);
+                        sqlm::item::ActiveModel {
+                            id: NotSet,
+                            native_id: Set(id.to_string()),
+                            library_id: Set(Some(library_id)),
+                            provider_id: Set(self_id),
+                            r#type: Set(sqlm::type_enum::ItemType::Artist),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
+                            ..Default::default()
+                        }
                     })
                 });
 
-            let conflict = [
-                sqlm::artist::Column::LibraryId,
-                sqlm::artist::Column::NativeId,
-            ];
-            let exclude = [
-                sqlm::artist::Column::Id,
-                sqlm::artist::Column::MusicCount,
-                sqlm::artist::Column::AlbumCount,
-            ];
-
             let txn = ctx.db.begin().await?;
-            DbChunkOper::<50>::insert(&txn, artists, &conflict, &exclude).await?;
+            let ids = qcm_core::db::sync::allocate_items(&txn, items).await?;
+
+            DbChunkOper::<50>::insert(
+                &txn,
+                artists.into_iter().zip(ids).map(|(mut a, id)| {
+                    a.id = Set(id);
+                    a
+                }),
+                &[sqlm::artist::Column::Id],
+                &[
+                    sqlm::artist::Column::MusicCount,
+                    sqlm::artist::Column::AlbumCount,
+                ],
+            )
+            .await?;
             txn.commit().await?;
         }
 
@@ -434,9 +471,10 @@ impl JellyfinProvider {
             let mut song_album_maps: Vec<(String, String)> = Vec::new();
             let mut song_artist_maps: Vec<(String, String)> = Vec::new();
 
-            let mut item_commons = Vec::new();
+            let mut dynamics = Vec::new();
 
-            let songs = result
+            let mut songs = Vec::new();
+            let items = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
@@ -463,21 +501,14 @@ impl JellyfinProvider {
                             commit: SyncCommit::AddSong(1),
                         });
 
-                        let mut item_common = SyncItemCommon::default();
-                        if let Some(user_data) = item.user_data.flatten() {
-                            item_common.dynamic = Some(userdata_to_dynamic(
-                                library_id,
-                                sqlm::type_enum::ItemType::Song,
-                                &user_data,
-                                now.into(),
-                            ));
-                        }
-                        item_commons.push(item_common);
+                        dynamics.push(
+                            item.user_data
+                                .flatten()
+                                .map(|u| userdata_to_dynamic(&u, now.into())),
+                        );
 
-                        sqlm::song::ActiveModel {
+                        let song = sqlm::song::ActiveModel {
                             id: NotSet,
-                            native_id: Set(id.to_string()),
-                            library_id: Set(library_id),
                             album_id: Set(None),
                             name: Set(item.name.flatten().unwrap_or_default()),
                             sort_name: Set(item.sort_name.flatten()),
@@ -495,39 +526,56 @@ impl JellyfinProvider {
                                 .flatten()
                                 .and_then(|d| d.try_into().ok())),
                             tags: Set(item.tags.flatten().unwrap_or_default().into()),
+                            added_at: NotSet,
+                        };
+
+                        songs.push(song);
+
+                        sqlm::item::ActiveModel {
+                            id: NotSet,
+                            native_id: Set(id.to_string()),
+                            library_id: Set(Some(library_id)),
+                            provider_id: Set(self_id),
+                            r#type: Set(sqlm::type_enum::ItemType::Song),
                             update_at: Set(now.into()),
                             last_sync_at: Set(now.into()),
-                            added_at: NotSet,
-                            create_at: NotSet,
+                            ..Default::default()
                         }
                     })
                 });
 
             let txn = ctx.db.begin().await?;
             {
-                let conflict = [sqlm::song::Column::LibraryId, sqlm::song::Column::NativeId];
-                let exclude = [sqlm::song::Column::Id];
-
-                let ids =
-                    DbChunkOper::<50>::insert_return_key(&txn, songs, &conflict, &exclude).await?;
+                let ids = qcm_core::db::sync::allocate_items(&txn, items).await?;
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    songs.into_iter().zip(ids.clone()).map(|(mut s, id)| {
+                        s.id = Set(id);
+                        s
+                    }),
+                    &[sqlm::song::Column::Id],
+                    &[],
+                )
+                .await?;
 
                 sync_song_album_ids(&txn, library_id, song_album_maps).await?;
 
                 qcm_core::db::sync::sync_song_artist_ids(&txn, library_id, song_artist_maps)
                     .await?;
 
-                for (el, id) in item_commons.iter_mut().zip(ids) {
-                    if let Some(dy) = el.dynamic.as_mut() {
-                        dy.item_id = Set(id);
-                    }
-                }
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    dynamics.into_iter().zip(ids).filter_map(|(a, id)| {
+                        a.map(|mut a| {
+                            a.id = Set(id);
+                            a
+                        })
+                    }),
+                    &[sqlm::dynamic::Column::Id],
+                    &[],
+                )
+                .await?;
             }
-
-            qcm_core::db::sync::sync_dynamic_items(
-                &txn,
-                item_commons.into_iter().filter_map(|el| el.dynamic),
-            )
-            .await?;
 
             txn.commit().await?;
         }
@@ -759,9 +807,9 @@ impl Provider for JellyfinProvider {
                 .await?;
             self.sync_songs(lib.library_id, &lib.native_id, ctx).await?;
         }
-        if let Some(lib) = libraries.iter().next() {
-            self.sync_mixes(lib.provider_id, ctx).await?;
-        }
+        // if let Some(lib) = libraries.iter().next() {
+        //     self.sync_mixes(lib.provider_id, ctx).await?;
+        // }
 
         if let Some(id) = self.id() {
             let txn = ctx.db.begin().await?;
@@ -896,16 +944,11 @@ impl Provider for JellyfinProvider {
 }
 
 fn userdata_to_dynamic(
-    library_id: i64,
-    item_type: sqlm::type_enum::ItemType,
     user_data: &jmodels::UserItemDataDto,
     update_at: Timestamp,
 ) -> sqlm::dynamic::ActiveModel {
     sqlm::dynamic::ActiveModel {
         id: NotSet,
-        library_id: Set(library_id),
-        item_id: NotSet,
-        item_type: Set(item_type),
         favorite_at: Set(user_data.is_favorite.map(|_| Timestamp::new())),
         is_external: NotSet,
         last_position: NotSet,
