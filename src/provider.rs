@@ -879,7 +879,7 @@ impl Provider for JellyfinProvider {
             let req = self
                 .client()
                 .get(format!(
-                    "{0}/Items/{1}/Images/{2}",
+                    "{0}/Items/{1}/Images/{2}?fillHeight=420&fillWidth=400",
                     config.base_path,
                     item_id,
                     image_type.to_string()
@@ -949,7 +949,12 @@ fn userdata_to_dynamic(
 ) -> sqlm::dynamic::ActiveModel {
     sqlm::dynamic::ActiveModel {
         id: NotSet,
-        favorite_at: Set(user_data.is_favorite.map(|_| Timestamp::new())),
+        favorite_at: Set(user_data
+            .is_favorite
+            .and_then(|is_favorite| match is_favorite {
+                true => Some(Timestamp::new()),
+                false => None,
+            })),
         is_external: NotSet,
         last_position: NotSet,
         last_played_at: NotSet,
