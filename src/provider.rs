@@ -818,6 +818,10 @@ impl Provider for JellyfinProvider {
         }
         Ok(())
     }
+
+    async fn sync_item(&self, ctx: &Context, item: sqlm::item::Model) -> Result<(), ProviderError> {
+        Ok(())
+    }
     async fn favorite(
         &self,
         _ctx: &Context,
