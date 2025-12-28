@@ -583,7 +583,7 @@ impl JellyfinProvider {
         Ok(())
     }
 
-    async fn sync_mixes(&self, provider_id: i64, ctx: &Context) -> Result<(), ProviderError> {
+    async fn sync_mixes(&self, ctx: &Context) -> Result<(), ProviderError> {
         let self_id = self.id().unwrap_or(-1);
         let config = self.config().ok_or(ProviderError::NotAuth)?;
 
@@ -596,6 +596,7 @@ impl JellyfinProvider {
                 fields: Some(vec![
                     jmodels::ItemFields::Overview,
                     jmodels::ItemFields::Tags,
+                    jmodels::ItemFields::ChildCount,
                 ]),
                 ..JFDefault::jf_default()
             },
@@ -605,78 +606,84 @@ impl JellyfinProvider {
 
         if let Some(japis::items_api::GetItemsSuccess::Status200(result)) = items.entity {
             let now = chrono::Utc::now();
-            // let mut mix_song_maps: Vec<(String, String)> = Vec::new();
 
-            /*
-            let mixes = result
+            let mut mixes = Vec::new();
+            let items = result
                 .items
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|item| {
-                    // Collect mix-song mapping if item has child items
-                    // if let (Some(id), Some(child_count)) =
-                    //     (item.id.as_ref(), item.child_count.flatten())
-                    // {
-                    //     if child_count > 0 {
-                    //         // if let Ok(child_items) = japis::playlists_api::get_playlist_items(
-                    //         //     &config,
-                    //         //     japis::playlists_api::GetPlaylistItemsParams {
-                    //         //         playlist_id: id.to_string(),
-                    //         //         ..JFDefault::jf_default()
-                    //         //     },
-                    //         // )
-                    //         // .await
-                    //         {
-                    //             if let Some(
-                    //                 japis::playlists_api::GetPlaylistItemsSuccess::Status200(
-                    //                     child_result,
-                    //                 ),
-                    //             ) = child_items.entity
-                    //             {
-                    //                 for child in child_result.items.unwrap_or_default() {
-                    //                     if let Some(child_id) = child.id {
-                    //                         mix_song_maps
-                    //                             .push((id.to_string(), child_id.to_string()));
-                    //                     }
-                    //                 }
-                    //             }
-                    //         }
-                    //     }
-                    // }
+                    item.id.map(|id| {
+                        let mix = sqlm::remote_mix::ActiveModel {
+                            id: NotSet,
+                            name: Set(item.name.flatten().unwrap_or_default()),
+                            track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
+                            description: Set(item.overview.flatten()),
+                            mix_type: Set("user".to_string()),
+                        };
 
-                    // item.id.map(|id| sqlm::mix::ActiveModel {
-                    //     id: NotSet,
-                    //     native_id: Set(id.to_string()),
-                    //     provider_id: Set(provider_id),
-                    //     name: Set(item.name.flatten().unwrap_or_default()),
-                    //     sort_name: Set(item.sort_name.flatten()),
-                    //     track_count: Set(item.child_count.flatten().unwrap_or_default() as i32),
-                    //     special_type: Set(0),
-                    //     description: Set(item.overview.flatten().unwrap_or_default()),
-                    //     tags: Set(item.tags.flatten().unwrap_or_default().into()),
-                    //     create_time: Set(item
-                    //         .date_created
-                    //         .flatten()
-                    //         .and_then(|d| d.parse().ok())
-                    //         .unwrap_or(now)),
-                    //     update_time: Set(item
-                    //         .date_last_media_added
-                    //         .flatten()
-                    //         .and_then(|d| d.parse().ok())
-                    //         .unwrap_or(now)),
-                    //     edit_time: Set(now),
-                    // })
-                    None
+                        mixes.push(mix);
+                        sqlm::item::ActiveModel {
+                            id: NotSet,
+                            native_id: Set(id.to_string()),
+                            library_id: Set(None),
+                            provider_id: Set(self_id),
+                            r#type: Set(sqlm::type_enum::ItemType::Mix),
+                            update_at: Set(now.into()),
+                            last_sync_at: Set(now.into()),
+                            ..Default::default()
+                        }
+                    })
                 });
-            */
 
-            // let conflict = [sqlm::mix::Column::ProviderId, sqlm::mix::Column::NativeId];
-            // let exclude = [sqlm::mix::Column::Id];
+            let txn = ctx.db.begin().await?;
+            {
+                let ids = qcm_core::db::sync::allocate_items(&txn, items).await?;
 
-            // let txn = ctx.db.begin().await?;
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    mixes
+                        .clone()
+                        .into_iter()
+                        .zip(ids.clone())
+                        .map(|(mut s, id)| {
+                            s.id = Set(id);
+                            s
+                        }),
+                    &[sqlm::remote_mix::Column::Id],
+                    &[],
+                )
+                .await?;
 
-            // DbChunkOper::<50>::insert(&txn, mixes, &conflict, &exclude).await?;
-            // txn.commit().await?;
+                DbChunkOper::<50>::insert(
+                    &txn,
+                    mixes
+                        .into_iter()
+                        .zip(ids.clone())
+                        .map(|(mut s, id)| sqlm::mix::ActiveModel {
+                            id: NotSet,
+                            name: s.name,
+                            track_count: s.track_count,
+                            sort_name: NotSet,
+                            mix_type: Set(sqlm::type_enum::MixType::Cache),
+                            remote_id: Set(Some(id)),
+                            description: Set(s.description.take().flatten().unwrap_or_default()),
+                            create_at: Set(now.into()),
+                            update_at: Set(now.into()),
+                            content_update_at: NotSet,
+                        }),
+                    &[sqlm::mix::Column::RemoteId],
+                    &[
+                        sqlm::mix::Column::Id,
+                        sqlm::mix::Column::SortName,
+                        sqlm::mix::Column::MixType,
+                        sqlm::mix::Column::CreateAt,
+                        sqlm::mix::Column::ContentUpdateAt,
+                    ],
+                )
+                .await?;
+            }
+            txn.commit().await?;
         }
 
         Ok(())
@@ -807,9 +814,9 @@ impl Provider for JellyfinProvider {
                 .await?;
             self.sync_songs(lib.library_id, &lib.native_id, ctx).await?;
         }
-        // if let Some(lib) = libraries.iter().next() {
-        //     self.sync_mixes(lib.provider_id, ctx).await?;
-        // }
+        if let Some(_) = libraries.iter().next() {
+            self.sync_mixes(ctx).await?;
+        }
 
         if let Some(id) = self.id() {
             let txn = ctx.db.begin().await?;
@@ -820,8 +827,154 @@ impl Provider for JellyfinProvider {
     }
 
     async fn sync_item(&self, ctx: &Context, item: sqlm::item::Model) -> Result<(), ProviderError> {
-        Ok(())
+        let self_id = self.id().unwrap_or(-1);
+        let config = self.config().ok_or(ProviderError::NotAuth)?;
+        let now = chrono::Utc::now();
+
+        match item.r#type {
+            sqlm::type_enum::ItemType::Mix => {
+                let items = japis::user_library_api::get_item(
+                    &config,
+                    japis::user_library_api::GetItemParams {
+                        item_id: item.native_id.clone(),
+                        user_id: None,
+                    },
+                )
+                .await
+                .map_err(AnyError::from)?;
+
+                let mut local_mix_id = 0;
+
+                if let Some(japis::user_library_api::GetItemSuccess::Status200(result)) =
+                    items.entity
+                {
+                    let txn = ctx.db.begin().await?;
+                    {
+                        let mut item = sqlm::item::Entity::find()
+                            .filter(sqlm::item::Column::Id.eq(item.id))
+                            .one(&txn)
+                            .await?
+                            .ok_or(ProviderError::NotFound)?;
+
+                        let item_id = item.id;
+
+                        let remote_mix = sqlm::remote_mix::ActiveModel {
+                            id: Set(item.id),
+                            mix_type: Set("user".to_string()),
+                            name: Set(result.name.clone().flatten().unwrap_or_default()),
+                            track_count: Set(
+                                result.child_count.flatten().unwrap_or_default() as i32
+                            ),
+                            description: Set(result.overview.clone().flatten()),
+                        };
+
+                        item.last_sync_at = now.into();
+
+                        sqlm::item::Entity::update(item.into_active_model())
+                            .exec(&txn)
+                            .await?;
+
+                        sqlm::remote_mix::Entity::update(remote_mix)
+                            .exec(&txn)
+                            .await?;
+
+                        let mix = sqlm::mix::ActiveModel {
+                            name: Set(result.name.flatten().unwrap_or_default()),
+                            track_count: Set(
+                                result.child_count.flatten().unwrap_or_default() as i32
+                            ),
+                            sort_name: NotSet,
+                            mix_type: Set(sqlm::type_enum::MixType::Cache),
+                            remote_id: Set(Some(item_id)),
+                            description: Set(result.overview.flatten().unwrap_or_default()),
+                            create_at: NotSet,
+                            update_at: Set(now.into()),
+                            content_update_at: Set(now.into()),
+                            id: NotSet,
+                        };
+
+                        let local_mix = sqlm::mix::Entity::insert(mix)
+                            .on_conflict(
+                                sea_query::OnConflict::columns([sqlm::mix::Column::RemoteId])
+                                    .update_columns([
+                                        sqlm::mix::Column::Name,
+                                        sqlm::mix::Column::TrackCount,
+                                        sqlm::mix::Column::Description,
+                                        sqlm::mix::Column::UpdateAt,
+                                        sqlm::mix::Column::ContentUpdateAt,
+                                    ])
+                                    .to_owned(),
+                            )
+                            .exec_with_returning(&txn)
+                            .await?;
+
+                        local_mix_id = local_mix.id;
+                    }
+                    txn.commit().await?;
+                }
+
+                let songs = japis::playlists_api::get_playlist_items(
+                    &config,
+                    japis::playlists_api::GetPlaylistItemsParams {
+                        playlist_id: item.native_id.clone(),
+                        ..JFDefault::jf_default()
+                    },
+                )
+                .await
+                .map_err(AnyError::from)?;
+
+                if let Some(japis::playlists_api::GetPlaylistItemsSuccess::Status200(result)) =
+                    songs.entity
+                {
+                    let mut song_ids: Vec<i64> = Vec::new();
+                    for song in result.items.unwrap_or_default() {
+                        if let Some(song_id) = song.id {
+                            if let Some(sql_item) = sqlm::item::Entity::find()
+                                .filter(sqlm::item::Column::NativeId.eq(song_id.to_string()))
+                                .filter(sqlm::item::Column::ProviderId.eq(self_id))
+                                .one(&ctx.db)
+                                .await?
+                            {
+                                song_ids.push(sql_item.id);
+                            }
+                        }
+                    }
+
+                    let txn = ctx.db.begin().await?;
+                    {
+                        sqlm::rel_mix_song::Entity::delete_many()
+                            .filter(sqlm::rel_mix_song::Column::MixId.eq(local_mix_id))
+                            .exec(&txn)
+                            .await?;
+
+                        DbChunkOper::<50>::insert(
+                            &txn,
+                            song_ids.into_iter().enumerate().map(|(idx, song_id)| {
+                                sqlm::rel_mix_song::ActiveModel {
+                                    id: NotSet,
+                                    mix_id: Set(local_mix_id),
+                                    song_id: Set(song_id),
+                                    order_idx: Set(idx as i64),
+                                    update_at: Set(now.into()),
+                                }
+                            }),
+                            &[
+                                sqlm::rel_mix_song::Column::MixId,
+                                sqlm::rel_mix_song::Column::SongId,
+                            ],
+                            &[],
+                        )
+                        .await?;
+                    }
+                    txn.commit().await?;
+                }
+
+                Ok(())
+            }
+            _ => Err(ProviderError::NotImplemented),
+        }
     }
+
     async fn favorite(
         &self,
         _ctx: &Context,
