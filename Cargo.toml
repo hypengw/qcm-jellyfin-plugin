@@ -5,7 +5,7 @@ authors = ["hypengw <hypengwip@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-qcm-core = { git = "https://github.com/hypengw/QcmBackend.git" }
+qcm-core = { git = "https://github.com/hypengw/Qcm.git" }
 log = "0.4"
 sea-orm = { version = "1" }
 serde_json = { version = "1.0" }
